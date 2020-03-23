@@ -47,7 +47,7 @@ std::string encode(const char* input, bool delimited = true)
 {
   const std::string tmp(input);
   
-	return encode(tmp, delimited);
+  return encode(tmp, delimited);
 }
 
 ////////////////////////////////////////////////////////////
@@ -115,7 +115,7 @@ std::string encode(T input, bool delimited = true)
       output.push_back(hex_alphabet[(input & 0x00000000000000F0) >> 4]);
       output.push_back(hex_alphabet[(input & 0x000000000000000F)]);
       break;
-      
+
     default:
       return std::string{};
   }
@@ -126,9 +126,9 @@ std::string encode(T input, bool delimited = true)
 
 ////////////////////////////////////////////////////////////
 std::string decode(const std::string &input)
-{	
+{  
   // Normalize the string by converting to uppercase
-	std::string tmp = format::to_upper(input);
+  std::string tmp = format::to_upper(input);
 
   // Strip any spaces
   tmp.erase(std::remove(std::begin(tmp), std::end(tmp), ' '), std::end(tmp));
@@ -150,12 +150,12 @@ std::string decode(const std::string &input)
     return std::string();
   }
 
-	std::string output;
-	output.reserve(len / 2);
+  std::string output;
+  output.reserve(len / 2);
 
   // Step through the input two chars at a time
-	for (std::size_t i = 0; i < len; i += 2)
-	{
+  for (std::size_t i = 0; i < len; i += 2)
+  {
     auto a = hex_alphabet.find(tmp[i]);
     auto b = hex_alphabet.find(tmp[i + 1]);
 
@@ -165,9 +165,9 @@ std::string decode(const std::string &input)
     auto c = (a << 4) | b;
 
     output.push_back(static_cast<char>(c));
-	}
+  }
 
-	return output;
+  return output;
 }
 
 } // namespace hex
