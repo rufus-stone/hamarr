@@ -102,7 +102,7 @@ auto decoded_3 = binary::decode<int16_t>("11111111 00000000"); // decoded is a i
 
 If the input to `binary::decode()` contains anything other than 1s and 0s (and whitespace), or its length is not divisible by 8 (not counting any whitespace), an empty string is returned.
 
-- Todo: Allow the templated variant to work even if the input does not exactly match the size of the return type, e.g. allow an input of "11111111" to produce a uint16_t with the value 255 (0x00FF)
+- Todo: Allow the templated variant to work even if the input does not exactly match the size of the return type, e.g. allow an input of "11111111" to produce a `uint16_t` with the value 255 (0x00FF)
 
 
 ### Base64
@@ -222,7 +222,7 @@ xord = bitwise::xor_counter("Hello, World!", '\xEF', 6); // Initial key value \x
 xord = bitwise::xor_counter("Hello, World!", '\x04', -2); // Initial key value \x04 and incremention value -2, resulting in key stream: 04 02 00 FE FC FA...etc., meaning xord contains the hex value: 4C 67 6C 92 93 D6 D8 A1 9B 80 9C 8A CD
 ```
 
-- Todo: Allow bitewise::xor_counter() to take a std::string for the initial key value
+- Todo: Allow `bitwise::xor_counter()` to take a `std::string` for the initial key value
 - Todo: Add left/right bit shift and bit rotation functions for convenience
 
 
