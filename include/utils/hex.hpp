@@ -139,7 +139,7 @@ std::string decode(const std::string &input)
   if (len & 1)
   {
     LOG_ERROR("Hex strings must be even in length!");
-    return std::string();
+    return std::string{};
   }
   
   // Fail point - must contain valid hex chars
@@ -147,7 +147,7 @@ std::string decode(const std::string &input)
   if (e != std::string::npos)
   {
     LOG_ERROR("Invalid hex char " << tmp[e] << " at index " << e << "!");
-    return std::string();
+    return std::string{};
   }
 
   std::string output;
@@ -167,6 +167,61 @@ std::string decode(const std::string &input)
     output.push_back(static_cast<char>(c));
   }
 
+  return output;
+}
+
+
+////////////////////////////////////////////////////////////
+template <typename T, typename = std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>>>
+T decode(const std::string &input)
+{  
+  // Normalize the string by converting to uppercase
+  std::string tmp = format::to_upper(input);
+
+  // Strip any spaces
+  tmp.erase(std::remove(std::begin(tmp), std::end(tmp), ' '), std::end(tmp));
+
+  const std::size_t len = tmp.size();
+
+  // Fail point - must be even length
+  if (len & 1)
+  {
+    LOG_ERROR("Hex strings must be even in length!");
+    return T{};
+  }
+  
+  // Fail point - must contain valid hex chars
+  auto e = tmp.find_first_not_of(hex_alphabet);
+  if (e != std::string::npos)
+  {
+    LOG_ERROR("Invalid hex char " << tmp[e] << " at index " << e << "!");
+    return T{};
+  }
+
+  T output = 0;
+
+  // Fail point - the input can be shorter than the number of bytes taken up by the output, but it cannot be longer
+  if (tmp.size() / 2 > sizeof(T))
+  {
+    LOG_ERROR("Input hex string contains too much data to fit into a " << sizeof(T) << " byte type!");
+    return T{};
+  }
+
+  // Step through the input two chars at a time
+  for (std::size_t i = 0; i < len; i += 2)
+  {
+    auto a = hex_alphabet.find(tmp[i]);
+    auto b = hex_alphabet.find(tmp[i + 1]);
+
+    // Because the hex alphabet string is in order, for any given hex char the result of hex_alphabet.find() will be its numerical equivalent taken from the index into the alphabet string where the char is found
+    // E.g. char '0' is at index 0 in the alphabet string, char 'F' is at index 15 (i.e. the decimal value of hex F), etc.
+    // Bit shift the first index number by 4, and OR against the second index number to build a new value from variables a and b
+    auto c = (a << 4) | b;
+
+    // Shift the output one byte to the left and tack on the next byte - this will keep adding bytes to the output until we exhaust the input
+    output = (output << 8) | static_cast<T>(c);
+  }
+    
   return output;
 }
 

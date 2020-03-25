@@ -24,27 +24,49 @@ int main()
 
 
     LOG_INFO("\n\n---[ Hex Numbers ]---\n");
-    LOG_INFO(hex::encode(uint8_t(18)));
-    assert(hex::encode(uint8_t(18)) == "12");
+    LOG_INFO(hex::encode(uint8_t{18}));
+    assert(hex::encode(uint8_t{18}) == "12");
+    assert(hex::decode<uint8_t>("12") == uint8_t{18});
 
-    LOG_INFO(hex::encode(uint16_t(4660)));
-    assert(hex::encode(uint16_t(4660)) == "12 34");
+    LOG_INFO(hex::encode(uint16_t{4660}));
+    assert(hex::encode(uint16_t{4660}) == "12 34");
+    assert(hex::decode<uint16_t>("12 34") == uint16_t{4660});
 
-    LOG_INFO(hex::encode(uint32_t(305419896)));
-    assert(hex::encode(uint32_t(305419896)) == "12 34 56 78");
+    LOG_INFO(hex::encode(uint32_t{305419896}));
+    assert(hex::encode(uint32_t{305419896}) == "12 34 56 78");
+    assert(hex::decode<uint32_t>("12 34 56 78") == uint32_t{305419896});
 
-    LOG_INFO(hex::encode(uint64_t(1311768467463790320)));
-    assert(hex::encode(uint64_t(1311768467463790320)) == "12 34 56 78 9A BC DE F0");
+    LOG_INFO(hex::encode(uint64_t{1311768467463790320}));
+    assert(hex::encode(uint64_t{1311768467463790320}) == "12 34 56 78 9A BC DE F0");
+    assert(hex::decode<uint64_t>("12 34 56 78 9A BC DE F0") == uint64_t{1311768467463790320});
+
+    LOG_INFO(hex::decode<uint16_t>("FF"));
+    assert(hex::decode<uint16_t>("FF") == uint16_t{255});
+
+    LOG_INFO(hex::decode<uint32_t>("FF FF"));
+    assert(hex::decode<uint32_t>("FF FF") == uint32_t{65535});
+
+    LOG_INFO(hex::decode<uint64_t>("0F"));
+    assert(hex::decode<uint64_t>("0F") == uint64_t{15});
+
+    assert(hex::decode<uint8_t>("FF FF") == uint8_t{});
+    assert(hex::decode<uint16_t>("FF FF FF") == uint16_t{});
+    assert(hex::decode<uint32_t>("FF FF FF FF FF FF") == uint32_t{});
+    assert(hex::decode<uint64_t>("AA BB CC DD EE FF 00 11 22 33 44 55 66 77 88 99") == uint64_t{});
 
     LOG_INFO("\n\n---[ Hex Numbers (Non-Padded) ]---\n");
-    LOG_INFO(hex::encode(uint16_t(4660), false));
-    assert(hex::encode(uint16_t(4660), false) == "1234");
+    LOG_INFO(hex::encode(uint16_t{4660}, false));
+    assert(hex::encode(uint16_t{4660}, false) == "1234");
+    assert(hex::decode<uint16_t>("1234") == uint16_t{4660});
 
-    LOG_INFO(hex::encode(uint32_t(305419896), false));
-    assert(hex::encode(uint32_t(305419896), false) == "12345678");
+    LOG_INFO(hex::encode(uint32_t{305419896}, false));
+    assert(hex::encode(uint32_t{305419896}, false) == "12345678");
+    assert(hex::decode<uint32_t>("12345678") == uint32_t{305419896});
 
-    LOG_INFO(hex::encode(uint64_t(1311768467463790320), false));
-    assert(hex::encode(uint64_t(1311768467463790320), false) == "123456789ABCDEF0");
+    LOG_INFO(hex::encode(uint64_t{1311768467463790320}, false));
+    assert(hex::encode(uint64_t{1311768467463790320}, false) == "123456789ABCDEF0");
+    assert(hex::decode<uint64_t>("123456789ABCDEF0") == uint64_t{1311768467463790320});
+
 
 
     LOG_INFO("\n\n---[ Binary Strings ]---\n");
@@ -59,45 +81,45 @@ int main()
 
 
     LOG_INFO("\n\n---[ Binary Numbers ]---\n");
-    LOG_INFO(binary::encode(uint8_t(18)));
-    assert(binary::encode(uint8_t(18)) == "00010010");
+    LOG_INFO(binary::encode(uint8_t{18}));
+    assert(binary::encode(uint8_t{18}) == "00010010");
 
-    LOG_INFO(binary::encode(uint16_t(4660)));
-    assert(binary::encode(uint16_t(4660)) == "00010010 00110100");
+    LOG_INFO(binary::encode(uint16_t{4660}));
+    assert(binary::encode(uint16_t{4660}) == "00010010 00110100");
 
-    LOG_INFO(binary::encode(uint32_t(305419896)));
-    assert(binary::encode(uint32_t(305419896)) == "00010010 00110100 01010110 01111000");
+    LOG_INFO(binary::encode(uint32_t{305419896}));
+    assert(binary::encode(uint32_t{305419896}) == "00010010 00110100 01010110 01111000");
 
-    LOG_INFO(binary::encode(uint64_t(1311768467463790320)));
-    assert(binary::encode(uint64_t(1311768467463790320)) == "00010010 00110100 01010110 01111000 10011010 10111100 11011110 11110000");
+    LOG_INFO(binary::encode(uint64_t{1311768467463790320}));
+    assert(binary::encode(uint64_t{1311768467463790320}) == "00010010 00110100 01010110 01111000 10011010 10111100 11011110 11110000");
 
     LOG_INFO(int(binary::decode<uint8_t>("11110000")));
-    assert(binary::decode<uint8_t>("11110000") == 240);
+    assert(binary::decode<uint8_t>("11110000") == uint8_t{240});
 
     LOG_INFO(binary::decode<uint16_t>("00001111 11110000"));
-    assert(binary::decode<uint16_t>("00001111 11110000") == 4080);
+    assert(binary::decode<uint16_t>("00001111 11110000") == uint16_t{4080});
 
     LOG_INFO(binary::decode<uint32_t>("11110000 00001111 11110000 00001111"));
-    assert(binary::decode<uint32_t>("11110000 00001111 11110000 00001111") == 4027576335);
+    assert(binary::decode<uint32_t>("11110000 00001111 11110000 00001111") == uint32_t{4027576335});
 
     LOG_INFO(binary::decode<uint64_t>("00001111 11110000 00001111 11110000 00001111 11110000 00001111 11110000"));
-    assert(binary::decode<uint64_t>("00001111 11110000 00001111 11110000 00001111 11110000 00001111 11110000") == 1148435428713435120);
+    assert(binary::decode<uint64_t>("00001111 11110000 00001111 11110000 00001111 11110000 00001111 11110000") == uint64_t{1148435428713435120});
 
     LOG_INFO(binary::decode<int>("11111111 11111111 00000000 00000000"));
     assert(binary::decode<int>("11111111 11111111 00000000 00000000") == -65536);
 
     LOG_INFO(binary::decode<int16_t>("11111111 00000000"));
-    assert(binary::decode<int16_t>("11111111 00000000") == -256);
+    assert(binary::decode<int16_t>("11111111 00000000") == int16_t{-256});
 
     LOG_INFO("\n\n---[ Binary Numbers (Non-Padded) ]---\n");
-    LOG_INFO(binary::encode(uint16_t(4660), false));
-    assert(binary::encode(uint16_t(4660), false) == "0001001000110100");
+    LOG_INFO(binary::encode(uint16_t{4660}, false));
+    assert(binary::encode(uint16_t{4660}, false) == "0001001000110100");
 
-    LOG_INFO(binary::encode(uint32_t(305419896), false));
-    assert(binary::encode(uint32_t(305419896), false) == "00010010001101000101011001111000");
+    LOG_INFO(binary::encode(uint32_t{305419896}, false));
+    assert(binary::encode(uint32_t{305419896}, false) == "00010010001101000101011001111000");
 
-    LOG_INFO(binary::encode(uint64_t(1311768467463790320), false));
-    assert(binary::encode(uint64_t(1311768467463790320), false) == "0001001000110100010101100111100010011010101111001101111011110000");
+    LOG_INFO(binary::encode(uint64_t{1311768467463790320}, false));
+    assert(binary::encode(uint64_t{1311768467463790320}, false) == "0001001000110100010101100111100010011010101111001101111011110000");
 
     LOG_INFO(binary::encode(-12345, false));
     assert(binary::encode(-12345, false) == "11111111111111111100111111000111");
