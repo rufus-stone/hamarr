@@ -51,7 +51,7 @@ auto encoded = hex::encode("Hello, World!", false); // encoded contains the stri
 encoded = hex::encode(uint16_t(4660), false); // encoded contains the string "1234"
 ```
 
-The `hex::decode()` function takes a `std::string` and returns a `std::string` containing the decoded bytes. It ignores any whitespace, so it doesn't matter if you feed it a hex string with spaces between the hex pairs or not, and is case insensitive. For example:
+The `hex::decode()` function has two variants. The un-templated variant takes a `std::string` as its input and returns a `std::string` containing the decoded bytes. It ignores any whitespace, so it doesn't matter if you feed it a hex string with spaces between the hex pairs or not, and is case insensitive. For example:
 
 ```cpp
 auto decoded = hex::decode("48 65 6C 6C 6F 2C 20 57 6F 72 6C 64 21"); // decoded contains the string "Hello, World!"
@@ -61,9 +61,25 @@ decoded = hex::decode("48656C6C6F2C20576F726C6421"); // decoded still contains t
 decoded = hex::decode("48 65 6c 6C 6f 2C 20 57 6f 72 6C 64 21"); // hex::decode() internally normalises to all uppercase before decoding, so inputs are case insensitive
 ```
 
-If the input to `hex::decode()` contains invalid hex characters, or is uneven in length (not counting any whitespace), an empty string is returned.
+The templated variant takes a `std::string` as its input but returns an integral value of the type specified. The number of bytes worth of hex chars in the input must be equal to or less than the size of the return type. For example:
 
-- Todo: Use templates to allow you to specify the type of data you want `hex::decode()` to return, e.g. an integral value of some kind, instead of always returning a `std::string`
+```cpp
+auto decoded_1 = hex::decode<uint8_t>("FF"); // decoded is a uint8_t with the value 255 (0xFF)
+
+auto decoded_2 = hex::decode<uint16_t>("00 10"); // decoded is a uint16_t with the value 16 (0x0010)
+
+auto decoded_3 = hex::decode<uint32_t>("FF 00 FF 00"); // decoded is a uint32_t with the value 4278255360 (0xFF00FF00)
+
+auto decoded_4 = hex::decode<int16_t>("FF 00"); // decoded_4 is a int16_t with the value -256 (0xFF00)
+
+auto decoded_5 = hex::decode<uint16_t>("FF"); // decoded_5 is a uint16_t with the value 255 (0x00FF) - although the input contained only a single byte worth of hex chars, a valid uint16_t can be built
+
+auto decoded_6 = hex::decode<uint8_t>("FF FF FF FF"); // The input contains more bytes worth of hex chars than can fit in a uint8_t, so a default/uninitialized uint8_t is returned - Todo: would a std::optional be better??
+```
+
+If the input to `hex::decode()` contains invalid hex characters, or is uneven in length (not counting any whitespace), an empty string is returned (or in the case of the templated variant, a default value is returned).
+
+- Todo: Should the return type of the templated variant (or indeed, of all these functions?) be a `std::optional`? Would that make handling incorrect inputs easier?
 
 
 ### Binary
@@ -90,19 +106,20 @@ Decoding from binary is similarly straightforward (it also ignores any whitespac
 auto decoded = binary::decode("01001000 01100101 01101100 01101100 01101111 00101100 00100000 01010111 01101111 01110010 01101100 01100100 00100001"); // decoded contains the string "Hello, World!"
 ```
 
-The templated variant takes a `std::string` as its input but returns an integral value of the type specified. The number of bytes-worth of bits in the input must exactly match the size of the return type. For example:
+The templated variant takes a `std::string` as its input but returns an integral value of the type specified. The number of bytes worth of bits in the input must exactly match the size of the return type. For example:
 
 ```cpp
-auto decoded_1 = binary::decode<uint8_t>("11111111"); // decoded is a uint8_t with the value 255 (0xFF)
+auto decoded_1 = binary::decode<uint8_t>("11111111"); // decoded_1 is a uint8_t with the value 255 (0xFF)
 
-auto decoded_2 = binary::decode<uint32_t>("11111111 00000000 11111111 00000000"); // decoded is a uint32_t with the value 4278255360 (0xFF00FF00)
+auto decoded_2 = binary::decode<uint32_t>("11111111 00000000 11111111 00000000"); // decoded_2 is a uint32_t with the value 4278255360 (0xFF00FF00)
 
-auto decoded_3 = binary::decode<int16_t>("11111111 00000000"); // decoded is a int16_t with the value -256 (0xFF00)
+auto decoded_3 = binary::decode<int16_t>("11111111 00000000"); // decoded_3 is a int16_t with the value -256 (0xFF00)
 ```
 
-If the input to `binary::decode()` contains anything other than 1s and 0s (and whitespace), or its length is not divisible by 8 (not counting any whitespace), an empty string is returned.
+If the input to `binary::decode()` contains anything other than 1s and 0s (and whitespace), or its length is not divisible by 8 (not counting any whitespace), an empty string is returned (or in the case of the templated variant, a default value is returned).
 
 - Todo: Allow the templated variant to work even if the input does not exactly match the size of the return type, e.g. allow an input of "11111111" to produce a `uint16_t` with the value 255 (0x00FF)
+- Todo: Should the return type of the templated variant (or indeed, of all these functions?) be a `std::optional`? Would that make handling incorrect inputs easier?
 
 
 ### Base64
