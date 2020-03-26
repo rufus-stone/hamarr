@@ -3,9 +3,6 @@
 #include <string>
 #include <algorithm>
 
-#include "hex.hpp"
-#include "binary.hpp"
-
 namespace base64
 {
 
@@ -14,7 +11,7 @@ static const auto base64_alphabet = std::string("ABCDEFGHIJKLMNOPQRSTUVWXYZabcde
 ////////////////////////////////////////////////////////////
 std::string encode(const std::string &input, const std::string &alphabet = base64_alphabet)
 {
-  // Fail point - is the alphabet exactly 64 chars?
+  // Fail point - is the alphabet exactly 65 chars (64 alphabet chars + 1 padding char)?
   if (alphabet.size() != 65)
   {
     LOG_ERROR("Base64 alphabet is only " << alphabet.size() << " characters long! Must be exactly 65 (64 alphabet chars + 1 padding char)!");
@@ -88,7 +85,7 @@ std::string encode(const std::string &input, const std::string &alphabet = base6
 ////////////////////////////////////////////////////////////
 std::string decode(const std::string& input, const std::string &alphabet = base64_alphabet)
 {
-  // Fail point - is the alphabet exactly 64 chars?
+  // Fail point - is the alphabet exactly 65 chars (64 alphabet chars + 1 padding char)?
   if (alphabet.size() != 65)
   {
     LOG_ERROR("Base64 alphabet is only " << alphabet.size() << " characters long! Must be exactly 65 (64 alphabet chars + 1 padding char)!");
