@@ -150,6 +150,15 @@ int main()
     LOG_INFO(hex::encode(base64::decode("MDEyMzQ1Njc4OTo7PD0+P/Dx8vP09fb3+Pn6+/z9/v8="), true));
     assert(base64::decode("MDEyMzQ1Njc4OTo7PD0+P/Dx8vP09fb3+Pn6+/z9/v8=") == hex::decode("30 31 32 33 34 35 36 37 38 39 3a 3b 3c 3d 3e 3f f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff"));
 
+    LOG_INFO("\n\n---[ Custom Base64 ]---\n");
+    LOG_INFO(base64::encode(test, "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+"));
+    assert(base64::encode(test, "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+") == "iglGrgWG0ftJsAL=08++");
+    LOG_INFO(base64::decode("iglGrgWG0ftJsAL=08++", "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+"));
+    assert(base64::decode("iglGrgWG0ftJsAL=08++", "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+") == test);
+
+    assert(base64::encode("This won't work", "Thisalphabetistoosmall") == std::string{});
+    assert(base64::decode("This won't work", "Thisalphabetistoosmall") == std::string{});
+
 
     LOG_INFO("\n\n---[ URL encoding ]---\n");
     LOG_INFO(url::encode(test));
