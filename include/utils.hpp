@@ -8,4 +8,5 @@
 #include "utils/hex.hpp"
 #include "utils/logger.hpp"
 #include "utils/prng.hpp"
+#include "utils/profiling.hpp"
 #include "utils/url.hpp"

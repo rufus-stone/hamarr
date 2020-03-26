@@ -282,3 +282,38 @@ The function `analysis::character_frequency()` can be used to count the number o
 auto freqs = analysis::character_frequency("Hello, World!"); // freqs['H'] == 1, freqs['o'] == 2, freqs['l'] == 3
 ```
 
+### Code profiling
+
+To measure the execution time for a given bit of code, there is the following function:
+
+`profile::benchmark()`
+
+This function takes any invocable as its input, and returns a `std::size_t` populated with the number of nanoseconds that the invocable took to run. For example:
+
+```cpp
+void do_stuff()
+{
+  // Do some stuff
+}
+
+// Measure how many nanoseconds it takes to execute do_stuff()
+auto nanoseconds_taken = profile::benchmark(do_stuff);
+```
+
+Using a lambda is a convenient way to benchmark more complex behaviour. For example:
+
+```cpp
+// Measure how many nanoseconds it takes to execute a series of steps 100,000 times
+auto nanoseconds_taken = profile::benchmark([]()
+{
+  for (int i = 0; i < 100000; ++i)
+  {
+    auto result = some_very_complicated_function();
+    do_even_more_stuff(result);
+    do_different_stuff(result);
+  }
+});
+```
+
+- Todo: Allow the user to give names to benchmark tests?
+
