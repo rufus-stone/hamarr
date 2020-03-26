@@ -9,11 +9,18 @@
 namespace base64
 {
 
-static const auto base64_alphabet = std::string("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/");
+static const auto base64_alphabet = std::string("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=");
 
 ////////////////////////////////////////////////////////////
-std::string encode(const std::string &input)
+std::string encode(const std::string &input, const std::string &alphabet = base64_alphabet)
 {
+  // Fail point - is the alphabet exactly 64 chars?
+  if (alphabet.size() != 65)
+  {
+    LOG_ERROR("Base64 alphabet is only " << alphabet.size() << " characters long! Must be exactly 65 (64 alphabet chars + 1 padding char)!");
+    return std::string{};
+  }
+
   std::size_t len = input.size();
 
   std::string output;
@@ -48,29 +55,29 @@ std::string encode(const std::string &input)
     uint8_t d = static_cast<uint8_t>(n & 63);    
 
     // Finally, use these 4 numbers to look up the corresponding base64 character
-    output.push_back(base64_alphabet[a]);
-    output.push_back(base64_alphabet[b]);
+    output.push_back(alphabet[a]);
+    output.push_back(alphabet[b]);
 
     if (i + 1 < len)
     {
-      output.push_back(base64_alphabet[c]);
+      output.push_back(alphabet[c]);
     }
 
     if (i + 2 < len)
     {
-      output.push_back(base64_alphabet[d]);
+      output.push_back(alphabet[d]);
     }
   }
 
-  // Input length should be a multiple of 3 - if not, pad with 1 or 2 '=' chars
+  // Input length should be a multiple of 3 - if not, pad with 1 or 2 padding chars
   int pad = len % 3;
   switch (pad)
   {
     case 1:
-      output += std::string(2, '=');
+      output += std::string(2, alphabet[alphabet.size() - 1]);
       break;
     case 2:
-      output += std::string(1, '=');
+      output += std::string(1, alphabet[alphabet.size() - 1]);
       break;
   }
 
@@ -79,8 +86,15 @@ std::string encode(const std::string &input)
 
 
 ////////////////////////////////////////////////////////////
-std::string decode(const std::string& input)
+std::string decode(const std::string& input, const std::string &alphabet = base64_alphabet)
 {
+  // Fail point - is the alphabet exactly 64 chars?
+  if (alphabet.size() != 65)
+  {
+    LOG_ERROR("Base64 alphabet is only " << alphabet.size() << " characters long! Must be exactly 65 (64 alphabet chars + 1 padding char)!");
+    return std::string{};
+  }
+
   std::size_t len = input.size();
 
   // Fail point - must contain at least two chars, as valid base64 encoding always results in at least two chars
@@ -91,7 +105,7 @@ std::string decode(const std::string& input)
   }
 
   // Fail point - must contain valid base64 chars
-  auto e = input.find_first_not_of(base64_alphabet + "=");
+  auto e = input.find_first_not_of(alphabet);
   if (e != std::string::npos)
   {
     LOG_ERROR("Invalid base64 char '" << input[e] << "' at index " << e << "!");
@@ -99,46 +113,25 @@ std::string decode(const std::string& input)
   }
 
   // We want to ignore any padding, so check if it's present. If it is, we'll stop our base64 decoding loop at that point, otherwise we'll go until the end
-  auto end = std::find(std::begin(input), std::end(input), '=');
+  auto end = std::find(std::begin(input), std::end(input), alphabet[alphabet.size() - 1]);
   
   std::string output;
   output.reserve(len * (3/4)); // Base64 decoding turns 4 bytes into 3, so the resulting data is 3/4 times the size of the input
 
-  // Lambda to perform conversion from a given base64 character to the index within the base64 alphabet for that character
-  // TODO: This approach will need changing if custom base64 alphabets are to be supported
-  auto b64_to_uint8_t = [](const uint8_t n) -> uint8_t
+  // Lambda to perform conversion from a given base64 character to the index within the chosen base64 alphabet for that character
+  auto b64_to_uint8_t = [&alphabet](const uint8_t n) -> uint8_t
   {
-    // Is it an uppercase char?
-    if (n >= 0x41 && n <= 0x5a)
+    auto p = alphabet.find(n); // Todo: I bet there's a more efficient way of doing this...
+
+    // Is the char in the base64 alphabet (previous checks mean it always should be!)
+    if (p != std::string::npos)
     {
-      return n - 0x41;
-    }
-    // ...or is it a lowercase char?
-    else if (n >= 0x61 && n <= 0x7a)
+      return p;
+    } else
     {
-      return n - 0x61 + 26;
-    }
-    // ...or is it a numeric char?
-    else if (n >= 0x30 && n <= 0x39)
-    {
-      return n - 0x30 + 52;
-    }
-    // ...or is it a '+' char?
-    else if (n == 0x2b)
-    {
-      return 0x3e;
-    }
-    // ...or is it a '/' char?
-    else if (n == 0x2f)
-    {
-      return 0x3f;
-    }
-    // ...or is it an invalid base64 char? Let's use 0xFF to signal this, although earlier checks mean this shouldn't happen
-    else
-    {
+      // ...or is it an invalid base64 char? Let's use 0xFF to signal this, although earlier checks mean this shouldn't happen
       return 0xFF;
     }
-    
   };
 
   // We'll iterate through the input grabbing 4 bytes at a time, unless only 3 or 2 bytes remain at the end in which case we handle those slightly differently
@@ -165,33 +158,13 @@ std::string decode(const std::string& input)
         uint8_t c = b64_to_uint8_t(*iter++);
         uint8_t d = b64_to_uint8_t(*iter++);
 
-        /*
-        LOG_INFO("a: " << base64_alphabet[a] << " is at base64 alphabet index: " << int(a) << " == " << hex::encode(a));
-        LOG_INFO("b: " << base64_alphabet[b] << " is at base64 alphabet index: " << int(b) << " == " << hex::encode(b));
-        LOG_INFO("c: " << base64_alphabet[c] << " is at base64 alphabet index: " << int(c) << " == " << hex::encode(c));
-        LOG_INFO("d: " << base64_alphabet[d] << " is at base64 alphabet index: " << int(d) << " == " << hex::encode(d));
-
-        LOG_INFO("a == " << hex::encode(a) << " == " << binary::encode(a) << " -->> static_cast<uint32_t>(a) << 18 == " << hex::encode(static_cast<uint32_t>(a) << 18) << " == " << binary::encode(static_cast<uint32_t>(a) << 18));
-        LOG_INFO("b == " << hex::encode(b) << " == " << binary::encode(b) << " -->> static_cast<uint32_t>(b) << 12 == " << hex::encode(static_cast<uint32_t>(b) << 12) << " == " << binary::encode(static_cast<uint32_t>(b) << 12));
-        LOG_INFO("c == " << hex::encode(c) << " == " << binary::encode(c) << " -->> static_cast<uint32_t>(c) << 6  == " << hex::encode(static_cast<uint32_t>(c) << 6) << " == " << binary::encode(static_cast<uint32_t>(c) << 6));
-        LOG_INFO("d == " << hex::encode(d) << " == " << binary::encode(d) << " -->> static_cast<uint32_t>(d)       == " << hex::encode(static_cast<uint32_t>(d)) << " == " << binary::encode(static_cast<uint32_t>(d)));
-        */
-
         // Take the 4 x 8 bit numbers from the base64 alphabet index and turn back into 1 x 24 bit number
         uint32_t n = static_cast<uint32_t>(a) << 18 | static_cast<uint32_t>(b) << 12 | static_cast<uint32_t>(c) << 6 | static_cast<uint32_t>(d);
-
-        //LOG_INFO("n == " << hex::encode(n) << " == " << binary::encode(n));
 
         // Then split the 24 bit number back into 3 bytes
         auto d1 = static_cast<uint8_t>(n >> 16);
         auto d2 = static_cast<uint8_t>((n >> 8) & 0xFF);
         auto d3 = static_cast<uint8_t>(n & 0xFF);
-
-        /*
-        LOG_INFO("d1: " << hex::encode(d1));
-        LOG_INFO("d2: " << hex::encode(d2));
-        LOG_INFO("d3: " << hex::encode(d3));
-        */
 
         // Finally, add these 3 bytes of decoded data to the output
         output.push_back(d1);
@@ -207,29 +180,12 @@ std::string decode(const std::string& input)
         uint8_t b = b64_to_uint8_t(*iter++);
         uint8_t c = b64_to_uint8_t(*iter++);
 
-        /*
-        LOG_INFO("a: " << base64_alphabet[a] << " is at base64 alphabet index: " << int(a) << " == " << hex::encode(a));
-        LOG_INFO("b: " << base64_alphabet[b] << " is at base64 alphabet index: " << int(b) << " == " << hex::encode(b));
-        LOG_INFO("c: " << base64_alphabet[c] << " is at base64 alphabet index: " << int(c) << " == " << hex::encode(c));
-
-        LOG_INFO("a == " << hex::encode(a) << " == " << binary::encode(a) << " -->> static_cast<uint32_t>(a) << 18 == " << hex::encode(static_cast<uint32_t>(a) << 16) << " == " << binary::encode(static_cast<uint32_t>(a) << 16));
-        LOG_INFO("b == " << hex::encode(b) << " == " << binary::encode(b) << " -->> static_cast<uint32_t>(b) << 12 == " << hex::encode(static_cast<uint32_t>(b) << 10) << " == " << binary::encode(static_cast<uint32_t>(b) << 10));
-        LOG_INFO("c == " << hex::encode(c) << " == " << binary::encode(c) << " -->> static_cast<uint32_t>(c) << 6  == " << hex::encode(static_cast<uint32_t>(c) << 2) << " == " << binary::encode(static_cast<uint32_t>(c) << 2));
-        */
-
         // Take the 3 x 8 bit numbers from the base64 alphabet index and turn back into 1 x 24 bit number
         uint32_t n = static_cast<uint32_t>(a) << 18 | static_cast<uint32_t>(b) << 12 | static_cast<uint32_t>(c) << 6;
-
-        //LOG_INFO("n == " << hex::encode(n) << " == " << binary::encode(n));
 
         // Then split the 24 bit number back into 2 bytes
         auto d1 = static_cast<uint8_t>(n >> 16);
         auto d2 = static_cast<uint8_t>((n >> 8) & 0xFF);
-
-        /*
-        LOG_INFO("d1: " << hex::encode(d1));
-        LOG_INFO("d2: " << hex::encode(d2));
-        */
 
         // Finally, add these 2 bytes of decoded data to the output
         output.push_back(d1);
@@ -243,23 +199,11 @@ std::string decode(const std::string& input)
         uint8_t a = b64_to_uint8_t(*iter++);
         uint8_t b = b64_to_uint8_t(*iter++);
 
-        /*
-        LOG_INFO("a: " << base64_alphabet[a] << " is at base64 alphabet index: " << int(a) << " == " << hex::encode(a));
-        LOG_INFO("b: " << base64_alphabet[b] << " is at base64 alphabet index: " << int(b) << " == " << hex::encode(b));
-
-        LOG_INFO("a == " << hex::encode(a) << " == " << binary::encode(a) << " -->> static_cast<uint32_t>(a) << 18 == " << hex::encode(static_cast<uint32_t>(a) << 16) << " == " << binary::encode(static_cast<uint32_t>(a) << 16));
-        LOG_INFO("b == " << hex::encode(b) << " == " << binary::encode(b) << " -->> static_cast<uint32_t>(b) << 12 == " << hex::encode(static_cast<uint32_t>(b) << 10) << " == " << binary::encode(static_cast<uint32_t>(b) << 10));
-        */
-
         // Take the 3 x 8 bit numbers from the base64 alphabet index and turn back into 1 x 24 bit number
         uint32_t n = static_cast<uint32_t>(a) << 18 | static_cast<uint32_t>(b) << 12;
 
-        //LOG_INFO("n == " << hex::encode(n) << " == " << binary::encode(n));
-
         // Then split the 24 bit number back into 2 bytes
         auto d1 = static_cast<uint8_t>(n >> 16);
-
-        //LOG_INFO("d1: " << hex::encode(d1));
 
         // Finally, add this 1 byte of decoded data to the output
         output.push_back(d1);

@@ -29,7 +29,7 @@ LOG_ERROR("Some message " << 54321); // If called from within the main() functio
 
 ### Hex
 
-For converting to and from hexadecimal string representations of data, there are various overloads of two functions:
+To convert to/from hexadecimal string representations of data, there are various overloads of two functions:
 
 `hex::encode()`
 
@@ -84,7 +84,7 @@ If the input to `hex::decode()` contains invalid hex characters, or is uneven in
 
 ### Binary
 
-To convert to and from binary string representations of data, there are two functions:
+To convert to/from binary string representations of data, there are two functions:
 
 `binary::encode()`
 
@@ -124,13 +124,13 @@ If the input to `binary::decode()` contains anything other than 1s and 0s (and w
 
 ### Base64
 
-For converting to/from base64 string representations of data, there are two functions:
+To convert to/from base64 string representations of data, there are two functions:
 
 `base64::encode()`
 
 `base64::decode()`
 
-These both take a `std::string` input, and return a `std::string` output. For example:
+These both take a `std::string` input, and return a `std::string` output. They use the standard base64 alphabet of A-Za-z0-9+/ with = as the padding character. For example:
 
 ```cpp
 auto encoded = base64::encode("Hello, World!"); // encoded contains the string "SGVsbG8sIFdvcmxkIQ=="
@@ -138,12 +138,22 @@ auto encoded = base64::encode("Hello, World!"); // encoded contains the string "
 auto decoded = base64::decode("SGVsbG8sIFdvcmxkIQ=="); // decoded contains the string "Hello, World!"
 ```
 
-- Todo: Add support for user-defined base64 alphabets
+For both functions, you can optionally specify a custom base64 alphabet by passing this as the second argument to the relevant function. This alphabet must contain exactly 64 characters, the final character of which will be used as the padding character. For example:
+
+```cpp
+auto encoded = base64::encode("Hello, World!", "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+"); // encoded contains the string "iglGrgWG0ftJsAL=08++"
+
+auto decoded = base::decode("iglGrgWG0ftJsAL=08++", "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+"); // decoded contains the string "Hello, World!"
+```
+
+- Todo: Allow the user to toggle on/off the insertion of padding characters
+- Todo: Add checks to ensure that padding characters are not found in the middle of the input data
+- Todo: Add checks to ensure that custom base64 alphabets do not contain duplicate characters
 
 
 ### URL encoding
 
-To convert to and from URL encoded string representations of data, there are two functions:
+To convert to/from URL encoded string representations of data, there are two functions:
 
 `url::encode()`
 
@@ -180,7 +190,7 @@ When decoding, if the input string ends prematurely, or an invalid UTF-8 sequenc
 
 ### Random number generator
 
-There are two templated functions for the generation of various kinds of random numbers:
+To generate various kinds of pseudo-random numbers, there are two templated functions:
 
 `prng::number<>()`
 
@@ -205,7 +215,7 @@ auto random_float = prng::number_between<float>(-1, 1); // random_float will be 
 
 ### Bitwise operations
 
-To apply an XOR, there are three related functions:
+To apply various kinds of XOR, there are three functions:
 
 `bitwise::xor_with_key()`
 
