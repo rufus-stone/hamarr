@@ -19,12 +19,12 @@ C++17 or newer
 
 ### Logger
 
-The `LOG_INFO()` and `LOG_ERROR()` macros are just simple wrappers around std::cout for printing messages to the console. They include the name of the function that generated the message, and end with a newline. For example:
+The `LOG_INFO()` and `LOG_ERROR()` macros are just simple wrappers around `std::cout` and `std::cerr` for printing messages to the console. They end with a newline. For example:
 
 ```cpp
-LOG_INFO("Blah blah blah " << 123); // If called from within the main() function, prints: "main(): [+] Blah blah blah 123"
+LOG_INFO("Blah blah blah " << 123); // Prints: "Blah blah blah 123"
 
-LOG_ERROR("Some message " << 54321); // If called from within the main() function, prints: "main(): [!] Some message 54321"
+LOG_ERROR("Some message " << 54321); // Prints: "Some message 54321"
 ```
 
 ### Hex
@@ -40,7 +40,9 @@ The `hex::encode()` function can take a `std::string`, a `const char*`, or any k
 ```cpp
 auto encoded = hex::encode("Hello, World!"); // encoded contains the string "48 65 6C 6C 6F 2C 20 57 6F 72 6C 64 21"
 
-encoded = hex::encode(27); // encoded contains the string "1B"
+encoded = hex::encode(27); // encoded contains the string "00 00 00 1B" (as an int is normally 4 bytes)
+
+encoded = hex::encode(uint8_t{27}); // encoded contains the string "1B"
 ```
 
 You can disable the insertion of spaces after each hex pair by adding the argument `false` to the function parameters. This is set to `true` by default. For example:
@@ -143,7 +145,7 @@ For both functions, you can optionally specify a custom base64 alphabet by passi
 ```cpp
 auto encoded = base64::encode("Hello, World!", "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+"); // encoded contains the string "iglGrgWG0ftJsAL=08++"
 
-auto decoded = base::decode("iglGrgWG0ftJsAL=08++", "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+"); // decoded contains the string "Hello, World!"
+auto decoded = base64::decode("iglGrgWG0ftJsAL=08++", "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+"); // decoded contains the string "Hello, World!"
 ```
 
 - Todo: Allow the user to toggle on/off the insertion of padding characters
@@ -215,6 +217,8 @@ auto random_float = prng::number_between<float>(-1, 1); // random_float will be 
 
 ### Bitwise operations
 
+##### XOR
+
 To apply various kinds of XOR, there are three functions:
 
 `bitwise::xor_with_key()`
@@ -250,7 +254,50 @@ xord = bitwise::xor_counter("Hello, World!", '\x04', -2); // Initial key value \
 ```
 
 - Todo: Allow `bitwise::xor_counter()` to take a `std::string` for the initial key value
-- Todo: Add left/right bit shift and bit rotation functions for convenience
+
+##### Bit Shift
+
+To perform left/right bit shifts, there are two functions:
+
+`bitwise::shift_left()`
+
+`bitwise::shift_right()`
+
+There are two variants of each function. The un-templated variant takes a `std::string` input and a `std::size_t` specifying the shift amount (this defaults to 1 if omitted), and returns a `std:string` output which contains the result of shifting each byte of the input by the specified amount. For example:
+
+```cpp
+auto shifted_left = bitwise::shift_left(binary::decode("00110011 00000001")); // shifted_left is a string containing bytes with the binary value: 01100110 00000010
+shifted_left = bitwise::shift_left(binary::decode("11110000 00001111"), 4); // shifted_left is a string containing bytes with the binary value: 00000000 11110000
+
+auto shifted_right = bitwise::shift_right(binary::decode("11110000"), 3); // shifted_right is a string containing bytes with the binary value: 00011110
+```
+
+The templated variant takes an integral value as its input and a `std::size_t` specifying the shift amount, and returns an integral value of the same type. For example:
+
+```cpp
+auto shifted_right = bitwise::shift_right<uint8_t>(27, 3); // shifted_right is a uint8_t with the value 3 (binary 00000011)
+
+```
+
+##### Bit Rotation
+
+To perform left/right bit rotation, there are two function:
+
+`bitwise::rotate_left()`
+
+`bitwise::rotate_right()`
+
+These both take a `std::string` input and a `std::size_t` specifying the rotation amount (this defaults to 1 if omitted), and return a `std::string` output containing the result of rotating each byte in the input by the specified amount. By default, these functions perform a bitwise rotation on each byte of the input in isolation (without carry through). To enable carry through, where bits from one byte can be carried through to the next byte, add the argument `bitwise::carry_through::enabled` to the function. For example:
+
+```cpp
+auto rotate_left = bitwise::rotate_left(binary::decode("11110000 00111100", 4)); // rotate_left is a string containing bytes with the binary value: 00001111 11000011
+
+rotate_left = bitwise::rotate_left(binary::decode("11110000 00111100", 4), bitwise::carry_through::enabled); // rotate_left is a string containing bytes with the binary value: 00000011 11001111
+
+auto rotate_right = bitwise::rotate_left(binary::decode("11110000 00111100", 2)); // rotate_right is a string containing bytes with the binary value: 11000011 11110000
+
+rotate_right = bitwise::rotate_left(binary::decode("11110000 00111100", 2), bitwise::carry_through::enabled); // rotate_rotate_rightleft is a string containing bytes with the binary value: 11000000 11110011
+```
 
 
 ### Hamming distance

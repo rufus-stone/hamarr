@@ -172,7 +172,7 @@ std::string decode(const std::string &input)
 
 
 ////////////////////////////////////////////////////////////
-template <typename T, typename = std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>>>
+template <typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
 T decode(const std::string &input)
 {  
   // Normalize the string by converting to uppercase
