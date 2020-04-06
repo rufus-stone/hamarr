@@ -3,9 +3,6 @@
 #include <string>
 #include <algorithm>
 
-#include "logger.hpp"
-#include "hex.hpp"
-
 namespace bitwise
 {
 

@@ -329,6 +329,7 @@ The function `analysis::character_frequency()` can be used to count the number o
 auto freqs = analysis::character_frequency("Hello, World!"); // freqs['H'] == 1, freqs['o'] == 2, freqs['l'] == 3
 ```
 
+
 ### Code profiling
 
 To measure the execution time for a given bit of code, there is the following function:
@@ -364,3 +365,33 @@ auto nanoseconds_taken = profile::benchmark([]()
 
 - Todo: Allow the user to give names to benchmark tests?
 
+
+### PKCS7 padding
+
+To apply or remove PKCS7 padding, there are two functions:
+
+`pkcs7::pad()`
+
+`pkcs7::unpad()`
+
+These both take a `std::string` input and a `std::size_t` specifying the block size (this defaults to 16 bytes if omitted), and return a `std::string` output. The `pkcs7::pad()` function will, if given an input whose length is not a multiple of the specified block size, append as many bytes as necessary to bring the length up to the next multiple of said block size. The value of the appended bytes will be equal to the quantity of byte added.
+
+To check for the presence of PKCS7 padding, there is the following function:
+
+`pkcs7::padded()`
+
+This takes a `std::string` input and a `std::size_t` specifying the block size (this defaults to 16 bytes if omitted), and returns a `bool` output set to `true` if the input is PKCS7 padded, and `false` if not. It is called from within `pkcs7::unpad()`, which will return the input string unchanged if the call to `pkcs7::padded()` returns `false`.
+
+For example:
+
+```cpp
+auto result = pkcs7::pad("Hello, World!"); // result is a string containing bytes with the hex value: "48 65 6C 6C 6F 2C 20 57 6F 72 6C 64 21 03 03 03". This is because the input is 13 bytes long, and the default block size is 16 bytes, so 3 padding bytes with the hex value \x03 are appended.
+
+bool has_padding = pkcs7::padded(result); // has_padding is true
+
+result = pkcs7::unpad(result); // The padding is removed from the input
+
+has_padding = pkcs7::padded(result); // has_padding is now false
+
+result = pkcs7::unpad(result); // Because pkcs7::unpad() calls pkcs7::padded() internally, and because the input here is not padded, pkcs7::unpad() returns the input unchanged
+```
