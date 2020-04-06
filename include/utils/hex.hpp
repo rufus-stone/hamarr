@@ -6,9 +6,6 @@
 
 #include "format.hpp"
 #include "logger.hpp"
-#include "hex.hpp"
-#include "binary.hpp"
-
 
 namespace hex
 {

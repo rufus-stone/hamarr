@@ -307,5 +307,23 @@ int main()
     }
   });
 
+
+  LOG_INFO("\n\n---[ PKCS7 Padding ]---\n");
+  LOG_INFO(hex::encode(pkcs7::pad(test)));
+  LOG_INFO(hex::encode(pkcs7::unpad(pkcs7::pad(test))));
+  assert(pkcs7::unpad(pkcs7::pad(test)) == test);
+
+  assert(pkcs7::padded(test) == false);
+  assert(pkcs7::padded(pkcs7::pad(test)) == true);
+  assert(pkcs7::padded(hex::decode("AA AA AA AA AA AA AA AA AA AA AA AA AA AA 02 02")) == true);
+  assert(pkcs7::padded(hex::decode("AA AA AA AA AA AA AA AA AA AA AA AA AA AA 00 00")) == false);
+  assert(pkcs7::padded(hex::decode("AA AA AA AA AA 03 03 03"), 8) == true);
+  assert(pkcs7::padded(hex::decode("AA AA AA AA AA 0B 0B 0B 0B 0B 0B 0B 0B 0B 0B 0B")) == true);
+
+  LOG_INFO(hex::encode(pkcs7::pad("Test")));
+  assert(pkcs7::pad("Test") == hex::decode("54 65 73 74 0C 0C 0C 0C 0C 0C 0C 0C 0C 0C 0C 0C"));
+  LOG_INFO(hex::encode(pkcs7::pad("Test", 8)));
+  assert(pkcs7::pad("Test", 8) == hex::decode("54 65 73 74 04 04 04 04"));
+
   return 0;
 }
