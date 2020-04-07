@@ -45,7 +45,7 @@ std::size_t hamming_distance(const std::string &lhs, const std::string &rhs)
 ////////////////////////////////////////////////////////////
 std::vector<std::size_t> character_frequency(const std::string &input, analysis::case_sensitivity sensitivity = analysis::case_sensitivity::enabled)
 {
-  auto freqs = std::vector<std::size_t>(std::numeric_limits<uint8_t>::max(), 0); // Create a vector of 256 entries (one for each possible byte value), and set all to 0
+  auto freqs = std::vector<std::size_t>(256, 0); // Create a vector of 256 entries (one for each possible byte value), and set all to 0
 
   switch (sensitivity)
   {
@@ -89,7 +89,7 @@ void print_character_frequency(std::vector<std::size_t> freqs, bool show_zeros =
 
       } else
       {
-        LOG_INFO("'" << hex::encode(i) << "' occurs " << (int)freqs[i] << " times");
+        LOG_INFO("'" << hex::encode(static_cast<uint8_t>(i)) << "' occurs " << (int)freqs[i] << " times");
       }
       
     } else
@@ -102,7 +102,7 @@ void print_character_frequency(std::vector<std::size_t> freqs, bool show_zeros =
 
         } else
         {
-          LOG_INFO("'" << hex::encode(i) << "' occurs " << (int)freqs[i] << " times");
+          LOG_INFO("'" << hex::encode(static_cast<uint8_t>(i)) << "' occurs " << (int)freqs[i] << " times");
         }
       }
     }
