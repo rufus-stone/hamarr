@@ -345,6 +345,16 @@ auto freqs = analysis::character_frequency("Mix OF upPer AND LOWER"); // freqs['
 freqs = analysis::character_frequency("Mix OF upPer AND LOWER", analysis::case_sensitivity::disabled); // freqs['p'] == 2, freqs['e'] == 2
 ```
 
+### English text detection
+
+The function `analysis::looks_like_english()` can be used to assess whether a given string appears to be English text (or at least, printable English-like ASCII). This takes a `std::string` input, and returns a `bool` indicating whether it passed or failed the various tests that it applies. These include checks for the presence of un-printable characters, the presence of more punctuation characters than alphanumeric characters, and absense of space characters, an average word length significantly shorter or longer than the English average of 4.7, etc. For example:
+
+```cpp
+auto result = analysis::looks_like_english("Hello, World!"); // result is: true
+
+result = analysis::looks_like_english("*&^786989 \xFF sdha;''a;'d;s;a;!"); // result is: false
+```
+
 
 ### Code profiling
 
