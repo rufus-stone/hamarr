@@ -40,7 +40,6 @@ std::size_t hamming_distance(const std::string &lhs, const std::string &rhs)
   return ham;
 }
 
-
 ////////////////////////////////////////////////////////////
 std::vector<uint8_t> character_frequency(const std::string &input)
 {
@@ -54,7 +53,6 @@ std::vector<uint8_t> character_frequency(const std::string &input)
 
   return freqs;
 }
-
 
 ////////////////////////////////////////////////////////////
 void print_character_frequency(std::vector<uint8_t> freqs, bool show_zeros = false)
