@@ -42,7 +42,6 @@ std::size_t hamming_distance(const std::string &lhs, const std::string &rhs)
   return ham;
 }
 
-
 ////////////////////////////////////////////////////////////
 std::vector<std::size_t> character_frequency(const std::string &input, analysis::case_sensitivity sensitivity = analysis::case_sensitivity::enabled)
 {
@@ -76,7 +75,6 @@ std::vector<std::size_t> character_frequency(const std::string &input, analysis:
 
   return freqs;
 }
-
 
 ////////////////////////////////////////////////////////////
 void print_character_frequency(std::vector<std::size_t> freqs, bool show_zeros = false)

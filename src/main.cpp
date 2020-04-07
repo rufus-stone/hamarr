@@ -276,6 +276,7 @@ int main()
   LOG_INFO(prng::number_between<unsigned int>(0, 10));
   LOG_INFO(prng::number_between<uint16_t>(0, 1));
   LOG_INFO(prng::number_between<double>(-1, 1));
+  LOG_INFO(hex::encode(prng::bytes(16)));
 
 
   LOG_INFO("\n\n---[ Hamming Distance ]---\n");
