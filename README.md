@@ -233,6 +233,8 @@ The function `bitwise::xor_with_key()` takes two std::string inputs, one for the
 auto xord = bitwise::xor_with_key("Example data", hex::decode("01 2A 8C")); // XORs "Example data" with the 3-byte key \x01\x2A\x8C -> xord is a std::string containing "\x44\x52\xED\x6C\x5A\xE0\x64\x0A\xE8\x60\x5E\xED"
 ```
 
+- Todo: Allow `bitwise::xor_with_key()` to take a `uint8_t` for the key value
+
 The function `bitwise::xor_rolling()` takes a std::string input and returns a std::string output. It performs a rolling XOR where each byte of the input is XORed against the previous byte (the very first byte is un-changed). By default, this uses input differential mode, where each byte of the input is XORed against the original pre-XOR value of the previous byte. To enable output differential mode, where each byte is XORed with the resulting post-XOR value of the previous byte, add the argument `bitwise::xor_differential::output` to the function. For example:
 
 ```cpp
