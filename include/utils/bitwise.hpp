@@ -26,6 +26,22 @@ std::string xor_with_key(const std::string &input, const std::string &key)
   return output;
 }
 
+
+////////////////////////////////////////////////////////////
+std::string xor_with_key(const std::string &input, uint8_t key)
+{
+  std::string output;
+  output.reserve(input.size());
+
+  std::transform(std::begin(input), std::end(input), std::back_inserter(output), [&key](const uint8_t &ch)
+  {
+    return (ch ^ key);
+  });
+
+  return output;
+}
+
+
 ////////////////////////////////////////////////////////////
 std::string xor_rolling(const std::string &input, xor_differential differential = xor_differential::input)
 {

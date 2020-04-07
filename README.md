@@ -219,7 +219,7 @@ auto random_float = prng::number_between<float>(-1, 1); // random_float will be 
 
 ##### XOR
 
-To apply various kinds of XOR, there are three functions:
+To apply various kinds of XOR, there are various overloads of three functions:
 
 `bitwise::xor_with_key()`
 
@@ -227,13 +227,15 @@ To apply various kinds of XOR, there are three functions:
 
 `bitwise::xor_counter()`
 
-The function `bitwise::xor_with_key()` takes two std::string inputs, one for the data and one for the key. It performs an XOR across the data using the key, and returns the result as a `std::string`. For example:
+The function `bitwise::xor_with_key()` takes two inputs - a `std::string` for the data, and either a `std::string` or `uint8_t` for the key. It performs an XOR across the data using the key, and returns the result as a `std::string`. For example:
 
 ```cpp
 auto xord = bitwise::xor_with_key("Example data", hex::decode("01 2A 8C")); // XORs "Example data" with the 3-byte key \x01\x2A\x8C -> xord is a std::string containing "\x44\x52\xED\x6C\x5A\xE0\x64\x0A\xE8\x60\x5E\xED"
+
+xord = bitwise::xor_with_key("Example data", 0x42); // XORs "Example data" with the single byte key \x42
 ```
 
-The function `bitwise::xor_rolling()` takes a std::string input and returns a std::string output. It performs a rolling XOR where each byte of the input is XORed against the previous byte (the very first byte is un-changed). By default, this uses input differential mode, where each byte of the input is XORed against the original pre-XOR value of the previous byte. To enable output differential mode, where each byte is XORed with the resulting post-XOR value of the previous byte, add the argument `bitwise::xor_differential::output` to the function. For example:
+The function `bitwise::xor_rolling()` takes a `std::string` input and returns a `std::string` output. It performs a rolling XOR where each byte of the input is XORed against the previous byte (the very first byte is un-changed). By default, this uses input differential mode, where each byte of the input is XORed against the original pre-XOR value of the previous byte. To enable output differential mode, where each byte is XORed with the resulting post-XOR value of the previous byte, add the argument `bitwise::xor_differential::output` to the function. For example:
 
 ```cpp
 auto xord = bitwise::xor_rolling("Hello!"); // Input differential mode is used by default, so xord contains the hex value: 48 2D 09 00 03 4E
@@ -241,7 +243,7 @@ auto xord = bitwise::xor_rolling("Hello!"); // Input differential mode is used b
 xord = bitwise::xor_rolling("Hello!", bitwise::xor_differential::output); // The scoped enum bitwise::xor_differential::output enables output differential mode, so xord contains the hex value: 48 2D 41 2D 42 63
 ```
 
-The function `bitwise::xor_counter()` takes a std::string input and returns a std::string output. It implements a counter-based XOR where the value of the key counts up or down by the specified incrementation amount after each byte of the input has been processed. The starting value for the key defaults to \x00, and the incrementation defaults to +1, but both of these can be changed. The initial key value is specified by passing a `uint8_t` as the second argument to the function, and the incrementation value is specified by passing a signed `int` as the third argument. If the incremention would cause the key value to increase above \xFF, or decrease below \x00, then the key value wraps back around. For example:
+The function `bitwise::xor_counter()` takes a `std::string` input and returns a `std::string` output. It implements a counter-based XOR where the value of the key counts up or down by the specified incrementation amount after each byte of the input has been processed. The starting value for the key defaults to \x00, and the incrementation defaults to +1, but both of these can be changed. The initial key value is specified by passing a `uint8_t` as the second argument to the function, and the incrementation value is specified by passing a signed `int` as the third argument. If the incremention would cause the key value to increase above \xFF, or decrease below \x00, then the key value wraps back around. For example:
 
 ```cpp
 auto xord = bitwise::xor_counter("Hello, World!"); // Defaults to initial key value \x00 and incremention value +1, resulting in key stream: 00 01 02 03 04 05...etc., meaning xord contains the hex value: 48 64 6E 6F 6B 29 26 50 67 7B 66 6F 2D

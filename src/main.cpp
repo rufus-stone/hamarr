@@ -180,6 +180,15 @@ int main()
   LOG_INFO(hex::encode(bitwise::xor_with_key("12345678", "ABC\xFF")));
   assert(bitwise::xor_with_key("12345678", "ABC\xFF") == hex::decode("70 70 70 cb 74 74 74 c7"));
 
+  LOG_INFO(hex::encode(bitwise::xor_with_key(test, 1))); // 49 64 6d 6d 6e 2d 21 56 6e 73 6d 65 20
+  assert(bitwise::xor_with_key(test, 1) == hex::decode("49 64 6d 6d 6e 2d 21 56 6e 73 6d 65 20"));
+
+  LOG_INFO(hex::encode(bitwise::xor_with_key(test, 'c'))); // 2b 06 0f 0f 0c 4f 43 34 0c 11 0f 07 42
+  assert(bitwise::xor_with_key(test, 'c') == hex::decode("2b 06 0f 0f 0c 4f 43 34 0c 11 0f 07 42"));
+
+  LOG_INFO(hex::encode(bitwise::xor_with_key(test, uint8_t{0x33}))); // 7b 56 5f 5f 5c 1f 13 64 5c 41 5f 57 12
+  assert(bitwise::xor_with_key(test, uint8_t{0x33}) == hex::decode("7b 56 5f 5f 5c 1f 13 64 5c 41 5f 57 12"));
+
   LOG_INFO("\n\n---[ XOR (rolling) ]---\n");
   LOG_INFO(hex::encode(bitwise::xor_rolling("12345678")));
   assert(bitwise::xor_rolling("12345678") == hex::decode("31 03 01 07 01 03 01 0F"));

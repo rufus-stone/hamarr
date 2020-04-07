@@ -2,6 +2,8 @@
 
 #include <chrono>
 
+#include "logger.hpp"
+
 namespace profile
 {
 
