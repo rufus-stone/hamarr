@@ -325,10 +325,12 @@ auto diff = analysis::hamming_distance("this is a testEXTRASTUFF", "wokka wokka!
 
 ### Character frequency
 
-The function `analysis::character_frequency()` can be used to count the number of times each character occurs in a given string. This takes a std::string input, and returns a `std::vector<uint8_t>` containing a count for each byte. The index into the std::vector is the byte value, and the value at that index is the count. For example:
+The function `analysis::character_frequency()` can be used to count the number of times each character occurs in a given string. This takes a `std::string` input, and returns a `std::vector<std::size_t>` containing a count for each byte. The index into the `std::vector` is the byte value, and the value at that index is the count. By default this is case sensitive, but to make it case insensitive add the argument `analysis::case_sensitivity::disabled` to the function. For example:
 
 ```cpp
-auto freqs = analysis::character_frequency("Hello, World!"); // freqs['H'] == 1, freqs['o'] == 2, freqs['l'] == 3
+auto freqs = analysis::character_frequency("Mix OF upPer AND LOWER"); // freqs['p'] == 1, freqs['P'] == 1, freqs['e'] == 1
+
+freqs = analysis::character_frequency("Mix OF upPer AND LOWER", analysis::case_sensitivity::disabled); // freqs['p'] == 2, freqs['e'] == 2
 ```
 
 
