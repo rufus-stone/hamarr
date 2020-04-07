@@ -42,9 +42,9 @@ std::size_t hamming_distance(const std::string &lhs, const std::string &rhs)
 
 
 ////////////////////////////////////////////////////////////
-std::vector<uint8_t> character_frequency(const std::string &input)
+std::vector<std::size_t> character_frequency(const std::string &input)
 {
-  auto freqs = std::vector<uint8_t>(256, 0); // Create a vector of 256 bytes, and set all to 0
+  auto freqs = std::vector<std::size_t>(std::numeric_limits<uint8_t>::max(), 0); // Create a vector of 256 entries (one for each possible byte value), and set all to 0
 
   // Increment the value at the index of the current char by one
   for (const auto &ch : input)
