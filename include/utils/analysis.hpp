@@ -135,8 +135,8 @@ bool looks_like_english(const std::string &input)
     // Were there any of the current char present?
     if (freqs[i] > 0)
     {
-      // Abort condition - there should be no un-printable byte values
-      if (ch < 0x20 || ch > 0x7E)
+      // Abort condition - there should be no un-printable byte values (apart from space, tab, newline, carriage return, etc.)
+      if ((ch < 0x20 && ch != 0x09 && ch != 0x0A && ch != 0x0B && ch != 0x0C && ch != 0x0D) || ch > 0x7E)
       {
         return false;
       }
