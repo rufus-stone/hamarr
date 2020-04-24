@@ -7,7 +7,7 @@
 #include "format.hpp"
 #include "logger.hpp"
 
-namespace hex
+namespace hmr::hex
 {
 
 static const auto hex_alphabet = std::string("0123456789ABCDEF");
@@ -123,38 +123,42 @@ std::string encode(T input, bool delimited = true)
 
 ////////////////////////////////////////////////////////////
 std::string decode(const std::string &input)
-{  
-  // Normalize the string by converting to uppercase
-  std::string tmp = format::to_upper(input);
-
-  // Strip any spaces
-  tmp.erase(std::remove(std::begin(tmp), std::end(tmp), ' '), std::end(tmp));
-
-  const std::size_t len = tmp.size();
-
-  // Fail point - must be even length
-  if (len & 1)
-  {
-    LOG_ERROR("Hex strings must be even in length!");
-    return std::string{};
-  }
+{
+  const std::size_t len = input.size();
   
-  // Fail point - must contain valid hex chars
-  auto e = tmp.find_first_not_of(hex_alphabet);
-  if (e != std::string::npos)
-  {
-    LOG_ERROR("Invalid hex char " << tmp[e] << " at index " << e << "!");
-    return std::string{};
-  }
-
   std::string output;
-  output.reserve(len / 2);
+  output.reserve(len / 2); // If there are space chars then we'll actually need less space, but over-reserving probably hurts less than under-reserving
 
   // Step through the input two chars at a time
-  for (std::size_t i = 0; i < len; i += 2)
+  for (std::size_t i = 0; i < len; ++i)
   {
-    auto a = hex_alphabet.find(tmp[i]);
-    auto b = hex_alphabet.find(tmp[i + 1]);
+    // Skip any space chars
+    if (std::isspace(input[i]))
+    {
+      continue;
+    }
+
+    // Abort condition - is there enough data left?
+    if (i + 2 > len)
+    {
+      LOG_ERROR("Not enough data left!");
+      return std::string{};
+    }
+
+    // Get the next pair of nibbles, checking for invalid hex chars and normalising the input char to uppercase
+    auto a = hex_alphabet.find(std::toupper(input[i++]));
+    if (a == std::string::npos)
+    {
+      LOG_ERROR("Invalid hex char " << input[i - 1] << " at index " << i - 1 << "!");
+      return std::string{};
+    }
+
+    auto b = hex_alphabet.find(std::toupper(input[i]));
+    if (b == std::string::npos)
+    {
+      LOG_ERROR("Invalid hex char " << input[i] << " at index " << i << "!");
+      return std::string{};
+    }
 
     // Because the hex alphabet string is in order, for any given hex char the result of hex_alphabet.find() will be its numerical equivalent taken from the index into the alphabet string where the char is found
     // E.g. char '0' is at index 0 in the alphabet string, char 'F' is at index 15 (i.e. the decimal value of hex F), etc.

@@ -10,7 +10,7 @@
 #include "logger.hpp"
 #include "hex.hpp"
 
-namespace binary
+namespace hmr::binary
 {
 
 ////////////////////////////////////////////////////////////
@@ -18,7 +18,7 @@ std::string encode(const std::string &input, bool delimited = true)
 {
   std::vector<std::string> out_vec;
 
-  std::transform(input.begin(), input.end(), std::back_inserter(out_vec), [](const unsigned char c)
+  std::transform(input.begin(), input.end(), std::back_inserter(out_vec), [](const uint8_t c)
   {
     const auto bits = std::bitset<8>(c);
     return bits.to_string();
@@ -47,7 +47,7 @@ std::string encode(T input, bool delimited = true)
     const std::size_t s = sizeof(input);
 
     std::string output;
-    output.reserve(s + (s-1));
+    output.reserve(s + (s - 1));
 
     // There's probably a smarter way to do this, but for now just manually code in options for 1, 2, 4 and 8 byte integrals
     switch (s)
@@ -167,22 +167,30 @@ std::string encode(T input, bool delimited = true)
 ////////////////////////////////////////////////////////////
 std::string decode(const std::string &input)
 {
-  // Strip any spaces
-  std::string tmp = input;
-  tmp.erase(std::remove(std::begin(tmp), std::end(tmp), ' '), std::end(tmp));
+  const std::size_t len = input.size();
 
   std::string output;
+  output.reserve(len / 8); // If there are space chars then we'll actually need less space, but over-reserving probably hurts less than under-reserving
 
-  if (tmp.size() % 8 != 0)
+  for (std::size_t i = 0; i < len; ++i)
   {
-    LOG_ERROR("Not divisible by 8!");
-    return std::string{};
-  }
+    // Skip any space chars
+    if (std::isspace(input[i]))
+    {
+      continue;
+    }
 
-  for (std::size_t i = 0; i < tmp.size(); i += 8)
-  {
-    const auto bits = std::bitset<8>(tmp.substr(i, i + 8));
+    // Abort condition - is there enough data left?
+    if (i + 8 > len)
+    {
+      LOG_ERROR("Not enough data left! i+8 == " << (i+8) << "but len == " << len);
+      return std::string{};
+    }
+
+    const auto bits = std::bitset<8>(input.substr(i, 8));
     output.push_back(bits.to_ulong());
+
+    i += 7;
   }
 
   return output;

@@ -4,7 +4,7 @@
 
 #include "logger.hpp"
 
-namespace profile
+namespace hmr::profile
 {
 
 ////////////////////////////////////////////////////////////

@@ -7,7 +7,7 @@
 #include "hex.hpp"
 
 
-namespace url
+namespace hmr::url
 {
 
 static const auto unreserved_chars = std::string("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~");
@@ -59,9 +59,11 @@ std::string encode(const std::string& input, bool lazy=false)
 ////////////////////////////////////////////////////////////
 std::string decode(const std::string& input, bool lazy=false)
 {
-	std::string output;
+  const std::size_t len = input.length();
 
-	std::size_t len = input.length();
+	std::string output;
+  output.reserve(len); // If there are any percent-encoded elements then we'll actually need less space, but over-reserving probably hurts less than under-reserving
+
 	for (std::size_t i = 0; i < len; ++i)
 	{
 		// Is this an escape sequence?
