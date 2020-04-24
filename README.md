@@ -1,6 +1,6 @@
-# Utils
+# Hamarr <img align="right" src="https://img.icons8.com/ios-filled/100/000000/thor-hammer.png">
 
-A collection of header-only C++ utilities
+A collection of header-only C++ utilities for performing various kinds of encoding/decoding and other data manipulation operations.
 
 This began life as things I found useful when playing around with the first few [cryptopals challenges](https://cryptopals.com), but has grown to include other kinds of data manipulation operations, functions for generating psuedo-random numbers, etc. Basically it's a bunch of stuff that I wish was already available as easy-to-use functions.
 
@@ -421,3 +421,5 @@ has_padding = pkcs7::padded(result); // has_padding is now false
 
 result = pkcs7::unpad(result); // Because pkcs7::unpad() calls pkcs7::padded() internally, and because the input here is not padded, pkcs7::unpad() returns the input unchanged
 ```
+
+<a href="https://icons8.com/icon/10381/thor-hammer">Thor Hammer icon by Icons8</a>
