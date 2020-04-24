@@ -7,7 +7,7 @@
 #include "logger.hpp"
 #include "hex.hpp"
 
-namespace analysis
+namespace hmr::analysis
 {
 
 enum class case_sensitivity { enabled, disabled };

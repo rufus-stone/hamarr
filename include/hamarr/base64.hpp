@@ -3,7 +3,7 @@
 #include <string>
 #include <algorithm>
 
-namespace base64
+namespace hmr::base64
 {
 
 static const auto base64_alphabet = std::string("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=");
@@ -92,7 +92,7 @@ std::string decode(const std::string& input, const std::string &alphabet = base6
     return std::string{};
   }
 
-  std::size_t len = input.size();
+  const std::size_t len = input.size();
 
   // Fail point - must contain at least two chars, as valid base64 encoding always results in at least two chars
   if (len < 2)

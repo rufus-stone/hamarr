@@ -2,6 +2,8 @@
 
 #include "utils.hpp"
 
+using namespace hmr;
+
 int main()
 {
   auto test = std::string("Hello, World!");
@@ -17,11 +19,14 @@ int main()
   LOG_INFO(hex::encode(test));
   LOG_INFO(hex::decode(hex::encode(test)));
   assert(hex::decode(hex::encode(test)) == test);
+  assert(hex::decode("Invalid hex input") == std::string{}); // Chars that fall outside the set of valid hex chars
+  assert(hex::decode("11 22 3") == std::string{}); // Uneven number of hex chars
 
   LOG_INFO("\n\n---[ Hex Strings (Non-Padded) ]---\n");
   LOG_INFO(hex::encode(test, false));
   LOG_INFO(hex::decode(hex::encode(test, false)));
   assert(hex::decode(hex::encode(test, false)) == test);
+  assert(hex::decode("11223") == std::string{}); // Uneven number of hex chars
 
 
   LOG_INFO("\n\n---[ Hex Numbers ]---\n");
@@ -50,10 +55,10 @@ int main()
   LOG_INFO(hex::decode<uint64_t>("0F"));
   assert(hex::decode<uint64_t>("0F") == uint64_t{15});
 
-  assert(hex::decode<uint8_t>("FF FF") == uint8_t{});
-  assert(hex::decode<uint16_t>("FF FF FF") == uint16_t{});
-  assert(hex::decode<uint32_t>("FF FF FF FF FF FF") == uint32_t{});
-  assert(hex::decode<uint64_t>("AA BB CC DD EE FF 00 11 22 33 44 55 66 77 88 99") == uint64_t{});
+  assert(hex::decode<uint8_t>("FF FF") == uint8_t{}); // Too many bytes for the requested return type
+  assert(hex::decode<uint16_t>("FF FF FF") == uint16_t{}); // Too many bytes for the requested return type
+  assert(hex::decode<uint32_t>("FF FF FF FF FF FF") == uint32_t{}); // Too many bytes for the requested return type
+  assert(hex::decode<uint64_t>("AA BB CC DD EE FF 00 11 22 33 44 55 66 77 88 99") == uint64_t{}); // Too many bytes for the requested return type
 
   LOG_INFO("\n\n---[ Hex Numbers (Non-Padded) ]---\n");
   LOG_INFO(hex::encode(uint16_t{4660}, false));

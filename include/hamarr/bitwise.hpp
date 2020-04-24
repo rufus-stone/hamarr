@@ -3,7 +3,7 @@
 #include <string>
 #include <algorithm>
 
-namespace bitwise
+namespace hmr::bitwise
 {
 
 enum class xor_differential { input, output };

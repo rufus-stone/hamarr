@@ -4,7 +4,7 @@
 #include <algorithm>
 
 
-namespace format
+namespace hmr::format
 {
 
 ////////////////////////////////////////////////////////////
