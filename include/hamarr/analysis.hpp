@@ -71,7 +71,7 @@ double entropy(const std::string &input)
 
   for (const auto &ch : input)
   {
-    char_freqs[ch]++;
+    char_freqs[static_cast<uint8_t>(ch)]++;
   }
 
   double entropy = 0;
