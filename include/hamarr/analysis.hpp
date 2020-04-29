@@ -5,9 +5,11 @@
 #include <string_view>
 #include <numeric>
 #include <cmath>
+#include <algorithm>
 
 #include "logger.hpp"
 #include "hex.hpp"
+#include "bitwise.hpp"
 
 namespace hmr::analysis
 {
@@ -154,111 +156,161 @@ void print_character_frequency(std::vector<std::size_t> freqs, bool show_zeros =
 }
 
 ////////////////////////////////////////////////////////////
-bool looks_like_english(std::string_view input)
+bool looks_like_english(std::string_view input, bool flag = false)
 {
-  // There should be more alphanumeric chars than punctuation chars
-  std::size_t alphanumerics = 0;
+  std::size_t spaces = 0;
   std::size_t punctuation = 0;
+  std::size_t numbers = 0;
+  std::size_t lowercase = 0;
+  std::size_t uppercase = 0;
 
-  // There should be at least some space chars
-  bool spaces = false;
-
-  // Compute the case-insensitive character frequencies
-  auto freqs = analysis::character_frequency(input, analysis::case_sensitivity::disabled);
-
-  // Todo - maybe change the output of analysis::character_frequency() to a std::array to ensure it's always exactly 256 elements in size, and can't be modified
-  assert(freqs.size() == 256);
-
-  // Iterate through the freqs vector and run some checks
-  for (std::size_t i = 0; i < freqs.size(); ++i)
-  {
-    auto ch = static_cast<uint8_t>(i);
-
-    // Were there any of the current char present?
-    if (freqs[i] > 0)
-    {
-      // Abort condition - there should be no un-printable byte values (apart from space, tab, newline, carriage return, etc.)
-      if ((ch < 0x20 && ch != 0x09 && ch != 0x0A && ch != 0x0B && ch != 0x0C && ch != 0x0D) || ch > 0x7E)
-      {
-        return false;
-      }
-
-      // Are there any space chars?
-      if (ch == 0x20)
-      {
-        spaces = true;
-      }
-
-      // Update the count of punctuation chars vs alphanumeric chars
-      if ((ch >= 0x21 && ch <= 0x2F) || (ch >= 0x3A && ch <= 0x40) || (ch >= 0x5B && ch <= 0x60) || (ch >= 0x7B && ch <= 0x7E))
-      {
-        ++punctuation;
-
-      } else
-      {
-        ++alphanumerics;
-      }
-    }
-  }
-
-  // The average word length in English is apparently 4.7 - we'll accept between 3.5 and 6.5 (this is an arbitary choice, and might need revising!)
-  auto word_lengths = std::vector<std::size_t>{};
-  std::size_t current_word_length = 0;
-  double average_word_length = 0;
-
-  // Iterate through the raw input and run some more checks
   for (const auto &c : input)
   {
     auto ch = static_cast<uint8_t>(c);
 
-    // Is it an uppercase or lowercase alphabet char, or an apostraphe? If so, increment the length of the current word. Todo: this will need refining, so that, e.g. an input string of all apostraphes doesn't get badged as English-like!
-    if ((ch >= 0x41 && ch <= 0x5A) || (ch >= 0x61 && ch <= 0x7A) || ch == 0x27)
+    // Abort condition - there should be no un-printable byte values (apart from space, tab, newline, carriage return, etc.)
+    if ((ch < 0x20 && ch != 0x09 && ch != 0x0A && ch != 0x0B && ch != 0x0C && ch != 0x0D) || ch > 0x7E)
     {
-      ++current_word_length;
+      if (flag) LOG_INFO("Failed unprintable");
+      return false;
+    }
 
-    // Otherwise the word must be over
-    } else
+    // Is it a space char?
+    if (ch == 0x20)
     {
-      // If appropriate, update the vector of all word_lengths with the length of this word
-      if (current_word_length > 0)
-      {
-        word_lengths.push_back(current_word_length);
-      }
-      
-      // Reset the current word length
-      current_word_length = 0;
+      ++spaces;
+    }
+
+    // Is it a punctuation char?
+    if ((ch >= 0x21 && ch <= 0x2F) || (ch >= 0x3A && ch <= 0x40) || (ch >= 0x5B && ch <= 0x60) || (ch >= 0x7B && ch <= 0x7E))
+    {
+      ++punctuation;
+    }
+
+    // Is it a number?
+    if (ch >= 0x30 && ch <= 0x39)
+    {
+      ++numbers;
+    }
+
+    // Is it a lowercase letter?
+    if (ch >= 0x61 && ch <= 0x7A)
+    {
+      ++lowercase;
+    }
+
+    // Is it an uppercase letter?
+    if (ch >= 0x41 && ch <= 0x5A)
+    {
+      ++uppercase;
     }
   }
 
-  // Add any final word length
-  if (current_word_length > 0)
+  // There should be more spaces than punctuation
+  if (spaces < punctuation)
   {
-    word_lengths.push_back(current_word_length);
-    current_word_length = 0;
-  }
-
-  // Abort condition - there should be more alphanumerics than punctuation chars
-  if (punctuation > alphanumerics)
-  {
+    if (flag) LOG_INFO("Failed spaces vs punc");
     return false;
   }
 
-  // Abort condition - there should be at least some space chars
-  if (spaces == false)
+  // There should be more alphanumerics than punctuation
+  if (numbers + lowercase + uppercase < punctuation)
   {
+    if (flag) LOG_INFO("Failed alphanum vs punc");
     return false;
   }
 
-  // Compute the mean average word length
-  average_word_length = std::accumulate(std::begin(word_lengths), std::end(word_lengths), 0.0) / word_lengths.size();
-
-  // Abort condition - the average word length should be between 3.5 and 6.5 chars (the real average for English is apparently 4.7)
-  if (average_word_length <= 3.5 || average_word_length >= 6.5)
+  // There should be more lowercase letters than uppercase
+  if (lowercase < uppercase)
   {
+    if (flag) LOG_INFO("Failed lower vs upper");
+    return false;
+  }
+
+  // There should be more letters than numbers
+  if (lowercase + uppercase < numbers)
+  {
+    if (flag) LOG_INFO("Failed letters vs numbers");
     return false;
   }
 
   return true;
+}
+
+////////////////////////////////////////////////////////////
+auto find_candidate_keysize(std::string_view input, std::size_t min = 2, std::size_t max = 40)
+{
+  const std::size_t len = input.size();
+
+  const std::size_t min_key_size = min;
+  const std::size_t max_key_size = max;
+  
+  auto average_hams = std::vector<std::pair<std::size_t, double>>{};
+  average_hams.reserve(max_key_size - min_key_size);
+
+  // For all possible key_sizes between min and max, figure out the most likely key_size
+  for (std::size_t key_size = min_key_size; key_size <= max_key_size; ++key_size)
+  {
+    // How many complete pairs of key_size worth of bytes is there room for?
+    auto num_pairs = len / (key_size * 2);
+
+    auto hams = std::vector<double>{};
+    hams.reserve(num_pairs);
+
+    // Take each pair of key_size worth of bytes
+    for (int i = 0; i + (key_size * 2) < len; i += (key_size * 2))
+    {
+      auto lhs = input.substr(i, key_size);
+      auto rhs = input.substr(i + key_size, key_size);
+
+      // Compute the hamming distance, and normalise by dividing by key_size
+      double ham_norm = hmr::analysis::hamming_distance(lhs, rhs);
+      ham_norm /= key_size;
+
+      hams.push_back(ham_norm);
+    }
+
+    // Now average the hamming distances
+    auto average_ham = std::accumulate(std::begin(hams), std::end(hams), 0.0) / hams.size();
+    
+    // Make a note of the hamming distance for the current key_size
+    average_hams.emplace_back(std::make_pair(key_size, average_ham));
+  }
+
+  // Pick the key_size with the lowest average hamming distance - this is the best candidate for the actual key size
+  auto best_candidate = std::min_element(std::begin(average_hams), std::end(average_hams), [](const auto &lhs, const auto &rhs) { return lhs.second < rhs.second; });
+  LOG_INFO("Best candidate key size: " << best_candidate->first << " (average Hamming distance: " << best_candidate->second << ")");
+
+  return *best_candidate;
+}
+
+////////////////////////////////////////////////////////////
+auto solve_single_byte_xor(std::string_view input)
+{
+  uint8_t key = 0x00;
+
+  auto possible_keys = std::vector<uint8_t>{};
+
+  // Iterate through all possible single byte keys
+  for (std::size_t n = 0; n <= std::numeric_limits<uint8_t>::max(); ++n)
+  {
+    auto result = hmr::bitwise::xor_with_key(input, key);
+
+    if (hmr::analysis::looks_like_english(result))
+    {
+      possible_keys.push_back(key);
+    } 
+
+    key++;
+  }
+
+  if (possible_keys.empty())
+  {
+    LOG_INFO("Failed to find any possible keys!");
+    LOG_INFO("Input was: " << input);
+  }
+
+  return possible_keys;
 }
 
 } // namespace analysis
