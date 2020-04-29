@@ -359,5 +359,10 @@ int main()
   LOG_INFO(hex::encode(pkcs7::pad("Test", 8)));
   assert(pkcs7::pad("Test", 8) == hex::decode("54 65 73 74 04 04 04 04"));
 
+  
+  LOG_INFO("\n\n---[ Shannon Entropy ]---\n");
+  LOG_INFO("1223334444 has entropy: " << analysis::entropy("1223334444"));
+  LOG_INFO(test << " has entropy: " << analysis::entropy(test));
+
   return 0;
 }
