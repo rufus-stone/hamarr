@@ -427,7 +427,7 @@ result = hmr::pkcs7::unpad(result); // Because pkcs7::unpad() calls pkcs7::padde
 
 To calculate the Shannon entropy of a given input, there is the following function:
 
-`analysis::entropy()`
+`hmr::analysis::entropy()`
 
 This takes a `std::string` input and returns a `double` with the calculated entropy. Given 256 possible values for a given byte, the maximum possible entropy value for a string is log2(256) which is 8 (representing complete randomness). The minimum possible value is 0 (indicating that all the bytes of the input are identical). For example:
 
