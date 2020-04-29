@@ -347,10 +347,12 @@ freqs = hmr::analysis::character_frequency("Mix OF upPer AND LOWER", hmr::analys
 
 ### English text detection
 
-The function `hmr::analysis::looks_like_english()` can be used to assess whether a given string appears to be English text (or at least, printable English-like ASCII). This takes a `std::string_view` input, and returns a `bool` indicating whether it passed or failed the various tests that it applies. These include checks for the presence of un-printable characters, the presence of more punctuation characters than alphanumeric characters, and absense of space characters, an average word length significantly shorter or longer than the English average of 4.7, etc. For example:
+The function `hmr::analysis::looks_like_english()` can be used to assess whether a given string appears to be English text (or at least, printable English-like ASCII). This takes a `std::string_view` input, and returns a `bool` indicating whether it passed or failed the various tests that it applies. These include checks for the presence of un-printable characters, the presence of more punctuation characters than alphanumeric characters, more uppercase than lowercase letters, etc. Short input strings are prone to false negatives. In theory, this should correctly identify English-like text, even if fed a random selection of characters taken from a genuine English text. For example:
 
 ```cpp
-auto result = hmr::analysis::looks_like_english("Hello, World!"); // result is: true
+auto result = hmr::analysis::looks_like_english("Hello, World!"); // result is: false <- this is an example of a false negative, given the short input string
+
+result = hmr::analysis::looks_like_english("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."); // result is: true
 
 result = hmr::analysis::looks_like_english("*&^786989 \xFF sdha;''a;'d;s;a;!"); // result is: false
 ```
@@ -434,6 +436,9 @@ This takes a `std::string_view` input and returns a `double` with the calculated
 ```cpp
 auto entropy = hmr::analysis::entropy("Hello, World!"); // entropy is a double set to 3.18083
 ```
+
+
+- Todo: Document the new analysis functions!
 
 
 <a href="https://icons8.com/icon/10381/thor-hammer">Thor Hammer icon by Icons8</a>
