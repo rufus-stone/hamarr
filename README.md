@@ -422,4 +422,18 @@ has_padding = hmr::pkcs7::padded(result); // has_padding is now false
 result = hmr::pkcs7::unpad(result); // Because pkcs7::unpad() calls pkcs7::padded() internally, and because the input here is not padded, pkcs7::unpad() returns the input unchanged
 ```
 
+
+### Shannon entropy
+
+To calculate the Shannon entropy of a given input, there is the following function:
+
+`analysis::entropy()`
+
+This takes a `std::string` input and returns a `double` with the calculated entropy. Given 256 possible values for a given byte, the maximum possible entropy value for a string is log2(256) which is 8 (representing complete randomness). The minimum possible value is 0 (indicating that all the bytes of the input are identical). For example:
+
+```cpp
+auto entropy = hmr::analysis::entropy("Hello, World!"); // entropy is a double set to 3.18083
+```
+
+
 <a href="https://icons8.com/icon/10381/thor-hammer">Thor Hammer icon by Icons8</a>

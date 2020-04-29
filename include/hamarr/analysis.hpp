@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <numeric>
+#include <cmath>
 
 #include "logger.hpp"
 #include "hex.hpp"
@@ -45,6 +46,49 @@ std::size_t hamming_distance(const std::string &lhs, const std::string &rhs)
 }
 
 ////////////////////////////////////////////////////////////
+double entropy(const std::string &input)
+{
+  const std::size_t len = input.size();
+
+  // I'm not sure if std::array default initalizes ints to 0, so doing that here just in case
+  auto char_freqs = std::array<std::size_t, 256>{
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+
+  for (const auto &ch : input)
+  {
+    char_freqs[ch]++;
+  }
+
+  double entropy = 0;
+
+  for (const auto &freq : char_freqs)
+  {
+    if (freq != 0)
+    {
+      double f = static_cast<double>(freq) / len;
+      entropy -= (f * std::log2(f));
+    }
+  }
+
+  return entropy;
+}
+
+////////////////////////////////////////////////////////////
 std::vector<std::size_t> character_frequency(const std::string &input, analysis::case_sensitivity sensitivity = analysis::case_sensitivity::enabled)
 {
   auto freqs = std::vector<std::size_t>(256, 0); // Create a vector of 256 entries (one for each possible byte value), and set all to 0
@@ -63,13 +107,10 @@ std::vector<std::size_t> character_frequency(const std::string &input, analysis:
 
     case analysis::case_sensitivity::disabled:
     {
-      // Normalise to all lowercase
-      auto tmp = format::to_lower(input);
-
-      // Increment the value at the index of the current char by one
-      for (const auto &ch : tmp)
+      // Increment the value at the index of the current char by one - normalise to lower case first
+      for (const auto &ch : input)
       {
-        freqs[static_cast<uint8_t>(ch)] += 1;
+        freqs[static_cast<uint8_t>(std::tolower(ch))] += 1;
       }
     }
     break;
