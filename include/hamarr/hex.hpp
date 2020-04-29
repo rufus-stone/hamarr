@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <sstream>
 #include <iomanip>
 
@@ -13,7 +14,7 @@ namespace hmr::hex
 static const auto hex_alphabet = std::string("0123456789ABCDEF");
 
 ////////////////////////////////////////////////////////////
-std::string encode(const std::string &input, bool delimited = true)
+std::string encode(std::string_view input, bool delimited = true)
 {
   std::string output;
   output.reserve(input.size() * 2);
@@ -48,7 +49,7 @@ std::string encode(const char* input, bool delimited = true)
 }
 
 ////////////////////////////////////////////////////////////
-template <typename T, typename = std::enable_if<std::is_integral<T>::value>>
+template <typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
 std::string encode(T input, bool delimited = true)
 {
   // How many bytes is the integral value?
@@ -122,7 +123,7 @@ std::string encode(T input, bool delimited = true)
 
 
 ////////////////////////////////////////////////////////////
-std::string decode(const std::string &input)
+std::string decode(std::string_view input)
 {
   const std::size_t len = input.size();
   
@@ -174,7 +175,7 @@ std::string decode(const std::string &input)
 
 ////////////////////////////////////////////////////////////
 template <typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
-T decode(const std::string &input)
+T decode(std::string_view input)
 {  
   // Normalize the string by converting to uppercase
   std::string tmp = format::to_upper(input);

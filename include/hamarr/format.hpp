@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <algorithm>
 
 
@@ -8,7 +9,7 @@ namespace hmr::format
 {
 
 ////////////////////////////////////////////////////////////
-std::string to_upper(const std::string &input)
+std::string to_upper(std::string_view input)
 {
   std::string output;
   output.reserve(input.size());
@@ -18,7 +19,7 @@ std::string to_upper(const std::string &input)
 }
 
 ////////////////////////////////////////////////////////////
-std::string to_lower(const std::string &input)
+std::string to_lower(std::string_view input)
 {
   std::string output;
   output.reserve(input.size());
