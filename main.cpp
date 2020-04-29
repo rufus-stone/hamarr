@@ -368,7 +368,12 @@ int main()
   LOG_INFO(test << " has entropy: " << analysis::entropy(test));
 
 
-  LOG_INFO(std::boolalpha << analysis::looks_like_english("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."));
+  LOG_INFO("\n\n---[ Solve Single Byte XOR ]---\n");
+  auto xord = hex::decode("01 3d 3c 26 75 3c 26 75 34 75 27 30 34 39 39 2c 75 32 27 30 34 21 75 30 2d 34 38 25 39 30 75 3a 33 75 34 75 38 30 31 3c 20 38 75 26 3c 2f 30 31 75 10 3b 32 39 3c 26 3d 75 26 21 27 3c 3b 32 79 75 22 3c 21 3d 75 34 75 32 3a 3a 31 75 38 3c 2d 75 3a 33 75 00 05 05 10 07 16 14 06 10 75 34 3b 31 75 39 3a 22 30 27 36 34 26 30 75 39 30 21 21 30 27 26 79 75 25 20 3b 36 21 20 34 21 3c 3a 3b 79 75 30 21 36 7b 74");
+  auto possible_keys = analysis::solve_single_byte_xor(xord);
+  assert(possible_keys.size() == 1);
+  LOG_INFO("XOR key == " << hex::encode(possible_keys[0]));
+  LOG_INFO("Output  == " << bitwise::xor_with_key(xord, possible_keys[0]));
   
   return 0;
 }

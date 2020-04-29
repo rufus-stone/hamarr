@@ -156,7 +156,7 @@ void print_character_frequency(std::vector<std::size_t> freqs, bool show_zeros =
 }
 
 ////////////////////////////////////////////////////////////
-bool looks_like_english(std::string_view input, bool flag = false)
+bool looks_like_english(std::string_view input, bool debug_flag = false)
 {
   std::size_t spaces = 0;
   std::size_t punctuation = 0;
@@ -171,7 +171,7 @@ bool looks_like_english(std::string_view input, bool flag = false)
     // Abort condition - there should be no un-printable byte values (apart from space, tab, newline, carriage return, etc.)
     if ((ch < 0x20 && ch != 0x09 && ch != 0x0A && ch != 0x0B && ch != 0x0C && ch != 0x0D) || ch > 0x7E)
     {
-      if (flag) LOG_INFO("Failed unprintable");
+      if (debug_flag) LOG_INFO("Failed unprintable");
       return false;
     }
 
@@ -209,28 +209,28 @@ bool looks_like_english(std::string_view input, bool flag = false)
   // There should be more spaces than punctuation
   if (spaces < punctuation)
   {
-    if (flag) LOG_INFO("Failed spaces vs punc");
+    if (debug_flag) LOG_INFO("Failed spaces vs punc");
     return false;
   }
 
   // There should be more alphanumerics than punctuation
   if (numbers + lowercase + uppercase < punctuation)
   {
-    if (flag) LOG_INFO("Failed alphanum vs punc");
+    if (debug_flag) LOG_INFO("Failed alphanum vs punc");
     return false;
   }
 
   // There should be more lowercase letters than uppercase
   if (lowercase < uppercase)
   {
-    if (flag) LOG_INFO("Failed lower vs upper");
+    if (debug_flag) LOG_INFO("Failed lower vs upper");
     return false;
   }
 
   // There should be more letters than numbers
   if (lowercase + uppercase < numbers)
   {
-    if (flag) LOG_INFO("Failed letters vs numbers");
+    if (debug_flag) LOG_INFO("Failed letters vs numbers");
     return false;
   }
 
@@ -238,7 +238,7 @@ bool looks_like_english(std::string_view input, bool flag = false)
 }
 
 ////////////////////////////////////////////////////////////
-auto find_candidate_keysize(std::string_view input, std::size_t min = 2, std::size_t max = 40)
+auto find_candidate_keysize(std::string_view input, std::size_t min = 2, std::size_t max = 40, bool debug_flag = false)
 {
   const std::size_t len = input.size();
 
@@ -279,13 +279,13 @@ auto find_candidate_keysize(std::string_view input, std::size_t min = 2, std::si
 
   // Pick the key_size with the lowest average hamming distance - this is the best candidate for the actual key size
   auto best_candidate = std::min_element(std::begin(average_hams), std::end(average_hams), [](const auto &lhs, const auto &rhs) { return lhs.second < rhs.second; });
-  LOG_INFO("Best candidate key size: " << best_candidate->first << " (average Hamming distance: " << best_candidate->second << ")");
+  if (debug_flag) LOG_INFO("Best candidate key size: " << best_candidate->first << " (average Hamming distance: " << best_candidate->second << ")");
 
   return *best_candidate;
 }
 
 ////////////////////////////////////////////////////////////
-auto solve_single_byte_xor(std::string_view input)
+auto solve_single_byte_xor(std::string_view input, bool debug_flag = false)
 {
   uint8_t key = 0x00;
 
@@ -296,7 +296,7 @@ auto solve_single_byte_xor(std::string_view input)
   {
     auto result = hmr::bitwise::xor_with_key(input, key);
 
-    if (hmr::analysis::looks_like_english(result))
+    if (hmr::analysis::looks_like_english(result, debug_flag))
     {
       possible_keys.push_back(key);
     } 
@@ -304,7 +304,7 @@ auto solve_single_byte_xor(std::string_view input)
     key++;
   }
 
-  if (possible_keys.empty())
+  if (possible_keys.empty() && debug_flag)
   {
     LOG_INFO("Failed to find any possible keys!");
     LOG_INFO("Input was: " << input);
