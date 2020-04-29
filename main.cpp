@@ -228,6 +228,12 @@ int main()
   LOG_INFO(binary::encode(bitwise::shift_right(binary::decode("01001001"), 6)));
   assert(binary::encode(bitwise::shift_right(binary::decode("01001001"), 6)) == "00000001");
 
+  LOG_INFO(binary::encode(bitwise::shift_right(test, 6)));
+  assert(binary::encode(bitwise::shift_right(test, 6)) == "00000001 00000001 00000001 00000001 00000001 00000000 00000000 00000001 00000001 00000001 00000001 00000001 00000000");
+
+  LOG_INFO(binary::encode(bitwise::shift_right("Another", 2)));
+  assert(binary::encode(bitwise::shift_right("Another", 2)) == "00010000 00011011 00011011 00011101 00011010 00011001 00011100");
+
   LOG_INFO(binary::encode(bitwise::shift_left<uint16_t>(255, 8)));
   assert(binary::encode(bitwise::shift_left<uint16_t>(255, 8)) == "11111111 00000000");
 
@@ -363,6 +369,6 @@ int main()
   LOG_INFO("\n\n---[ Shannon Entropy ]---\n");
   LOG_INFO("1223334444 has entropy: " << analysis::entropy("1223334444"));
   LOG_INFO(test << " has entropy: " << analysis::entropy(test));
-
+  
   return 0;
 }

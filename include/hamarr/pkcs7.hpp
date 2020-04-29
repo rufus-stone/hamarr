@@ -1,12 +1,13 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 
 namespace hmr::pkcs7
 {
 
 ////////////////////////////////////////////////////////////
-bool padded(const std::string &input, std::size_t block_size = 16)
+bool padded(std::string_view input, std::size_t block_size = 16)
 {
   uint8_t pad_byte = input[input.size() - 1];
 

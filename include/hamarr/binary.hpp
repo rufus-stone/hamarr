@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <vector>
 #include <algorithm>
 #include <numeric>
@@ -14,7 +15,7 @@ namespace hmr::binary
 {
 
 ////////////////////////////////////////////////////////////
-std::string encode(const std::string &input, bool delimited = true)
+std::string encode(std::string_view input, bool delimited = true)
 {
   std::vector<std::string> out_vec;
 

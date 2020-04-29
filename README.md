@@ -35,7 +35,7 @@ To convert to/from hexadecimal string representations of data, there are various
 
 `hmr::hex::decode()`
 
-The `hex::encode()` function can take a `std::string`, a `const char*`, or any kind of integral value as its input, and will return a `std::string` containing the hex representation of the input. For example:
+The `hmr::hex::encode()` function can take a `std::string_view`, a `const char*`, or any kind of integral value as its input, and will return a `std::string` containing the hex representation of the input. For example:
 
 ```cpp
 auto encoded = hmr::hex::encode("Hello, World!"); // encoded contains the string "48 65 6C 6C 6F 2C 20 57 6F 72 6C 64 21"
@@ -53,7 +53,7 @@ auto encoded = hmr::hex::encode("Hello, World!", false); // encoded contains the
 encoded = hmr::hex::encode(uint16_t(4660), false); // encoded contains the string "1234"
 ```
 
-The `hmr::hex::decode()` function has two variants. The un-templated variant takes a `std::string` as its input and returns a `std::string` containing the decoded bytes. It ignores any whitespace, so it doesn't matter if you feed it a hex string with spaces between the hex pairs or not, and is case insensitive. For example:
+The `hmr::hex::decode()` function has two variants. The un-templated variant takes a `std::string_view` as its input and returns a `std::string` containing the decoded bytes. It ignores any whitespace, so it doesn't matter if you feed it a hex string with spaces between the hex pairs or not, and is case insensitive. For example:
 
 ```cpp
 auto decoded = hmr::hex::decode("48 65 6C 6C 6F 2C 20 57 6F 72 6C 64 21"); // decoded contains the string "Hello, World!"
@@ -63,7 +63,7 @@ decoded = hmr::hex::decode("48656C6C6F2C20576F726C6421"); // decoded still conta
 decoded = hmr::hex::decode("48 65 6c 6C 6f 2C 20 57 6f 72 6C 64 21"); // hmr::hex::decode() internally normalises to all uppercase before decoding, so inputs are case insensitive
 ```
 
-The templated variant takes a `std::string` as its input but returns an integral value of the type specified. The number of bytes worth of hex chars in the input must be equal to or less than the size of the return type. For example:
+The templated variant takes a `std::string_view` as its input but returns an integral value of the type specified. The number of bytes worth of hex chars in the input must be equal to or less than the size of the return type. For example:
 
 ```cpp
 auto decoded_1 = hmr::hex::decode<uint8_t>("FF"); // decoded is a uint8_t with the value 255 (0xFF)
@@ -92,7 +92,7 @@ To convert to/from binary string representations of data, there are two function
 
 `hmr::binary::decode()`
 
-The `hmr::binary::encode()` function can take a `std::string` or any kind of integral value as its input, and will return a `std::string` containing the binary representation of the Input. Similar to `hmr::hex::encode()`, you can optionally disable the insertion of spaces after each byte's worth of bits. This functionality is enabled by default, so to disable it add the argument `false` to the function. For example:
+The `hmr::binary::encode()` function can take a `std::string_view` or any kind of integral value as its input, and will return a `std::string` containing the binary representation of the Input. Similar to `hmr::hex::encode()`, you can optionally disable the insertion of spaces after each byte's worth of bits. This functionality is enabled by default, so to disable it add the argument `false` to the function. For example:
 
 ```cpp
 auto encoded = hmr::binary::encode("Hello, World!"); // encoded contains the string "01001000 01100101 01101100 01101100 01101111 00101100 00100000 01010111 01101111 01110010 01101100 01100100 00100001"
@@ -132,7 +132,7 @@ To convert to/from base64 string representations of data, there are two function
 
 `hmr::base64::decode()`
 
-These both take a `std::string` input, and return a `std::string` output. They use the standard base64 alphabet of A-Za-z0-9+/ with = as the padding character. For example:
+These both take a `std::string_view` input, and return a `std::string` output. They use the standard base64 alphabet of A-Za-z0-9+/ with = as the padding character. For example:
 
 ```cpp
 auto encoded = hmr::base64::encode("Hello, World!"); // encoded contains the string "SGVsbG8sIFdvcmxkIQ=="
@@ -161,7 +161,7 @@ To convert to/from URL encoded string representations of data, there are two fun
 
 `hmr::url::decode()`
 
-These both take a `std::string` input, and return a `std::string` output. Any characters that fall outside the list of unreserved characters (as defined in RFC 3986, i.e. the alphanumeric chars, plus '-', '.', '\_', and '~') are percent-encoded. For example:
+These both take a `std::string_view` input, and return a `std::string` output. Any characters that fall outside the list of unreserved characters (as defined in RFC 3986, i.e. the alphanumeric chars, plus '-', '.', '\_', and '~') are percent-encoded. For example:
 
 ```cpp
 auto encoded = hmr::url::encode("Hello, World!"); // encoded contains the string "Hello%2C%20World%21"
@@ -239,7 +239,7 @@ To apply various kinds of XOR, there are various overloads of three functions:
 
 `hmr::bitwise::xor_counter()`
 
-The function `hmr::bitwise::xor_with_key()` takes two inputs - a `std::string` for the data, and either a `std::string` or `uint8_t` for the key. It performs an XOR across the data using the key, and returns the result as a `std::string`. For example:
+The function `hmr::bitwise::xor_with_key()` takes two inputs - a `std::string_view` for the data, and either a `std::string_view` or `uint8_t` for the key. It performs an XOR across the data using the key, and returns the result as a `std::string`. For example:
 
 ```cpp
 auto xord = hmr::bitwise::xor_with_key("Example data", hmr::hex::decode("01 2A 8C")); // XORs "Example data" with the 3-byte key \x01\x2A\x8C -> xord is a std::string containing "\x44\x52\xED\x6C\x5A\xE0\x64\x0A\xE8\x60\x5E\xED"
@@ -247,7 +247,7 @@ auto xord = hmr::bitwise::xor_with_key("Example data", hmr::hex::decode("01 2A 8
 xord = hmr::bitwise::xor_with_key("Example data", 0x42); // XORs "Example data" with the single byte key \x42
 ```
 
-The function `hmr::bitwise::xor_rolling()` takes a `std::string` input and returns a `std::string` output. It performs a rolling XOR where each byte of the input is XORed against the previous byte (the very first byte is un-changed). By default, this uses input differential mode, where each byte of the input is XORed against the original pre-XOR value of the previous byte. To enable output differential mode, where each byte is XORed with the resulting post-XOR value of the previous byte, add the argument `hmr::bitwise::xor_differential::output` to the function. For example:
+The function `hmr::bitwise::xor_rolling()` takes a `std::string_view` input and returns a `std::string` output. It performs a rolling XOR where each byte of the input is XORed against the previous byte (the very first byte is un-changed). By default, this uses input differential mode, where each byte of the input is XORed against the original pre-XOR value of the previous byte. To enable output differential mode, where each byte is XORed with the resulting post-XOR value of the previous byte, add the argument `hmr::bitwise::xor_differential::output` to the function. For example:
 
 ```cpp
 auto xord = hmr::bitwise::xor_rolling("Hello!"); // Input differential mode is used by default, so xord contains the hex value: 48 2D 09 00 03 4E
@@ -255,7 +255,7 @@ auto xord = hmr::bitwise::xor_rolling("Hello!"); // Input differential mode is u
 xord = hmr::bitwise::xor_rolling("Hello!", hmr::bitwise::xor_differential::output); // The scoped enum hmr::bitwise::xor_differential::output enables output differential mode, so xord contains the hex value: 48 2D 41 2D 42 63
 ```
 
-The function `hmr::bitwise::xor_counter()` takes a `std::string` input and returns a `std::string` output. It implements a counter-based XOR where the value of the key counts up or down by the specified incrementation amount after each byte of the input has been processed. The starting value for the key defaults to \x00, and the incrementation defaults to +1, but both of these can be changed. The initial key value is specified by passing a `uint8_t` as the second argument to the function, and the incrementation value is specified by passing a signed `int` as the third argument. If the incremention would cause the key value to increase above \xFF, or decrease below \x00, then the key value wraps back around. For example:
+The function `hmr::bitwise::xor_counter()` takes a `std::string_view` input and returns a `std::string` output. It implements a counter-based XOR where the value of the key counts up or down by the specified incrementation amount after each byte of the input has been processed. The starting value for the key defaults to \x00, and the incrementation defaults to +1, but both of these can be changed. The initial key value is specified by passing a `uint8_t` as the second argument to the function, and the incrementation value is specified by passing a signed `int` as the third argument. If the incremention would cause the key value to increase above \xFF, or decrease below \x00, then the key value wraps back around. For example:
 
 ```cpp
 auto xord = hmr::bitwise::xor_counter("Hello, World!"); // Defaults to initial key value \x00 and incremention value +1, resulting in key stream: 00 01 02 03 04 05...etc., meaning xord contains the hex value: 48 64 6E 6F 6B 29 26 50 67 7B 66 6F 2D
@@ -267,7 +267,7 @@ xord = hmr::bitwise::xor_counter("Hello, World!", '\xEF', 6); // Initial key val
 xord = hmr::bitwise::xor_counter("Hello, World!", '\x04', -2); // Initial key value \x04 and incremention value -2, resulting in key stream: 04 02 00 FE FC FA...etc., meaning xord contains the hex value: 4C 67 6C 92 93 D6 D8 A1 9B 80 9C 8A CD
 ```
 
-- Todo: Allow `hmr::bitwise::xor_counter()` to take a `std::string` for the initial key value
+- Todo: Allow `hmr::bitwise::xor_counter()` to take a `std::string_view` for the initial key value
 
 ##### Bit Shift
 
@@ -277,7 +277,7 @@ To perform left/right bit shifts, there are two functions:
 
 `hmr::bitwise::shift_right()`
 
-There are two variants of each function. The un-templated variant takes a `std::string` input and a `std::size_t` specifying the shift amount (this defaults to 1 if omitted), and returns a `std:string` output which contains the result of shifting each byte of the input by the specified amount. For example:
+There are two variants of each function. The un-templated variant takes a `std::string_view` input and a `std::size_t` specifying the shift amount (this defaults to 1 if omitted), and returns a `std:string` output which contains the result of shifting each byte of the input by the specified amount. For example:
 
 ```cpp
 auto shifted_left = hmr::bitwise::shift_left(hmr::binary::decode("00110011 00000001")); // shifted_left is a string containing bytes with the binary value: 01100110 00000010
@@ -301,7 +301,7 @@ To perform left/right bit rotation, there are two function:
 
 `hmr::bitwise::rotate_right()`
 
-These both take a `std::string` input and a `std::size_t` specifying the rotation amount (this defaults to 1 if omitted), and return a `std::string` output containing the result of rotating each byte in the input by the specified amount. By default, these functions perform a bitwise rotation on each byte of the input in isolation (without carry through). To enable carry through, where bits from one byte can be carried through to the next byte, add the argument `hmr::bitwise::carry_through::enabled` to the function. For example:
+These both take a `std::string_view` input and a `std::size_t` specifying the rotation amount (this defaults to 1 if omitted), and return a `std::string` output containing the result of rotating each byte in the input by the specified amount. By default, these functions perform a bitwise rotation on each byte of the input in isolation (without carry through). To enable carry through, where bits from one byte can be carried through to the next byte, add the argument `hmr::bitwise::carry_through::enabled` to the function. For example:
 
 ```cpp
 auto rotate_left = hmr::bitwise::rotate_left(hmr::binary::decode("11110000 00111100", 4)); // rotate_left is a string containing bytes with the binary value: 00001111 11000011
@@ -320,7 +320,7 @@ The Hamming distance between two equal-length inputs is the number of bits that 
 
 `hmr::analysis::hamming_distance()`
 
-This takes two `std::string` inputs, and return a `std::size_t` output set to the number of bits that differ between each input. For example:
+This takes two `std::string_view` inputs, and return a `std::size_t` output set to the number of bits that differ between each input. For example:
 
 ```cpp
 auto diff = hmr::analysis::hamming_distance("this is a test", "wokka wokka!!!"); // diff is set to 37
@@ -332,12 +332,12 @@ If the inputs are not of equal length, only the shorter length input's worth of 
 auto diff = hmr::analysis::hamming_distance("this is a testEXTRASTUFF", "wokka wokka!!!"); // diff is still set to 37, as EXTRASTUFF is ignored
 ```
 
-- Todo: Add support for non-string inputs
+- Todo: Add support for non-string/string_view inputs
 
 
 ### Character frequency
 
-The function `hmr::analysis::character_frequency()` can be used to count the number of times each character occurs in a given string. This takes a `std::string` input, and returns a `std::vector<std::size_t>` containing a count for each byte. The index into the `std::vector` is the byte value, and the value at that index is the count. By default this is case sensitive, but to make it case insensitive add the argument `hmr::analysis::case_sensitivity::disabled` to the function. For example:
+The function `hmr::analysis::character_frequency()` can be used to count the number of times each character occurs in a given string. This takes a `std::string_view` input, and returns a `std::vector<std::size_t>` containing a count for each byte. The index into the `std::vector` is the byte value, and the value at that index is the count. By default this is case sensitive, but to make it case insensitive add the argument `hmr::analysis::case_sensitivity::disabled` to the function. For example:
 
 ```cpp
 auto freqs = hmr::analysis::character_frequency("Mix OF upPer AND LOWER"); // freqs['p'] == 1, freqs['P'] == 1, freqs['e'] == 1
@@ -347,7 +347,7 @@ freqs = hmr::analysis::character_frequency("Mix OF upPer AND LOWER", hmr::analys
 
 ### English text detection
 
-The function `hmr::analysis::looks_like_english()` can be used to assess whether a given string appears to be English text (or at least, printable English-like ASCII). This takes a `std::string` input, and returns a `bool` indicating whether it passed or failed the various tests that it applies. These include checks for the presence of un-printable characters, the presence of more punctuation characters than alphanumeric characters, and absense of space characters, an average word length significantly shorter or longer than the English average of 4.7, etc. For example:
+The function `hmr::analysis::looks_like_english()` can be used to assess whether a given string appears to be English text (or at least, printable English-like ASCII). This takes a `std::string_view` input, and returns a `bool` indicating whether it passed or failed the various tests that it applies. These include checks for the presence of un-printable characters, the presence of more punctuation characters than alphanumeric characters, and absense of space characters, an average word length significantly shorter or longer than the English average of 4.7, etc. For example:
 
 ```cpp
 auto result = hmr::analysis::looks_like_english("Hello, World!"); // result is: true
@@ -406,7 +406,7 @@ To check for the presence of PKCS7 padding, there is the following function:
 
 `hmr::pkcs7::padded()`
 
-This takes a `std::string` input and a `std::size_t` specifying the block size (this defaults to 16 bytes if omitted), and returns a `bool` output set to `true` if the input is PKCS7 padded, and `false` if not. It is called from within `hmr::pkcs7::unpad()`, which will return the input string unchanged if the call to `hmr::pkcs7::padded()` returns `false`.
+This takes a `std::string_view` input and a `std::size_t` specifying the block size (this defaults to 16 bytes if omitted), and returns a `bool` output set to `true` if the input is PKCS7 padded, and `false` if not. It is called from within `hmr::pkcs7::unpad()`, which will return the input string unchanged if the call to `hmr::pkcs7::padded()` returns `false`.
 
 For example:
 
@@ -429,7 +429,7 @@ To calculate the Shannon entropy of a given input, there is the following functi
 
 `hmr::analysis::entropy()`
 
-This takes a `std::string` input and returns a `double` with the calculated entropy. Given 256 possible values for a given byte, the maximum possible entropy value for a string is log2(256) which is 8 (representing complete randomness). The minimum possible value is 0 (indicating that all the bytes of the input are identical). For example:
+This takes a `std::string_view` input and returns a `double` with the calculated entropy. Given 256 possible values for a given byte, the maximum possible entropy value for a string is log2(256) which is 8 (representing complete randomness). The minimum possible value is 0 (indicating that all the bytes of the input are identical). For example:
 
 ```cpp
 auto entropy = hmr::analysis::entropy("Hello, World!"); // entropy is a double set to 3.18083

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <algorithm>
 
 namespace hmr::base64
@@ -9,7 +10,7 @@ namespace hmr::base64
 static const auto base64_alphabet = std::string("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=");
 
 ////////////////////////////////////////////////////////////
-std::string encode(const std::string &input, const std::string &alphabet = base64_alphabet)
+std::string encode(std::string_view input, const std::string &alphabet = base64_alphabet)
 {
   // Fail point - is the alphabet exactly 65 chars (64 alphabet chars + 1 padding char)?
   if (alphabet.size() != 65)
@@ -83,7 +84,7 @@ std::string encode(const std::string &input, const std::string &alphabet = base6
 
 
 ////////////////////////////////////////////////////////////
-std::string decode(const std::string& input, const std::string &alphabet = base64_alphabet)
+std::string decode(std::string_view input, const std::string &alphabet = base64_alphabet)
 {
   // Fail point - is the alphabet exactly 65 chars (64 alphabet chars + 1 padding char)?
   if (alphabet.size() != 65)

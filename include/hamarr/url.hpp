@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <string_view>
 #include <algorithm>
 
 #include "logger.hpp"
@@ -13,7 +14,7 @@ namespace hmr::url
 static const auto unreserved_chars = std::string("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~");
 
 ////////////////////////////////////////////////////////////
-std::string encode(const std::string& input, bool lazy=false)
+std::string encode(std::string_view input, bool lazy=false)
 {
 	std::string output;
 	output.reserve(input.size()); // The output will almost certainly be larger than this, however...
@@ -57,7 +58,7 @@ std::string encode(const std::string& input, bool lazy=false)
 }
 
 ////////////////////////////////////////////////////////////
-std::string decode(const std::string& input, bool lazy=false)
+std::string decode(std::string_view input, bool lazy=false)
 {
   const std::size_t len = input.length();
 

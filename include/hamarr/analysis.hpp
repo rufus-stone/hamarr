@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <string>
+#include <string_view>
 #include <numeric>
 #include <cmath>
 
@@ -14,7 +15,7 @@ namespace hmr::analysis
 enum class case_sensitivity { enabled, disabled };
 
 ////////////////////////////////////////////////////////////
-std::size_t hamming_distance(const std::string &lhs, const std::string &rhs)
+std::size_t hamming_distance(std::string_view lhs, std::string_view rhs)
 {
 	const uint8_t *lhs_bytes = reinterpret_cast<const uint8_t*>(lhs.data());
 	const uint8_t *rhs_bytes = reinterpret_cast<const uint8_t*>(rhs.data());
@@ -46,7 +47,7 @@ std::size_t hamming_distance(const std::string &lhs, const std::string &rhs)
 }
 
 ////////////////////////////////////////////////////////////
-double entropy(const std::string &input)
+double entropy(std::string_view input)
 {
   const std::size_t len = input.size();
 
@@ -89,7 +90,7 @@ double entropy(const std::string &input)
 }
 
 ////////////////////////////////////////////////////////////
-std::vector<std::size_t> character_frequency(const std::string &input, analysis::case_sensitivity sensitivity = analysis::case_sensitivity::enabled)
+std::vector<std::size_t> character_frequency(std::string_view input, analysis::case_sensitivity sensitivity = analysis::case_sensitivity::enabled)
 {
   auto freqs = std::vector<std::size_t>(256, 0); // Create a vector of 256 entries (one for each possible byte value), and set all to 0
 
@@ -153,7 +154,7 @@ void print_character_frequency(std::vector<std::size_t> freqs, bool show_zeros =
 }
 
 ////////////////////////////////////////////////////////////
-bool looks_like_english(const std::string &input)
+bool looks_like_english(std::string_view input)
 {
   // There should be more alphanumeric chars than punctuation chars
   std::size_t alphanumerics = 0;
