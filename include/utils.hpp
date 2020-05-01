@@ -1,5 +1,7 @@
 #pragma once
 
+#include "hamarr/fwd.hpp"
+
 #include "hamarr/analysis.hpp"
 #include "hamarr/base64.hpp"
 #include "hamarr/binary.hpp"

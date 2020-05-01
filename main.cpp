@@ -4,6 +4,8 @@
 
 using namespace hmr;
 
+using namespace std::string_literals;
+
 int main()
 {
   auto test = std::string("Hello, World!");
@@ -13,6 +15,7 @@ int main()
   LOG_INFO("\n\n---[ Formatting ]---\n");
   LOG_INFO(format::to_upper(test));
   LOG_INFO(format::to_lower(test));
+  LOG_INFO(format::escape("This\nhas\nnew\nlines and backslash \\ and unprintable \x03 hex \x00 chars \x7F"s));
 
 
   LOG_INFO("\n\n---[ Hex Strings ]---\n");
