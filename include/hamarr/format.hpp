@@ -28,4 +28,34 @@ std::string to_lower(std::string_view input)
   return output;
 }
 
+////////////////////////////////////////////////////////////
+std::string escape(std::string_view input)
+{
+  std::string output;
+  output.reserve(input.size());
+
+  for (const auto &c : input)
+  {
+    auto ch = static_cast<uint8_t>(c);
+
+    switch (ch)
+    {
+      case 0x0A: output += "\\n"; break;
+      case 0x0D: output += "\\r"; break;
+      case '\\': output += "\\\\"; break;
+      default:
+        if ((ch >= 0x00 && ch <= 0x1F) || ch >= 0x7F)
+        {
+          output += ("\\x" + hmr::hex::encode(ch));
+        } else
+        {
+          output += ch;
+        }
+        break;
+    }
+  }
+
+  return output;
+}
+
 } // namespace format

@@ -27,6 +27,28 @@ LOG_INFO("Blah blah blah " << 123); // Prints: "Blah blah blah 123"
 LOG_ERROR("Some message " << 54321); // Prints: "Some message 54321"
 ```
 
+### Formatting
+
+To convert a string to uppercase/lowercase, there are two functions:
+
+`hmr::format::to_upper()`
+
+`hmr::format::to_lower()`
+
+These both take a `std::string_view` input, and return a `std::string` output. They are just convience functions that call `std::toupper()` or `std::tolower()` on each character of the string.
+
+To escape a string that contains unprintable characters, newlines, etc., there is the following function:
+
+`hmr::format::escape()`
+
+This takes a `std::string_view` input, and returns a `std::string` output. For example:
+
+```cpp
+LOG_INFO(hmr::format::escape("This \\ has newlines \n and carriage returns \r and unprintable \x7F hex chars")); // LOG_INFO() literally prints "This \\ has newlines \n and carriage returns \r and unprintable \x7F hex chars"
+```
+
+- Todo: Implement an unescape function
+
 ### Hex
 
 To convert to/from hexadecimal string representations of data, there are various overloads of two functions:
