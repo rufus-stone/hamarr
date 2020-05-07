@@ -313,4 +313,27 @@ auto solve_single_byte_xor(std::string_view input, bool debug_flag = false)
   return possible_keys;
 }
 
+////////////////////////////////////////////////////////////
+bool repeated_blocks(std::string_view input, std::size_t block_size = 16)
+{
+  auto len = input.size();
+  assert(len % block_size == 0);
+
+  // Ignore the final block, as we'll already know that isn't repeated by then
+  for (std::size_t offset = 0; offset + block_size <= (len - block_size); offset += block_size)
+  {
+    // Get the next block
+    auto block = input.substr(offset, block_size);
+
+    // Does this block occur again in the data
+    auto pos = input.find(block, offset + block_size);
+    if (pos != std::string_view::npos)
+    {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 } // namespace analysis
