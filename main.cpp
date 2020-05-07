@@ -377,6 +377,14 @@ int main()
   assert(possible_keys.size() == 1);
   LOG_INFO("XOR key == " << hex::encode(possible_keys[0]));
   LOG_INFO("Output  == " << bitwise::xor_with_key(xord, possible_keys[0]));
+
+
+  LOG_INFO("\n\n---[ Repeated Block Detection ]---\n");
+  LOG_INFO(std::boolalpha << analysis::repeated_blocks("12345678ABCDEFGH12345678ZYXWVUTS", 8));
+  assert(analysis::repeated_blocks("12345678ABCDEFGH12345678ZYXWVUTS", 8) == true);
+  LOG_INFO(std::boolalpha << analysis::repeated_blocks("11111111111111112222222222222222"));
+  assert(analysis::repeated_blocks("11111111111111112222222222222222") == false);
+  assert(analysis::repeated_blocks("111111111111111122222222222222221111111111111111") == true);
   
   return 0;
 }
