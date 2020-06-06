@@ -58,4 +58,31 @@ std::string escape(std::string_view input)
   return output;
 }
 
+
+////////////////////////////////////////////////////////////
+auto split(std::string_view input, char delimiter) -> std::vector<std::string_view>
+{
+  auto len = input.size();
+  auto first = input.data();
+  auto second = input.data();
+  auto last = first + len;
+
+  // Divide the input up into segments by splitting around the delimiter
+  auto segments = std::vector<std::string_view>{};
+  
+  while (second < last && first < last)
+  {
+    second = std::find(first, last, delimiter);
+
+    if (first != second)
+    {
+      segments.emplace_back(first, second - first);
+    }
+
+    first = second + 1;
+  }
+
+  return segments;
+}
+
 } // namespace format

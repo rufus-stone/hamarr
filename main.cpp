@@ -385,6 +385,13 @@ int main()
   LOG_INFO(std::boolalpha << analysis::repeated_blocks("11111111111111112222222222222222"));
   assert(analysis::repeated_blocks("11111111111111112222222222222222") == false);
   assert(analysis::repeated_blocks("111111111111111122222222222222221111111111111111") == true);
+
+
+  LOG_INFO("\n\n---[ Data Serialisation ]---\n");
+  auto kvps = std::map<std::string_view, std::string_view>{{"key1", "value1"}, {"key2", "value2"}, {"key3", "value3"}};
+  LOG_INFO(hmr::kvp::encode(kvps));
+  assert(hmr::kvp::encode(kvps) == "key1=value1&key2=value2&key3=value3");
+  assert(hmr::kvp::decode("key1=value1&key2=value2&key3=value3") == kvps);
   
   return 0;
 }
