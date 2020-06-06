@@ -13,3 +13,4 @@
 #include "hamarr/prng.hpp"
 #include "hamarr/profiling.hpp"
 #include "hamarr/url.hpp"
+#include "hamarr/serialisation.hpp"
