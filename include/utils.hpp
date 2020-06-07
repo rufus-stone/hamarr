@@ -12,5 +12,6 @@
 #include "hamarr/pkcs7.hpp"
 #include "hamarr/prng.hpp"
 #include "hamarr/profiling.hpp"
-#include "hamarr/url.hpp"
 #include "hamarr/serialisation.hpp"
+#include "hamarr/url.hpp"
+#include "hamarr/uuid.hpp"

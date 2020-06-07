@@ -463,4 +463,37 @@ auto entropy = hmr::analysis::entropy("Hello, World!"); // entropy is a double s
 - Todo: Document the new analysis functions!
 
 
+### Data serialisation
+
+To serialise data into an ampersand-delimited set of key=value pairs (e.g. key1=value1&key2=value2), and to deserialise back into a `std::map`, there are the following functions:
+
+`hmr::kvp::serialise()`
+
+`hmr::kvp::deserialise()`
+
+The `hmr::kvp::serialise()` function takes a `std::map<std::string_view, std::string_view>` input, and returns a `std::string` output. The `hmr::kvp::deserialise()` functions takes a `std::string_view` input, and returns a `std::map<std::string_view, std::string_view>`. For example:
+
+```cpp
+auto kvps = std::map<std::string_view, std::string_view>{{"key1", "value1"}, {"key2", "value2"}, {"key3", "value3"}};
+
+auto serialised = hmr::kvp::serialise(kvps); // serialised contains the string "key1=value1&key2=value2&key3=value3"
+auto deserialised = hmr::kvp::deserialise("key1=value1&key2=value2&key3=value3"); // deserialised == kvps
+```
+
+
+### UUID generation
+
+To generate a random UUID, there is the following function:
+
+`hmr::uuid::generate()`
+
+This takes no inputs, and returns a `std::string` output containing a randomly generated UUID. This does NOT currently conform to the UUID specification as outlined in RFC 4122 - it is just a randomly generated string in a UUID-style 8-4-4-4-12 format, in uppercase. For example:
+
+```cpp
+auto uuid = hmr::uuid::generate(); // uuid is a string containing a randomly generated uppercase UUID such as "1A631FB6-AC62-03F1-34F1-570AD5AE026D"
+```
+
+- Todo: Implement a proper RFC 4122-compliant UUID generator
+
+
 <a href="https://icons8.com/icon/10381/thor-hammer">Thor Hammer icon by Icons8</a>
