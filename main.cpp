@@ -389,9 +389,9 @@ int main()
 
   LOG_INFO("\n\n---[ Data Serialisation ]---\n");
   auto kvps = std::map<std::string_view, std::string_view>{{"key1", "value1"}, {"key2", "value2"}, {"key3", "value3"}};
-  LOG_INFO(hmr::kvp::encode(kvps));
-  assert(hmr::kvp::encode(kvps) == "key1=value1&key2=value2&key3=value3");
-  assert(hmr::kvp::decode("key1=value1&key2=value2&key3=value3") == kvps);
+  LOG_INFO(hmr::kvp::serialise(kvps));
+  assert(hmr::kvp::serialise(kvps) == "key1=value1&key2=value2&key3=value3");
+  assert(hmr::kvp::deserialise("key1=value1&key2=value2&key3=value3") == kvps);
   
   return 0;
 }
