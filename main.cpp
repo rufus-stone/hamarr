@@ -392,6 +392,10 @@ int main()
   LOG_INFO(hmr::kvp::serialise(kvps));
   assert(hmr::kvp::serialise(kvps) == "key1=value1&key2=value2&key3=value3");
   assert(hmr::kvp::deserialise("key1=value1&key2=value2&key3=value3") == kvps);
+
+
+  LOG_INFO("\n\n---[ UUID Generation ]---\n");
+  LOG_INFO(hmr::uuid::generate());
   
   return 0;
 }
