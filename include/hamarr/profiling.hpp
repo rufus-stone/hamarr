@@ -24,6 +24,6 @@ std::size_t benchmark(lambda f)
   LOG_INFO("Execution took " << nanoseconds_taken << " ns (" << milliseconds_taken << " ms / " << seconds_taken << " s)");
 
   return nanoseconds_taken;
-};
+}
 
 } // namespace profile
