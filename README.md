@@ -2,17 +2,32 @@
 
 A collection of header-only C++ utilities for performing various kinds of encoding/decoding and other data manipulation operations.
 
-This began life as things I found useful when playing around with the first few [cryptopals challenges](https://cryptopals.com), but has grown to include other kinds of data manipulation operations, functions for generating psuedo-random numbers, etc. Basically it's a bunch of stuff that I wish was already available as easy-to-use functions.
+This began life as things I found useful when playing around with the first few [cryptopals challenges](https://cryptopals.com), but has grown to include other kinds of data manipulation operations, functions for generating psuedo-random numbers, very basic benchmarking, encryption/decryption, etc. Basically it's a bunch of stuff that I wish was already available as easy-to-use functions.
+
 
 ## Installation
 
-Pop the contents of the include folder into your project and include the utils.hpp file
+You can either clone the repo and pop the contents of the include folder into your project, or use git submodules. For example:
 
-`#include "utils.hpp"`
+```shell
+git submodule add git@github.com:rufus-stone/hamarr.git
+
+git submodule update --init --recursive
+```
+
+Then add the following to your CMakeLists.txt file:
+
+```cmake
+include_directories(hamarr/include)
+```
+
+Now you can `#include "hamarr.hpp"` and you're all set!
+
 
 ### Requirements
 
 C++17 or newer
+OpenSSL
 
 
 ## Usage
@@ -35,7 +50,7 @@ To convert a string to uppercase/lowercase, there are two functions:
 
 `hmr::format::to_lower()`
 
-These both take a `std::string_view` input, and return a `std::string` output. They are just convience functions that call `std::toupper()` or `std::tolower()` on each character of the string.
+These both take a `std::string_view` input, and return a `std::string` output. They are just convenience functions that call `std::toupper()` or `std::tolower()` on each character of the string.
 
 To escape a string that contains unprintable characters, newlines, etc., there is the following function:
 
@@ -494,6 +509,39 @@ auto uuid = hmr::uuid::generate(); // uuid is a string containing a randomly gen
 ```
 
 - Todo: Implement a proper RFC 4122-compliant UUID generator
+
+
+### Crypto
+
+To encrypt and decrypt data using AES in either ECB or CBC mode, there are the following functions:
+
+`hmr::crypto::aes_ecb_encrypt()`
+
+`hmr::crypto::aes_ecb_decrypt()`
+
+`hmr::crypto::aes_cbc_encrypt()`
+
+`hmr::crypto::aes_cbc_decrypt()`
+
+These are just convenience functions that use the OpenSSL AES 128 encryption/decryption functions under the hood.
+
+The ECB functions both take two `std::string_view` inputs, one for the plaintext/ciphertext, and one for the key (this must be exactly 16 byes). The `hmr::crypto::aes_ecb_decrypt()` function also takes an optional `bool` indicating whether padding should be remove or not (this defaults to `true`). For example:
+
+```cpp
+auto ciphertext = hmr::crypto::aes_ecb_encrypt("Hello, World!", "YELLOW SUBMARINE"); // ciphertext is a string containing the result of AES encrypting "Hello, World!" with the key "YELLOW SUBMARINE" in ECB mode
+auto plaintext = hmr::crypto::aes_ecb_decrypt(ciphertext, "YELLOW SUBMARINE"); // plaintext is the string "Hello, World!"
+auto still_padded = hmr::crypto::aes_ecb_decrypt(ciphertext, "YELLOW SUBMARINE", false); // Padding removal has been disabled, so plaintext is the string "Hello, World!\x03\x03\x03" with the 3 bytes of PKCS7 padding still there
+```
+
+Similar to the ECB functions, the CBC mode functions both take two `std::string_view` inputs, one for the plaintext/ciphertext, one for the key (this must be exactly 16 byes), and optionally a `std::string` for the IV (this must also be exactly 16 bytes, and defaults to all nulls if omitted). The `hmr::crypto::aes_cbc_decrypt()` function also takes an optional `bool` indicating whether padding should be remove or not (this defaults to `true`). For example:
+
+```cpp
+auto ciphertext = hmr::crypto::aes_cbc_encrypt("Hello, World!", "ORANGE SUBMARINE", "ORANGE SUBMARINE"); // ciphertext is a string containing the result of AES encrypting "Hello, World!" with the key and IV "ORANGE SUBMARINE" in CBC mode
+auto plaintext = hmr::crypto::aes_cbc_decrypt(ciphertext, "ORANGE SUBMARINE", "ORANGE SUBMARINE"); // plaintext is the string "Hello, World!"
+auto still_padded = hmr::crypto::aes_cbc_decrypt(ciphertext, "ORANGE SUBMARINE", "ORANGE SUBMARINE", false); // Padding removal has been disabled, so plaintext is the string "Hello, World!\x03\x03\x03" with the 3 bytes of PKCS7 padding still there
+```
+
+- Todo: Implement convenience functions for other common encryption algorithms, e.g. DES, Triple DES, etc.
 
 
 <a href="https://icons8.com/icon/10381/thor-hammer">Thor Hammer icon by Icons8</a>

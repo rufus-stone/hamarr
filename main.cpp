@@ -396,6 +396,20 @@ int main()
 
   LOG_INFO("\n\n---[ UUID Generation ]---\n");
   LOG_INFO(hmr::uuid::generate());
+
+
+  LOG_INFO("\n\n---[ Crypto - AES ]---\n");
+  LOG_INFO(hmr::base64::encode(hmr::crypto::aes_ecb_encrypt(test, "YELLOW SUBMARINE")));
+  assert(hmr::base64::encode(hmr::crypto::aes_ecb_encrypt(test, "YELLOW SUBMARINE")) == "401gyzJgpJNkouYaQRZZRg==");
+  assert(hmr::crypto::aes_ecb_decrypt(hmr::base64::decode("401gyzJgpJNkouYaQRZZRg=="), "YELLOW SUBMARINE") == test);
+
+  LOG_INFO(hmr::format::escape(hmr::crypto::aes_ecb_decrypt(hmr::base64::decode("401gyzJgpJNkouYaQRZZRg=="), "YELLOW SUBMARINE", false)));
+  assert(hmr::crypto::aes_ecb_decrypt(hmr::base64::decode("401gyzJgpJNkouYaQRZZRg=="), "YELLOW SUBMARINE", false) == "Hello, World!\x03\x03\x03");
+
+  auto longer_plaintext = std::string{"Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal"};
+  LOG_INFO(hmr::base64::encode(hmr::crypto::aes_cbc_encrypt(longer_plaintext, "ORANGE SUBMARINE", "ORANGE SUBMARINE")));
+  assert(hmr::base64::encode(hmr::crypto::aes_cbc_encrypt(longer_plaintext, "ORANGE SUBMARINE", "ORANGE SUBMARINE")) == "rnPbRj30TGD+MRXM2O14b/xSA9oAv8Al/um7hObPUi5wP82Idy3FvXxNYghiPMeB+YLHDpzQDPm4FsNeSARVda55uN8ePdMZhoPkaiNbQcA=");
+  assert(hmr::crypto::aes_cbc_decrypt(hmr::base64::decode("rnPbRj30TGD+MRXM2O14b/xSA9oAv8Al/um7hObPUi5wP82Idy3FvXxNYghiPMeB+YLHDpzQDPm4FsNeSARVda55uN8ePdMZhoPkaiNbQcA="), "ORANGE SUBMARINE", "ORANGE SUBMARINE") == longer_plaintext);
   
   return 0;
 }

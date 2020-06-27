@@ -12,5 +12,8 @@ set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
 
+find_package(OpenSSL REQUIRED)
+target_link_libraries(hamarr PRIVATE OpenSSL::SSL)
+
 target_compile_features(hamarr PUBLIC cxx_std_17)
 target_compile_options(hamarr PRIVATE -Werror -Wall -Wextra -Wold-style-cast -Wpedantic)
