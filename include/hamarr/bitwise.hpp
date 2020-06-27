@@ -82,7 +82,7 @@ std::string xor_counter(std::string_view input, uint8_t key = 0x00, int incremen
 
   for (const auto &ch : input)
   {
-    uint8_t a = (uint8_t)(ch ^ key);
+    uint8_t a = static_cast<uint8_t>(ch ^ key);
 
     output.push_back(char(a));
 

@@ -44,7 +44,7 @@ std::string escape(std::string_view input)
       case 0x0D: output += "\\r"; break;
       case '\\': output += "\\\\"; break;
       default:
-        if ((ch >= 0x00 && ch <= 0x1F) || ch >= 0x7F)
+        if (ch <= 0x1F || ch >= 0x7F)
         {
           output += ("\\x" + hmr::hex::encode(ch));
         } else
