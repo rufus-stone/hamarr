@@ -26,8 +26,8 @@ Now you can `#include "hamarr.hpp"` and you're all set!
 
 ### Requirements
 
-C++17 or newer
-OpenSSL
+- C++17 or newer
+- OpenSSL
 
 
 ## Usage
