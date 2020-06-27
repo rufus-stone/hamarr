@@ -6,6 +6,7 @@
 #include "hamarr/base64.hpp"
 #include "hamarr/binary.hpp"
 #include "hamarr/bitwise.hpp"
+#include "hamarr/crypto.hpp"
 #include "hamarr/format.hpp"
 #include "hamarr/hex.hpp"
 #include "hamarr/logger.hpp"
