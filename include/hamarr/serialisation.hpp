@@ -21,7 +21,7 @@ std::string serialise(kvps input, char kv_delimiter = '=', char kvp_delimiter = 
 
   for (const auto &kvp : input)
   {
-    auto tmp = std::string(kvp.first) + "=" + std::string(kvp.second) + "&";
+    auto tmp = std::string{kvp.first} + kv_delimiter + std::string{kvp.second} + kvp_delimiter;
     output += tmp;
   }
 

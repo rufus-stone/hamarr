@@ -8,6 +8,7 @@
 namespace hmr::uuid
 {
 
+////////////////////////////////////////////////////////////
 std::string generate()
 {
   auto uuid = hmr::hex::encode(hmr::prng::bytes(16), false);
