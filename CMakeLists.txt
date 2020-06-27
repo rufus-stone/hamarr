@@ -13,4 +13,4 @@ set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
 include(CPack)
 
 target_compile_features(hamarr PUBLIC cxx_std_17)
-target_compile_options(hamarr PRIVATE -Werror -Wall -Wextra -Wold-style-cast)
+target_compile_options(hamarr PRIVATE -Werror -Wall -Wextra -Wold-style-cast -Wpedantic)

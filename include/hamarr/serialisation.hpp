@@ -29,7 +29,7 @@ std::string serialise(kvps input, char kv_delimiter = '=', char kvp_delimiter = 
   output.pop_back();
 
   return output;
-};
+}
 
 
 ////////////////////////////////////////////////////////////
@@ -55,6 +55,6 @@ kvps deserialise(std::string_view input, char kv_delimiter = '=', char kvp_delim
   }
 
   return output;
-};
+}
 
 } // namespace kvp
