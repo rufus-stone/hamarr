@@ -16,6 +16,8 @@ int main()
   LOG_INFO(format::to_upper(test));
   LOG_INFO(format::to_lower(test));
   LOG_INFO(format::escape("This\nhas\nnew\nlines and backslash \\ and unprintable \x03 hex \x00 chars \x7F"s));
+  LOG_INFO(format::unescape("This\\nhas\\nnew\\nlines and backslash \\\\ and hex \x31 \x32 \x33\\g"s));
+  assert(format::unescape(format::escape("This\nhas\nnew\nlines and backslash \\ and unprintable \x03 hex \x00 chars \x7F"s)) == "This\nhas\nnew\nlines and backslash \\ and unprintable \x03 hex \x00 chars \x7F"s);
 
 
   LOG_INFO("\n\n---[ Hex Strings ]---\n");
