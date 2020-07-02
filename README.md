@@ -52,17 +52,20 @@ To convert a string to uppercase/lowercase, there are two functions:
 
 These both take a `std::string_view` input, and return a `std::string` output. They are just convenience functions that call `std::toupper()` or `std::tolower()` on each character of the string.
 
-To escape a string that contains unprintable characters, newlines, etc., there is the following function:
+To escape/unescape a string that contains unprintable characters, newlines, etc., there are the following functions:
 
 `hmr::format::escape()`
 
-This takes a `std::string_view` input, and returns a `std::string` output. For example:
+`hmr::format::unescape()`
+
+This both take a `std::string_view` input, and return a `std::string` output. For example:
 
 ```cpp
 LOG_INFO(hmr::format::escape("This \\ has newlines \n and carriage returns \r and unprintable \x7F hex chars")); // LOG_INFO() literally prints "This \\ has newlines \n and carriage returns \r and unprintable \x7F hex chars"
+
+LOG_INFO(hmr::format::unescape("Backslash \\ hex 1234 \x31\x32\x33\x34")); // LOG_INFO() literally prints "Backslash \ hex 1234 1234"
 ```
 
-- Todo: Implement an unescape function
 
 ### Hex
 

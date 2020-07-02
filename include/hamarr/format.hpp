@@ -18,6 +18,7 @@ std::string to_upper(std::string_view input)
   return output;
 }
 
+
 ////////////////////////////////////////////////////////////
 std::string to_lower(std::string_view input)
 {
@@ -27,6 +28,7 @@ std::string to_lower(std::string_view input)
   std::transform(input.begin(), input.end(), std::back_inserter(output), [](const unsigned char ch) { return std::tolower(ch); } );
   return output;
 }
+
 
 ////////////////////////////////////////////////////////////
 std::string escape(std::string_view input)
@@ -52,6 +54,66 @@ std::string escape(std::string_view input)
           output += ch;
         }
         break;
+    }
+  }
+
+  return output;
+}
+
+
+////////////////////////////////////////////////////////////
+std::string unescape(std::string_view input)
+{
+  std::string output;
+  output.reserve(input.size());
+
+  for (auto pos = std::begin(input); pos != std::end(input); ++pos)
+  {
+    // Is it an escape sequence?
+    if (*pos == '\\')
+    {
+      // Is there at least one char remaining?
+      if (pos + 1 >= std::end(input))
+      {
+        LOG_ERROR("Ran out of data for escape sequence!");
+        return std::string{};
+      }
+
+      // What kind of escape sequence is it?
+      switch (*++pos)
+      {
+        // Control characters
+        case 'a': output += '\a'; break;
+        case 'b': output += '\b'; break;
+        case 't': output += '\t'; break;
+        case 'n': output += '\n'; break;
+        case 'v': output += '\v'; break;
+        case 'f': output += '\f'; break;
+        case 'r': output += '\r'; break;
+
+        // Hex sequences
+        case 'x':
+        {
+          // Are there at least two chars remaining?
+          if (pos + 2 >= std::end(input))
+          {
+            LOG_ERROR("Ran out of data for hex escape sequence!");
+            return std::string{};
+          }
+
+          output += hmr::hex::decode({++pos, 2});
+          ++pos;
+          break;
+        }
+
+        // Everything else
+        default: output += *pos; break;
+      }
+
+      
+    } else
+    {
+      output += *pos;
     }
   }
 
