@@ -57,7 +57,7 @@ static std::string bytes(std::size_t quantity)
   // Is it an integer type? Use std::uniform_int_distribution if so
   for (std::size_t n = 0; n < quantity; ++n)
   {
-    output.push_back(distribution(random_engine));
+    output.push_back(static_cast<char>(distribution(random_engine)));
   }
 
   return output;

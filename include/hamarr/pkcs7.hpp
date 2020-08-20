@@ -9,7 +9,7 @@ namespace hmr::pkcs7
 ////////////////////////////////////////////////////////////
 bool padded(std::string_view input, std::size_t block_size = 16)
 {
-  uint8_t pad_byte = input[input.size() - 1];
+  uint8_t pad_byte = static_cast<uint8_t>(input[input.size() - 1]);
 
   // Is pad_byte \x00? This should never happen for pkcs7 padded data
   if (!pad_byte)
@@ -60,7 +60,7 @@ std::string pad(const std::string &input, std::size_t block_size = 16)
 
   for (std::size_t n = 0; n < pad_byte; ++n)
   {
-    output.push_back(pad_byte);
+    output.push_back(static_cast<char>(pad_byte));
   }
   
   return output;
@@ -75,7 +75,7 @@ std::string unpad(const std::string &input, std::size_t block_size = 16)
     return input;
   }
 
-  uint8_t pad_byte = input[input.size() - 1];
+  uint8_t pad_byte = static_cast<uint8_t>(input[input.size() - 1]);
 
   std::string output;
   output.reserve(input.size() - pad_byte);

@@ -258,7 +258,7 @@ auto find_candidate_keysize(std::string_view input, std::size_t min = 2, std::si
     hams.reserve(num_pairs);
 
     // Take each pair of key_size worth of bytes
-    for (int i = 0; i + (key_size * 2) < len; i += (key_size * 2))
+    for (std::size_t i = 0; i + (key_size * 2) < len; i += (key_size * 2))
     {
       auto lhs = input.substr(i, key_size);
       auto rhs = input.substr(i + key_size, key_size);
