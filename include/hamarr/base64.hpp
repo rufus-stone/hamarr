@@ -117,7 +117,7 @@ std::string decode(std::string_view input, const std::string &alphabet = base64_
   output.reserve(len * (3/4)); // Base64 decoding turns 4 bytes into 3, so the resulting data is 3/4 times the size of the input
 
   // Lambda to perform conversion from a given base64 character to the index within the chosen base64 alphabet for that character
-  auto b64_to_uint8_t = [&alphabet](const uint8_t n) -> uint8_t
+  auto b64_to_uint8_t = [&alphabet](const char n) -> uint8_t
   {
     auto p = alphabet.find(n); // Todo: I bet there's a more efficient way of doing this...
 
@@ -160,9 +160,9 @@ std::string decode(std::string_view input, const std::string &alphabet = base64_
         uint32_t n = static_cast<uint32_t>(a) << 18 | static_cast<uint32_t>(b) << 12 | static_cast<uint32_t>(c) << 6 | static_cast<uint32_t>(d);
 
         // Then split the 24 bit number back into 3 bytes
-        auto d1 = static_cast<uint8_t>(n >> 16);
-        auto d2 = static_cast<uint8_t>((n >> 8) & 0xFF);
-        auto d3 = static_cast<uint8_t>(n & 0xFF);
+        auto d1 = static_cast<char>(n >> 16);
+        auto d2 = static_cast<char>((n >> 8) & 0xFF);
+        auto d3 = static_cast<char>(n & 0xFF);
 
         // Finally, add these 3 bytes of decoded data to the output
         output.push_back(d1);
@@ -182,8 +182,8 @@ std::string decode(std::string_view input, const std::string &alphabet = base64_
         uint32_t n = static_cast<uint32_t>(a) << 18 | static_cast<uint32_t>(b) << 12 | static_cast<uint32_t>(c) << 6;
 
         // Then split the 24 bit number back into 2 bytes
-        auto d1 = static_cast<uint8_t>(n >> 16);
-        auto d2 = static_cast<uint8_t>((n >> 8) & 0xFF);
+        auto d1 = static_cast<char>(n >> 16);
+        auto d2 = static_cast<char>((n >> 8) & 0xFF);
 
         // Finally, add these 2 bytes of decoded data to the output
         output.push_back(d1);
@@ -201,7 +201,7 @@ std::string decode(std::string_view input, const std::string &alphabet = base64_
         uint32_t n = static_cast<uint32_t>(a) << 18 | static_cast<uint32_t>(b) << 12;
 
         // Then split the 24 bit number back into 2 bytes
-        auto d1 = static_cast<uint8_t>(n >> 16);
+        auto d1 = static_cast<char>(n >> 16);
 
         // Finally, add this 1 byte of decoded data to the output
         output.push_back(d1);

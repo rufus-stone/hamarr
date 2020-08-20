@@ -51,7 +51,7 @@ std::string escape(std::string_view input)
           output += ("\\x" + hmr::hex::encode(ch));
         } else
         {
-          output += ch;
+          output += static_cast<char>(ch);
         }
         break;
     }

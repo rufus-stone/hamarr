@@ -1,8 +1,4 @@
-cmake_minimum_required(VERSION 3.7...3.18)
-
-if(${CMAKE_VERSION} VERSION_LESS 3.12)
-  cmake_policy(VERSION ${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION})
-endif()
+cmake_minimum_required(VERSION 3.15...3.18)
 
 project(
   hamarr
@@ -14,19 +10,10 @@ project(
 # Disallow in-source builds
 include(cmake/PreventInSourceBuilds.cmake)
 
-# Link this 'library' to use the warnings specified in CompilerWarnings.cmake
-add_library(project_warnings INTERFACE)
+include(GNUInstallDirs) # This provides GNU standard installation directories,
+                        # so we don't have to hard code anything
 
-# Add a set of standard compiler warnings
-include(cmake/CompilerWarnings.cmake)
-set_project_warnings(project_warnings)
-
-# Enable sanitizer options if supported by the compiler
-include(cmake/Sanitizers.cmake)
-enable_sanitizers(project_options)
-
-include(GNUInstallDirs)
-include(CTest)
+include(CTest) # This adds the BUILD_TESTING option (ON by default)
 
 if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
   set(IS_TOPLEVEL_PROJECT TRUE)
@@ -37,7 +24,8 @@ endif()
 option(INSTALL_LIBRARY
        "Enable installation of Hamarr library into default locations"
        ${IS_TOPLEVEL_PROJECT})
-option(ENABLE_TESTING "Build Hamarr tests" ${IS_TOPLEVEL_PROJECT})
+option(BUILD_HAMARR_TESTS "Build Hamarr tests" ${IS_TOPLEVEL_PROJECT})
+option(BUILD_HAMARR_EXAMPLES "Build Hamarr examples" ${IS_TOPLEVEL_PROJECT})
 
 add_library(${PROJECT_NAME} INTERFACE)
 
@@ -54,20 +42,21 @@ target_include_directories(
 # We require C++17
 target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_17)
 
-if(ENABLE_TESTING)
+if(BUILD_TESTING AND BUILD_HAMARR_TESTS)
   enable_testing()
-  message("Building Tests in test/")
+  message("Building tests...")
   add_subdirectory(test)
 endif()
 
-# enable_testing() add_subdirectory(test)
+if(BUILD_HAMARR_EXAMPLES)
+  message("Building examples...")
+  add_subdirectory(examples)
+endif()
 
-# include_directories(include) # Is this covered by the
-# target_include_directories() call above?
 find_package(OpenSSL REQUIRED)
 target_link_libraries(${PROJECT_NAME} INTERFACE OpenSSL::SSL)
 
-# locations are provided by GNUInstallDirs
+# Install locations are provided by GNUInstallDirs
 install(
   TARGETS ${PROJECT_NAME}
   EXPORT ${PROJECT_NAME}_Targets
@@ -86,7 +75,7 @@ configure_package_config_file(
   "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.cmake"
   INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
 
-if(SI_INSTALL_LIBRARY)
+if(INSTALL_LIBRARY)
   message("Installing library...")
   install(
     EXPORT ${PROJECT_NAME}_Targets
@@ -105,3 +94,11 @@ endif()
 set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE")
 
 include(CPack)
+
+message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
+message(STATUS "CMAKE_INSTALL_INCLUDEDIR: ${CMAKE_INSTALL_INCLUDEDIR}")
+message(STATUS "PROJECT_NAME: ${PROJECT_NAME}")
+message(STATUS "PROJECT_SOURCE_DIR: ${PROJECT_SOURCE_DIR}")
+message(STATUS "PROJECT_BINARY_DIR: ${PROJECT_BINARY_DIR}")
+message(STATUS "IS_TOPLEVEL_PROJECT: ${IS_TOPLEVEL_PROJECT}")
+message(STATUS "CMAKE_INSTALL_DATAROOTDIR: ${CMAKE_INSTALL_DATAROOTDIR}")
