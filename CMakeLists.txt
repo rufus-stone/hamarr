@@ -44,12 +44,10 @@ target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_17)
 
 if(BUILD_TESTING AND BUILD_HAMARR_TESTS)
   enable_testing()
-  message("Building tests...")
   add_subdirectory(test)
 endif()
 
 if(BUILD_HAMARR_EXAMPLES)
-  message("Building examples...")
   add_subdirectory(examples)
 endif()
 
