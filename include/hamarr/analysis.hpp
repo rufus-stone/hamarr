@@ -7,6 +7,8 @@
 #include <cmath>
 #include <algorithm>
 
+#include <assert.h>
+
 #include "logger.hpp"
 #include "hex.hpp"
 #include "bitwise.hpp"
