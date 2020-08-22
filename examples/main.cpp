@@ -17,48 +17,25 @@ int main()
   LOG_INFO(format::to_lower(test));
   LOG_INFO(format::escape("This\nhas\nnew\nlines and backslash \\ and unprintable \x03 hex \x00 chars \x7F"s));
   LOG_INFO(format::unescape("This\\nhas\\nnew\\nlines and backslash \\\\ and hex \x31 \x32 \x33\\g"s));
-  assert(format::unescape(format::escape("This\nhas\nnew\nlines and backslash \\ and unprintable \x03 hex \x00 chars \x7F"s)) == "This\nhas\nnew\nlines and backslash \\ and unprintable \x03 hex \x00 chars \x7F"s);
 
 
   LOG_INFO("\n\n---[ Hex Strings ]---\n");
   LOG_INFO(hex::encode(test));
   LOG_INFO(hex::decode(hex::encode(test)));
-  assert(hex::decode(hex::encode(test)) == test);
-  assert(hex::decode("Invalid hex input") == std::string{}); // Chars that fall outside the set of valid hex chars
-  assert(hex::decode("11 22 3") == std::string{}); // Uneven number of hex chars
 
   LOG_INFO("\n\n---[ Hex Strings (Non-Padded) ]---\n");
   LOG_INFO(hex::encode(test, false));
   LOG_INFO(hex::decode(hex::encode(test, false)));
-  assert(hex::decode(hex::encode(test, false)) == test);
-  assert(hex::decode("11223") == std::string{}); // Uneven number of hex chars
 
 
   LOG_INFO("\n\n---[ Hex Numbers ]---\n");
   LOG_INFO(hex::encode(uint8_t{18}));
-  assert(hex::encode(uint8_t{18}) == "12");
-  assert(hex::decode<uint8_t>("12") == uint8_t{18});
-
   LOG_INFO(hex::encode(uint16_t{4660}));
-  assert(hex::encode(uint16_t{4660}) == "12 34");
-  assert(hex::decode<uint16_t>("12 34") == uint16_t{4660});
-
   LOG_INFO(hex::encode(uint32_t{305419896}));
-  assert(hex::encode(uint32_t{305419896}) == "12 34 56 78");
-  assert(hex::decode<uint32_t>("12 34 56 78") == uint32_t{305419896});
-
   LOG_INFO(hex::encode(uint64_t{1311768467463790320}));
-  assert(hex::encode(uint64_t{1311768467463790320}) == "12 34 56 78 9A BC DE F0");
-  assert(hex::decode<uint64_t>("12 34 56 78 9A BC DE F0") == uint64_t{1311768467463790320});
-
   LOG_INFO(hex::decode<uint16_t>("FF"));
-  assert(hex::decode<uint16_t>("FF") == uint16_t{255});
-
   LOG_INFO(hex::decode<uint32_t>("FF FF"));
-  assert(hex::decode<uint32_t>("FF FF") == uint32_t{65535});
-
   LOG_INFO(hex::decode<uint64_t>("0F"));
-  assert(hex::decode<uint64_t>("0F") == uint64_t{15});
 
   assert(hex::decode<uint8_t>("FF FF") == uint8_t{}); // Too many bytes for the requested return type
   assert(hex::decode<uint16_t>("FF FF FF") == uint16_t{}); // Too many bytes for the requested return type

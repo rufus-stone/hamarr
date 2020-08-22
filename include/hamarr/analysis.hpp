@@ -19,10 +19,10 @@ namespace hmr::analysis
 enum class case_sensitivity { enabled, disabled };
 
 ////////////////////////////////////////////////////////////
-std::size_t hamming_distance(std::string_view lhs, std::string_view rhs)
+constexpr std::size_t hamming_distance(std::string_view lhs, std::string_view rhs) noexcept
 {
-	const uint8_t *lhs_bytes = reinterpret_cast<const uint8_t*>(lhs.data());
-	const uint8_t *rhs_bytes = reinterpret_cast<const uint8_t*>(rhs.data());
+	auto lhs_bytes = lhs.data(); //const uint8_t *lhs_bytes = reinterpret_cast<const uint8_t*>(lhs.data());
+	auto rhs_bytes = rhs.data(); //const uint8_t *rhs_bytes = reinterpret_cast<const uint8_t*>(rhs.data());
 
 	std::size_t lhs_len = lhs.size();
 	std::size_t rhs_len = rhs.size();
@@ -31,15 +31,15 @@ std::size_t hamming_distance(std::string_view lhs, std::string_view rhs)
   std::size_t len = std::min(lhs_len, rhs_len);
 
 	std::size_t ham = 0;
-	uint8_t xord;
+	uint8_t xord = 0;
 
 	for (std::size_t i = 0; i < len; ++i)
 	{
 		xord = lhs_bytes[i] ^ rhs_bytes[i];
 
-		for(int j = 0; j < 8; ++j)
+		for (int j = 0; j < 8; ++j)
 		{
-			if ((xord & 0x1) == 1)
+			if ((xord & 0x01) == 1)
 			{
 				++ham;
 			}
@@ -51,7 +51,7 @@ std::size_t hamming_distance(std::string_view lhs, std::string_view rhs)
 }
 
 ////////////////////////////////////////////////////////////
-double entropy(std::string_view input)
+constexpr double entropy(std::string_view input)
 {
   const std::size_t len = input.size();
 
@@ -158,7 +158,7 @@ void print_character_frequency(std::vector<std::size_t> freqs, bool show_zeros =
 }
 
 ////////////////////////////////////////////////////////////
-bool looks_like_english(std::string_view input, bool debug_flag = false)
+constexpr bool looks_like_english(std::string_view input, bool debug_flag = false)
 {
   std::size_t spaces = 0;
   std::size_t punctuation = 0;
@@ -316,7 +316,7 @@ auto solve_single_byte_xor(std::string_view input, bool debug_flag = false)
 }
 
 ////////////////////////////////////////////////////////////
-bool repeated_blocks(std::string_view input, std::size_t block_size = 16)
+constexpr bool repeated_blocks(std::string_view input, std::size_t block_size = 16)
 {
   auto len = input.size();
   assert(len % block_size == 0);

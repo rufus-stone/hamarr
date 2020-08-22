@@ -90,7 +90,7 @@ You can disable the insertion of spaces after each hex pair by adding the argume
 ```cpp
 auto encoded = hmr::hex::encode("Hello, World!", false); // encoded contains the string "48656C6C6F2C20576F726C6421"
 
-encoded = hmr::hex::encode(uint16_t(4660), false); // encoded contains the string "1234"
+encoded = hmr::hex::encode(uint16_t{4660}, false); // encoded contains the string "1234"
 ```
 
 The `hmr::hex::decode()` function has two variants. The un-templated variant takes a `std::string_view` as its input and returns a `std::string` containing the decoded bytes. It ignores any whitespace, so it doesn't matter if you feed it a hex string with spaces between the hex pairs or not, and is case insensitive. For example:
@@ -139,7 +139,7 @@ auto encoded = hmr::binary::encode("Hello, World!"); // encoded contains the str
 
 encoded = hmr::binary::encode("Hello, World!", false); // encoded contains the string "01001000011001010110110001101100011011110010110000100000010101110110111101110010011011000110010000100001"
 
-encoded = hmr::binary::encode(uint16_t(4660)); // encoded contains the string "00010010 00110100"
+encoded = hmr::binary::encode(uint16_t{4660}); // encoded contains the string "00010010 00110100"
 ```
 
 Decoding from binary is similarly straightforward (it also ignores any whitespace), although there are two variants. The un-templated variant takes a `std::string` as its input and returns a `std::string` made from the decoded binary. For example:

@@ -14,7 +14,7 @@ namespace hmr::hex
 static const auto hex_alphabet = std::string("0123456789ABCDEF");
 
 ////////////////////////////////////////////////////////////
-std::string encode(std::string_view input, bool delimited = true)
+std::string encode(std::string_view input, bool delimited = true) noexcept
 {
   std::string output;
   output.reserve(input.size() * 2);
@@ -41,7 +41,7 @@ std::string encode(std::string_view input, bool delimited = true)
 }
 
 ////////////////////////////////////////////////////////////
-std::string encode(const char* input, bool delimited = true)
+std::string encode(const char* input, bool delimited = true) noexcept
 {
   const std::string tmp(input);
   
