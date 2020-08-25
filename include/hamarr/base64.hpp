@@ -24,7 +24,7 @@ std::string encode(std::string_view input, std::string_view alphabet = base64_al
   std::size_t len = input.size();
 
   std::string output;
-  output.reserve(len * (4/3)); // Base64 encoding turns 3 bytes into 4, so the resulting data is 1 1/3 times the size of the input
+  output.reserve(len * (4 / 3)); // Base64 encoding turns 3 bytes into 4, so the resulting data is 1 1/3 times the size of the input
 
   // Get a uint8_t pointer to the data
   auto data = reinterpret_cast<const uint8_t *>(input.data());
@@ -41,7 +41,7 @@ std::string encode(std::string_view input, std::string_view alphabet = base64_al
     {
       n += (*data++) << 8;
     }
-    
+
     // Is there a third?
     if (i + 2 < len)
     {
@@ -52,7 +52,7 @@ std::string encode(std::string_view input, std::string_view alphabet = base64_al
     uint8_t a = ((n >> 18) & 63);
     uint8_t b = static_cast<uint8_t>((n >> 12) & 63);
     uint8_t c = static_cast<uint8_t>((n >> 6) & 63);
-    uint8_t d = static_cast<uint8_t>(n & 63);    
+    uint8_t d = static_cast<uint8_t>(n & 63);
 
     // Finally, use these 4 numbers to look up the corresponding base64 character
     output.push_back(alphabet[a]);
@@ -114,9 +114,9 @@ std::string decode(std::string_view input, std::string_view alphabet = base64_al
 
   // We want to ignore any padding, so check if it's present. If it is, we'll stop our base64 decoding loop at that point, otherwise we'll go until the end
   auto end = std::find(std::begin(input), std::end(input), alphabet[alphabet.size() - 1]);
-  
+
   std::string output;
-  output.reserve(len * (3/4)); // Base64 decoding turns 4 bytes into 3, so the resulting data is 3/4 times the size of the input
+  output.reserve(len * (3 / 4)); // Base64 decoding turns 4 bytes into 3, so the resulting data is 3/4 times the size of the input
 
   // Lambda to perform conversion from a given base64 character to the index within the chosen base64 alphabet for that character
   auto b64_to_uint8_t = [&alphabet](const char n) -> uint8_t
@@ -219,4 +219,4 @@ std::string decode(std::string_view input, std::string_view alphabet = base64_al
   return output;
 }
 
-} // namespace base64
+} // namespace hmr::base64
