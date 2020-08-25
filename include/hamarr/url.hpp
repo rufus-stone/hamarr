@@ -14,7 +14,7 @@ namespace hmr::url
 static const auto unreserved_chars = std::string("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~");
 
 ////////////////////////////////////////////////////////////
-std::string encode(std::string_view input, bool lazy=false)
+std::string encode(std::string_view input, bool lazy = false)
 {
   std::string output;
   output.reserve(input.size()); // The output will almost certainly be larger than this, however...
@@ -32,7 +32,7 @@ std::string encode(std::string_view input, bool lazy=false)
     if (lazy == true) // If we're being lazy, just convert to hex and append
     {
       output += ("%" + hex::encode(c));
-      
+
     } else // If not lazy, convert to UTF8 first and then append
     {
       if (static_cast<uint8_t>(c) < 0x80) // Char values less than 0x80 remain unchanged
@@ -58,14 +58,14 @@ std::string encode(std::string_view input, bool lazy=false)
 }
 
 ////////////////////////////////////////////////////////////
-std::string decode(std::string_view input, bool lazy=false)
+std::string decode(std::string_view input, bool lazy = false)
 {
   const std::size_t len = input.size();
 
   std::string output;
   output.reserve(len); // If there are any percent-encoded elements then we'll actually need less space, but over-reserving probably hurts less than under-reserving
 
-  auto is_valid_hex = [](uint8_t c){ return std::isxdigit(c); };
+  auto is_valid_hex = [](uint8_t c) { return std::isxdigit(c); };
 
   for (std::size_t i = 0; i < len; ++i)
   {
@@ -81,11 +81,11 @@ std::string decode(std::string_view input, bool lazy=false)
       if (lazy == true) // Are we being lazy? If so, just convert back from hex and append
       {
         // Abort condition - expect valid hex chars
-		if (!is_valid_hex(input[i+1]) || !is_valid_hex(input[i+2]))
-		{
+        if (!is_valid_hex(input[i + 1]) || !is_valid_hex(input[i + 2]))
+        {
           LOG_INFO("Invalid hex sequence!");
-		  return std::string{};
-		}
+          return std::string{};
+        }
 
         output += hex::decode(std::string(input.data() + i + 1, 2));
         i += 2;
@@ -94,23 +94,23 @@ std::string decode(std::string_view input, bool lazy=false)
         // Otherwise check for a %C2 or %C3 two-byte UTF-8 sequence
         if (input[i + 1] == 'C')
         {
-		  // Abort condition - need room for 5 more chars
+          // Abort condition - need room for 5 more chars
           if (i + 5 >= len)
           {
             LOG_INFO("Ran out of chars. Uh oh!");
             return std::string{};
           }
 
-		  // Abort condition - of the following 5 chars, the 1st, 2nd, 4th and 5th must be valid hex chars
-		  if (!is_valid_hex(input[i+1]) || !is_valid_hex(input[i+2]) || !is_valid_hex(input[i+4]) || !is_valid_hex(input[i+5]))
-		  {
-			LOG_INFO("Invalid hex sequence!");
-		    return std::string{};
-		  }
+          // Abort condition - of the following 5 chars, the 1st, 2nd, 4th and 5th must be valid hex chars
+          if (!is_valid_hex(input[i + 1]) || !is_valid_hex(input[i + 2]) || !is_valid_hex(input[i + 4]) || !is_valid_hex(input[i + 5]))
+          {
+            LOG_INFO("Invalid hex sequence!");
+            return std::string{};
+          }
 
           if (input[i + 2] == '2')
           {
-			auto adj = hex::decode(std::string(input.data() + i + 4, 2));
+            auto adj = hex::decode(std::string(input.data() + i + 4, 2));
             output += hex::decode(std::string(input.data() + i + 4, 2));
 
           } else if (input[i + 2] == '3')
@@ -128,12 +128,12 @@ std::string decode(std::string_view input, bool lazy=false)
         } else // If it wasn't a %C2 or %C3 sequence, then just convert back from hex and append
         {
           // Abort condition - expect valid hex chars
-		  if (!is_valid_hex(input[i+1]) || !is_valid_hex(input[i+2]))
-		  {
-			LOG_INFO("Invalid hex sequence!");
-		    return std::string{};
-		  }
-		  
+          if (!is_valid_hex(input[i + 1]) || !is_valid_hex(input[i + 2]))
+          {
+            LOG_INFO("Invalid hex sequence!");
+            return std::string{};
+          }
+
           output += hex::decode(std::string(input.data() + i + 1, 2));
           i += 2;
         }
@@ -147,4 +147,4 @@ std::string decode(std::string_view input, bool lazy=false)
   return output;
 }
 
-} // namespace url
+} // namespace hmr::url

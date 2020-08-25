@@ -60,14 +60,13 @@ std::string xor_rolling(std::string_view input, xor_differential differential = 
     // In input differential mode, XOR each byte with the original pre-XOR value of the previous byte
     if (differential == xor_differential::input)
     {
-      output.push_back(input[i] ^ input[i-1]);
+      output.push_back(input[i] ^ input[i - 1]);
 
-    // In output differential mode, XOR each byte with the resulting post-XOR value of the previous byte
+      // In output differential mode, XOR each byte with the resulting post-XOR value of the previous byte
     } else if (differential == xor_differential::output)
     {
-      output.push_back(input[i] ^ output[i-1]);
+      output.push_back(input[i] ^ output[i - 1]);
     }
-    
   }
 
   return output;
@@ -78,7 +77,7 @@ std::string xor_rolling(std::string_view input, xor_differential differential = 
 std::string xor_counter(std::string_view input, uint8_t key = 0x00, int increment = 1)
 {
   std::string output;
-  output.reserve(input.size());  
+  output.reserve(input.size());
 
   for (const auto &ch : input)
   {
@@ -114,7 +113,7 @@ std::string shift_left(std::string_view input, std::size_t amount = 1)
 
 
 ////////////////////////////////////////////////////////////
-template <typename T, typename = std::enable_if_t<std::is_integral_v<T> && !std::is_base_of_v<std::string, T>>>
+template<typename T, typename = std::enable_if_t<std::is_integral_v<T> && !std::is_base_of_v<std::string, T>>>
 T shift_left(T input, std::size_t amount = 1)
 {
   if (amount > (sizeof(T) * 8))
@@ -147,7 +146,7 @@ std::string shift_right(std::string_view input, std::size_t amount = 1)
 
 
 ////////////////////////////////////////////////////////////
-template <typename T, typename = std::enable_if_t<std::is_integral_v<T> && !std::is_base_of_v<std::string, T>>>
+template<typename T, typename = std::enable_if_t<std::is_integral_v<T> && !std::is_base_of_v<std::string, T>>>
 T shift_right(T input, std::size_t amount = 1)
 {
   if (amount > (sizeof(T) * 8))
@@ -175,8 +174,7 @@ std::string rotate_left(std::string_view input, std::size_t amount = 1, carry_th
 
     output.reserve(len);
 
-    std::transform(std::begin(input), std::end(input), std::back_inserter(output), [&amount](const uint8_t ch)
-    {
+    std::transform(std::begin(input), std::end(input), std::back_inserter(output), [&amount](const uint8_t ch) {
       auto tmp = ch;
 
       for (std::size_t n = 0; n < amount; ++n)
@@ -208,7 +206,7 @@ std::string rotate_left(std::string_view input, std::size_t amount = 1, carry_th
       for (auto iter = std::rbegin(output); iter < std::rend(output); ++iter)
       {
         uint8_t tmp = static_cast<uint8_t>(*iter);
-        
+
         // Check if there is a bit on the end of this byte that will need carrying forwards to the next byte
         uint8_t next_carry_bit = (tmp >> 7) & 1;
 
@@ -223,10 +221,10 @@ std::string rotate_left(std::string_view input, std::size_t amount = 1, carry_th
       }
 
       // At the end of each run through the whole data, wrap any final carry bit back around to the start if necessary
-      output[output.size()-1] = static_cast<char>((static_cast<uint8_t>(output[output.size()-1]) | previous_carry_bit));
+      output[output.size() - 1] = static_cast<char>((static_cast<uint8_t>(output[output.size() - 1]) | previous_carry_bit));
     }
   }
-  
+
   return output;
 }
 
@@ -247,8 +245,7 @@ std::string rotate_right(std::string_view input, std::size_t amount = 1, carry_t
 
     output.reserve(len);
 
-    std::transform(std::begin(input), std::end(input), std::back_inserter(output), [&amount](const uint8_t ch)
-    {
+    std::transform(std::begin(input), std::end(input), std::back_inserter(output), [&amount](const uint8_t ch) {
       auto tmp = ch;
 
       for (std::size_t n = 0; n < amount; ++n)
@@ -280,7 +277,7 @@ std::string rotate_right(std::string_view input, std::size_t amount = 1, carry_t
       for (auto &ch : output)
       {
         uint8_t tmp = static_cast<uint8_t>(ch);
-        
+
         // Check if there is a bit on the end of this byte that will need carrying forwards to the next byte
         uint8_t next_carry_bit = (tmp & 1U) << 7U;
 
@@ -298,8 +295,8 @@ std::string rotate_right(std::string_view input, std::size_t amount = 1, carry_t
       output[0] = static_cast<char>((static_cast<uint8_t>(output[0]) | previous_carry_bit));
     }
   }
-  
+
   return output;
 }
 
-} // namespace bitwise
+} // namespace hmr::bitwise

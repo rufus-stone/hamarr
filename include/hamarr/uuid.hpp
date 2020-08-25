@@ -22,4 +22,4 @@ std::string generate()
   return uuid;
 }
 
-} // namespace uuid
+} // namespace hmr::uuid

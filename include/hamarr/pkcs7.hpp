@@ -62,7 +62,7 @@ std::string pad(std::string_view input, std::size_t block_size = 16)
   {
     output.push_back(static_cast<char>(pad_byte));
   }
-  
+
   return output;
 }
 
@@ -81,8 +81,8 @@ std::string unpad(std::string_view input, std::size_t block_size = 16)
   output.reserve(input.size() - pad_byte);
 
   output = input.substr(0, input.size() - pad_byte);
-  
+
   return output;
 }
 
-} // namespace pad
+} // namespace hmr::pkcs7

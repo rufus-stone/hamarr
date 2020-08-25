@@ -8,11 +8,21 @@
 
 using namespace std::string_literals;
 
-// Formatting strings
-TEST_CASE("Uppercase and lowercase std::string conversion", "[formatting][case][string]")
+// Uppercase/lowercase string conversion
+TEST_CASE("Uppercase/lowercase std::string conversion", "[formatting][case][string]")
 {
   REQUIRE(hmr::format::to_upper("Hello, World!"s) == "HELLO, WORLD!"s);
   REQUIRE(hmr::format::to_lower("Hello, World!"s) == "hello, world!"s);
+}
+
+// Escaping/un-escaping strings
+TEST_CASE("Escape/un-escape std::string", "[formatting][escape][string]")
+{
+  REQUIRE(hmr::format::escape("This\nhas\nnew\nlines and backslash \\ and unprintable \x03 hex \x00 chars \x7F"s) == "This\\nhas\\nnew\\nlines and backslash \\\\ and unprintable \\x03 hex \\x00 chars \\x7F"s);
+  REQUIRE(hmr::format::unescape("This\\nhas\\nnew\\nlines and backslash \\\\ and unprintable \\x03 hex \\x00 chars \\x7F"s) == "This\nhas\nnew\nlines and backslash \\ and unprintable \x03 hex \x00 chars \x7F"s);
+
+  // Failures
+  REQUIRE(hmr::format::unescape("\\"s) == std::string{}); // Escape sequence is unfinished
 }
 
 // Hex encoding/decoding strings
@@ -36,9 +46,9 @@ TEST_CASE("Hex encode/decode std::string", "[encoding][hex][string]")
 
   // Failures
   REQUIRE(hmr::hex::decode("Invalid hex input"s) == std::string{}); // Invalid hex chars
-  REQUIRE(hmr::hex::decode("11 22 3"s) == std::string{});           // Missing nibble
-  REQUIRE(hmr::hex::decode("11223"s) == std::string{});             // Missing nibble
-  REQUIRE(hmr::hex::decode("1 122 3"s) == std::string{});           // Missing nibble
+  REQUIRE(hmr::hex::decode("11 22 3"s) == std::string{}); // Missing nibble
+  REQUIRE(hmr::hex::decode("11223"s) == std::string{}); // Missing nibble
+  REQUIRE(hmr::hex::decode("1 122 3"s) == std::string{}); // Missing nibble
 }
 
 // Hex encoding/decoding integrals
@@ -74,9 +84,9 @@ TEST_CASE("Hex encode/decode integral", "[encoding][hex][integral]")
   REQUIRE(hmr::hex::decode<int>("00000100"s) == 256);
 
   // Failures
-  REQUIRE(hmr::hex::decode<uint8_t>("FF FF"s) == uint8_t{});                                             // Too many bytes for the requested return type
-  REQUIRE(hmr::hex::decode<uint16_t>("FF FF FF"s) == uint16_t{});                                        // Too many bytes for the requested return type
-  REQUIRE(hmr::hex::decode<uint32_t>("FF FF FF FF FF FF"s) == uint32_t{});                               // Too many bytes for the requested return type
+  REQUIRE(hmr::hex::decode<uint8_t>("FF FF"s) == uint8_t{}); // Too many bytes for the requested return type
+  REQUIRE(hmr::hex::decode<uint16_t>("FF FF FF"s) == uint16_t{}); // Too many bytes for the requested return type
+  REQUIRE(hmr::hex::decode<uint32_t>("FF FF FF FF FF FF"s) == uint32_t{}); // Too many bytes for the requested return type
   REQUIRE(hmr::hex::decode<uint64_t>("AA BB CC DD EE FF 00 11 22 33 44 55 66 77 88 99"s) == uint64_t{}); // Too many bytes for the requested return type
 }
 
@@ -129,9 +139,9 @@ TEST_CASE("Binary encode/decode integral", "[encoding][binary][integral]")
   REQUIRE(hmr::binary::decode<int>("11111111111111110000000000000000"s) == -65536);
 
   // Failures
-  REQUIRE(hmr::binary::decode<uint8_t>("11110000 11110000"s) == uint8_t{});          // Too many bits for requested result type
-  REQUIRE(hmr::binary::decode<uint16_t>("11110000"s) == uint16_t{});                 // Not enough bits for requested result type
-  REQUIRE(hmr::binary::decode<uint8_t>("1010"s) == uint8_t{});                       // Number of characters not a multiple of 8
+  REQUIRE(hmr::binary::decode<uint8_t>("11110000 11110000"s) == uint8_t{}); // Too many bits for requested result type
+  REQUIRE(hmr::binary::decode<uint16_t>("11110000"s) == uint16_t{}); // Not enough bits for requested result type
+  REQUIRE(hmr::binary::decode<uint8_t>("1010"s) == uint8_t{}); // Number of characters not a multiple of 8
   REQUIRE(hmr::binary::decode<int>("11110000 !INVALID!!CHARS! 00001111"s) == int{}); // Invalid input characters
 }
 
