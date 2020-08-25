@@ -220,6 +220,13 @@ T decode(const std::string &input)
     return T{};
   }
 
+    // Input binary string must only contain 1s and 0s
+  if (tmp.find_first_not_of("10") != std::string::npos)
+  {
+    LOG_ERROR("Invalid binary char!");
+    return T{};
+  }
+
   const auto bits = std::bitset<sizeof(T) * 8>(tmp);
 
   const auto output = static_cast<T>(bits.to_ullong());

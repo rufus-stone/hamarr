@@ -7,7 +7,7 @@ namespace hmr::pkcs7
 {
 
 ////////////////////////////////////////////////////////////
-bool padded(std::string_view input, std::size_t block_size = 16)
+constexpr bool padded(std::string_view input, std::size_t block_size = 16)
 {
   uint8_t pad_byte = static_cast<uint8_t>(input[input.size() - 1]);
 
@@ -42,13 +42,13 @@ bool padded(std::string_view input, std::size_t block_size = 16)
 }
 
 ////////////////////////////////////////////////////////////
-std::string pad(const std::string &input, std::size_t block_size = 16)
+std::string pad(std::string_view input, std::size_t block_size = 16)
 {
   uint8_t pad_byte = input.size() % block_size;
 
   if (pad_byte == 0)
   {
-    return input;
+    return std::string{input.data()};
   }
 
   pad_byte = block_size - pad_byte;
@@ -67,12 +67,12 @@ std::string pad(const std::string &input, std::size_t block_size = 16)
 }
 
 ////////////////////////////////////////////////////////////
-std::string unpad(const std::string &input, std::size_t block_size = 16)
+std::string unpad(std::string_view input, std::size_t block_size = 16)
 {
   // Is the input not actually pkcs7 padded?
   if (!pkcs7::padded(input, block_size))
   {
-    return input;
+    return std::string{input.data()};
   }
 
   uint8_t pad_byte = static_cast<uint8_t>(input[input.size() - 1]);

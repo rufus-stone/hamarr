@@ -7,12 +7,14 @@
 namespace hmr::base64
 {
 
-static const auto base64_alphabet = std::string("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=");
+using namespace std::string_view_literals;
+
+constexpr auto base64_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="sv;
 
 ////////////////////////////////////////////////////////////
-std::string encode(std::string_view input, const std::string &alphabet = base64_alphabet)
+std::string encode(std::string_view input, std::string_view alphabet = base64_alphabet)
 {
-  // Fail point - is the alphabet exactly 65 chars (64 alphabet chars + 1 padding char)?
+  // Abort condition - is the alphabet exactly 65 chars (64 alphabet chars + 1 padding char)?
   if (alphabet.size() != 65)
   {
     LOG_ERROR("Base64 alphabet is only " << alphabet.size() << " characters long! Must be exactly 65 (64 alphabet chars + 1 padding char)!");
@@ -84,9 +86,9 @@ std::string encode(std::string_view input, const std::string &alphabet = base64_
 
 
 ////////////////////////////////////////////////////////////
-std::string decode(std::string_view input, const std::string &alphabet = base64_alphabet)
+std::string decode(std::string_view input, std::string_view alphabet = base64_alphabet)
 {
-  // Fail point - is the alphabet exactly 65 chars (64 alphabet chars + 1 padding char)?
+  // Abort condition - is the alphabet exactly 65 chars (64 alphabet chars + 1 padding char)?
   if (alphabet.size() != 65)
   {
     LOG_ERROR("Base64 alphabet is only " << alphabet.size() << " characters long! Must be exactly 65 (64 alphabet chars + 1 padding char)!");
@@ -95,14 +97,14 @@ std::string decode(std::string_view input, const std::string &alphabet = base64_
 
   const std::size_t len = input.size();
 
-  // Fail point - must contain at least two chars, as valid base64 encoding always results in at least two chars
+  // Abort condition - must contain at least two chars, as valid base64 encoding always results in at least two chars
   if (len < 2)
   {
     LOG_ERROR("Input is too short for valid base64! Must have at least 2 chars!");
     return std::string{};
   }
 
-  // Fail point - must contain valid base64 chars
+  // Abort condition - must contain valid base64 chars
   auto e = input.find_first_not_of(alphabet);
   if (e != std::string::npos)
   {
