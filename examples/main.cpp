@@ -2,6 +2,8 @@
 
 #include <hamarr/hamarr.hpp>
 
+#include <spdlog/spdlog.h>
+
 using namespace hmr;
 
 using namespace std::string_literals;
@@ -9,159 +11,98 @@ using namespace std::string_literals;
 int main()
 {
   auto test = std::string("Hello, World!");
-  LOG_INFO(test);
-  LOG_ERROR("This is an error!");
 
-  LOG_INFO("\n\n---[ Formatting ]---\n");
-  LOG_INFO(format::to_upper(test));
-  LOG_INFO(format::to_lower(test));
-  LOG_INFO(format::escape("This\nhas\nnew\nlines and backslash \\ and unprintable \x03 hex \x00 chars \x7F"s));
-  LOG_INFO(format::unescape("This\\nhas\\nnew\\nlines and backslash \\\\ and hex \x31 \x32 \x33\\g"s));
+  spdlog::info("\n\n---[ Formatting ]---\n");
+  spdlog::info(format::to_upper(test));
+  spdlog::info(format::to_lower(test));
+  spdlog::info(format::escape("This\nhas\nnew\nlines and backslash \\ and unprintable \x03 hex \x00 chars \x7F"s));
+  spdlog::info(format::unescape("This\\nhas\\nnew\\nlines and backslash \\\\ and hex \x31 \x32 \x33\\g"s));
 
 
-  LOG_INFO("\n\n---[ Hex Strings ]---\n");
-  LOG_INFO(hex::encode(test));
-  LOG_INFO(hex::decode(hex::encode(test)));
+  spdlog::info("\n\n---[ Hex Strings ]---\n");
+  spdlog::info(hex::encode(test));
+  spdlog::info(hex::decode(hex::encode(test)));
 
-  LOG_INFO("\n\n---[ Hex Strings (Non-Padded) ]---\n");
-  LOG_INFO(hex::encode(test, false));
-  LOG_INFO(hex::decode(hex::encode(test, false)));
-
-
-  LOG_INFO("\n\n---[ Hex Numbers ]---\n");
-  LOG_INFO(hex::encode(uint8_t{18}));
-  LOG_INFO(hex::encode(uint16_t{4660}));
-  LOG_INFO(hex::encode(uint32_t{305419896}));
-  LOG_INFO(hex::encode(uint64_t{1311768467463790320}));
-  LOG_INFO(hex::decode<uint16_t>("FF"));
-  LOG_INFO(hex::decode<uint32_t>("FF FF"));
-  LOG_INFO(hex::decode<uint64_t>("0F"));
-
-  assert(hex::decode<uint8_t>("FF FF") == uint8_t{}); // Too many bytes for the requested return type
-  assert(hex::decode<uint16_t>("FF FF FF") == uint16_t{}); // Too many bytes for the requested return type
-  assert(hex::decode<uint32_t>("FF FF FF FF FF FF") == uint32_t{}); // Too many bytes for the requested return type
-  assert(hex::decode<uint64_t>("AA BB CC DD EE FF 00 11 22 33 44 55 66 77 88 99") == uint64_t{}); // Too many bytes for the requested return type
-
-  LOG_INFO("\n\n---[ Hex Numbers (Non-Padded) ]---\n");
-  LOG_INFO(hex::encode(uint16_t{4660}, false));
-  assert(hex::encode(uint16_t{4660}, false) == "1234");
-  assert(hex::decode<uint16_t>("1234") == uint16_t{4660});
-
-  LOG_INFO(hex::encode(uint32_t{305419896}, false));
-  assert(hex::encode(uint32_t{305419896}, false) == "12345678");
-  assert(hex::decode<uint32_t>("12345678") == uint32_t{305419896});
-
-  LOG_INFO(hex::encode(uint64_t{1311768467463790320}, false));
-  assert(hex::encode(uint64_t{1311768467463790320}, false) == "123456789ABCDEF0");
-  assert(hex::decode<uint64_t>("123456789ABCDEF0") == uint64_t{1311768467463790320});
+  spdlog::info("\n\n---[ Hex Strings (Non-Padded) ]---\n");
+  spdlog::info(hex::encode(test, false));
+  spdlog::info(hex::decode(hex::encode(test, false)));
 
 
-  LOG_INFO("\n\n---[ Binary Strings ]---\n");
-  LOG_INFO(binary::encode(test));
-  LOG_INFO(binary::decode(binary::encode(test)));
-  assert(binary::decode(binary::encode(test)) == test);
+  spdlog::info("\n\n---[ Hex Numbers ]---\n");
+  spdlog::info(hex::encode(uint8_t{18}));
+  spdlog::info(hex::encode(uint16_t{4660}));
+  spdlog::info(hex::encode(uint32_t{305419896}));
+  spdlog::info(hex::encode(uint64_t{1311768467463790320}));
+  spdlog::info(hex::decode<uint16_t>("FF"));
+  spdlog::info(hex::decode<uint32_t>("FF FF"));
+  spdlog::info(hex::decode<uint64_t>("0F"));
 
-  LOG_INFO("\n\n---[ Binary Strings (Non-Padded) ]---\n");
-  LOG_INFO(binary::encode(test, false));
-  LOG_INFO(binary::decode(binary::encode(test, false)));
-  assert(binary::decode(binary::encode(test, false)) == test);
-
-
-  LOG_INFO("\n\n---[ Binary Numbers ]---\n");
-  LOG_INFO(binary::encode(uint8_t{18}));
-  assert(binary::encode(uint8_t{18}) == "00010010");
-
-  LOG_INFO(binary::encode(uint16_t{4660}));
-  assert(binary::encode(uint16_t{4660}) == "00010010 00110100");
-
-  LOG_INFO(binary::encode(uint32_t{305419896}));
-  assert(binary::encode(uint32_t{305419896}) == "00010010 00110100 01010110 01111000");
-
-  LOG_INFO(binary::encode(uint64_t{1311768467463790320}));
-  assert(binary::encode(uint64_t{1311768467463790320}) == "00010010 00110100 01010110 01111000 10011010 10111100 11011110 11110000");
-
-  LOG_INFO(int(binary::decode<uint8_t>("11110000")));
-  assert(binary::decode<uint8_t>("11110000") == uint8_t{240});
-
-  LOG_INFO(binary::decode<uint16_t>("00001111 11110000"));
-  assert(binary::decode<uint16_t>("00001111 11110000") == uint16_t{4080});
-
-  LOG_INFO(binary::decode<uint32_t>("11110000 00001111 11110000 00001111"));
-  assert(binary::decode<uint32_t>("11110000 00001111 11110000 00001111") == uint32_t{4027576335});
-
-  LOG_INFO(binary::decode<uint64_t>("00001111 11110000 00001111 11110000 00001111 11110000 00001111 11110000"));
-  assert(binary::decode<uint64_t>("00001111 11110000 00001111 11110000 00001111 11110000 00001111 11110000") == uint64_t{1148435428713435120});
-
-  LOG_INFO(binary::decode<int>("11111111 11111111 00000000 00000000"));
-  assert(binary::decode<int>("11111111 11111111 00000000 00000000") == -65536);
-
-  LOG_INFO(binary::decode<int16_t>("11111111 00000000"));
-  assert(binary::decode<int16_t>("11111111 00000000") == int16_t{-256});
-
-  LOG_INFO("\n\n---[ Binary Numbers (Non-Padded) ]---\n");
-  LOG_INFO(binary::encode(uint16_t{4660}, false));
-  assert(binary::encode(uint16_t{4660}, false) == "0001001000110100");
-
-  LOG_INFO(binary::encode(uint32_t{305419896}, false));
-  assert(binary::encode(uint32_t{305419896}, false) == "00010010001101000101011001111000");
-
-  LOG_INFO(binary::encode(uint64_t{1311768467463790320}, false));
-  assert(binary::encode(uint64_t{1311768467463790320}, false) == "0001001000110100010101100111100010011010101111001101111011110000");
-
-  LOG_INFO(binary::encode(-12345, false));
-  assert(binary::encode(-12345, false) == "11111111111111111100111111000111");
+  spdlog::info("\n\n---[ Hex Numbers (Non-Padded) ]---\n");
+  spdlog::info(hex::encode(uint16_t{4660}, false));
+  spdlog::info(hex::encode(uint32_t{305419896}, false));
+  spdlog::info(hex::encode(uint64_t{1311768467463790320}, false));
 
 
-  LOG_INFO("\n\n---[ Base64 ]---\n");
-  LOG_INFO(base64::encode(test));
-  LOG_INFO(base64::decode(base64::encode(test)));
-  assert(base64::decode(base64::encode(test)) == test);
+  spdlog::info("\n\n---[ Binary Strings ]---\n");
+  spdlog::info(binary::encode(test));
+  spdlog::info(binary::decode(binary::encode(test)));
 
-  LOG_INFO(base64::encode(hex::decode("1f 8b 08 00 00 00 00 00 00 00 05 80 21 0d 00 00 10 02 4b 7e 05 f6 c3 60 a0 be b8 9d 3a e7 01 9a 63 4e 27 07 00 00 00")));
-  assert(base64::encode(hex::decode("1f 8b 08 00 00 00 00 00 00 00 05 80 21 0d 00 00 10 02 4b 7e 05 f6 c3 60 a0 be b8 9d 3a e7 01 9a 63 4e 27 07 00 00 00")) == "H4sIAAAAAAAAAAWAIQ0AABACS34F9sNgoL64nTrnAZpjTicHAAAA");
-  LOG_INFO(hex::encode(base64::decode("H4sIAAAAAAAAAAWAIQ0AABACS34F9sNgoL64nTrnAZpjTicHAAAA"), true));
-  assert(base64::decode("H4sIAAAAAAAAAAWAIQ0AABACS34F9sNgoL64nTrnAZpjTicHAAAA") == hex::decode("1f 8b 08 00 00 00 00 00 00 00 05 80 21 0d 00 00 10 02 4b 7e 05 f6 c3 60 a0 be b8 9d 3a e7 01 9a 63 4e 27 07 00 00 00"));
+  spdlog::info("\n\n---[ Binary Strings (Non-Padded) ]---\n");
+  spdlog::info(binary::encode(test, false));
+  spdlog::info(binary::decode(binary::encode(test, false)));
 
-  LOG_INFO(base64::encode(hex::decode("30 31 32 33 34 35 36 37 38 39 3a 3b 3c 3d 3e 3f f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd")));
-  assert(base64::encode(hex::decode("30 31 32 33 34 35 36 37 38 39 3a 3b 3c 3d 3e 3f f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd")) == "MDEyMzQ1Njc4OTo7PD0+P/Dx8vP09fb3+Pn6+/z9");
-  LOG_INFO(hex::encode(base64::decode("MDEyMzQ1Njc4OTo7PD0+P/Dx8vP09fb3+Pn6+/z9"), true));
-  assert(base64::decode("MDEyMzQ1Njc4OTo7PD0+P/Dx8vP09fb3+Pn6+/z9") == hex::decode("30 31 32 33 34 35 36 37 38 39 3a 3b 3c 3d 3e 3f f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd"));
+
+  spdlog::info("\n\n---[ Binary Numbers ]---\n");
+  spdlog::info(binary::encode(uint8_t{18}));
+  spdlog::info(binary::encode(uint16_t{4660}));
+  spdlog::info(binary::encode(uint32_t{305419896}));
+  spdlog::info(binary::encode(uint64_t{1311768467463790320}));
+  spdlog::info(static_cast<int>(binary::decode<uint8_t>("11110000")));
+  spdlog::info(binary::decode<uint16_t>("00001111 11110000"));
+  spdlog::info(binary::decode<uint32_t>("11110000 00001111 11110000 00001111"));
+  spdlog::info(binary::decode<uint64_t>("00001111 11110000 00001111 11110000 00001111 11110000 00001111 11110000"));
+  spdlog::info(binary::decode<int>("11111111 11111111 00000000 00000000"));
+  spdlog::info(binary::decode<int16_t>("11111111 00000000"));
+
+  spdlog::info("\n\n---[ Binary Numbers (Non-Padded) ]---\n");
+  spdlog::info(binary::encode(uint16_t{4660}, false));
+  spdlog::info(binary::encode(uint32_t{305419896}, false));
+  spdlog::info(binary::encode(uint64_t{1311768467463790320}, false));
+  spdlog::info(binary::encode(-12345, false));
+
+
+  spdlog::info("\n\n---[ Base64 ]---\n");
+  spdlog::info(base64::encode(test));
+  spdlog::info(base64::decode(base64::encode(test)));
+
+  spdlog::info(base64::encode(hex::decode("1f 8b 08 00 00 00 00 00 00 00 05 80 21 0d 00 00 10 02 4b 7e 05 f6 c3 60 a0 be b8 9d 3a e7 01 9a 63 4e 27 07 00 00 00")));
+  spdlog::info(hex::encode(base64::decode("H4sIAAAAAAAAAAWAIQ0AABACS34F9sNgoL64nTrnAZpjTicHAAAA"), true));
+
+  spdlog::info(base64::encode(hex::decode("30 31 32 33 34 35 36 37 38 39 3a 3b 3c 3d 3e 3f f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd")));
+  spdlog::info(hex::encode(base64::decode("MDEyMzQ1Njc4OTo7PD0+P/Dx8vP09fb3+Pn6+/z9"), true));
   
-  LOG_INFO(base64::encode(hex::decode("30 31 32 33 34 35 36 37 38 39 3a 3b 3c 3d 3e 3f f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe")));
-  assert(base64::encode(hex::decode("30 31 32 33 34 35 36 37 38 39 3a 3b 3c 3d 3e 3f f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe")) == "MDEyMzQ1Njc4OTo7PD0+P/Dx8vP09fb3+Pn6+/z9/g==");
-  LOG_INFO(hex::encode(base64::decode("MDEyMzQ1Njc4OTo7PD0+P/Dx8vP09fb3+Pn6+/z9/g=="), true));
-  assert(base64::decode("MDEyMzQ1Njc4OTo7PD0+P/Dx8vP09fb3+Pn6+/z9/g==") == hex::decode("30 31 32 33 34 35 36 37 38 39 3a 3b 3c 3d 3e 3f f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe"));
+  spdlog::info(base64::encode(hex::decode("30 31 32 33 34 35 36 37 38 39 3a 3b 3c 3d 3e 3f f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe")));
+  spdlog::info(hex::encode(base64::decode("MDEyMzQ1Njc4OTo7PD0+P/Dx8vP09fb3+Pn6+/z9/g=="), true));
   
-  LOG_INFO(base64::encode(hex::decode("30 31 32 33 34 35 36 37 38 39 3a 3b 3c 3d 3e 3f f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff")));
-  assert(base64::encode(hex::decode("30 31 32 33 34 35 36 37 38 39 3a 3b 3c 3d 3e 3f f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff")) == "MDEyMzQ1Njc4OTo7PD0+P/Dx8vP09fb3+Pn6+/z9/v8=");
-  LOG_INFO(hex::encode(base64::decode("MDEyMzQ1Njc4OTo7PD0+P/Dx8vP09fb3+Pn6+/z9/v8="), true));
-  assert(base64::decode("MDEyMzQ1Njc4OTo7PD0+P/Dx8vP09fb3+Pn6+/z9/v8=") == hex::decode("30 31 32 33 34 35 36 37 38 39 3a 3b 3c 3d 3e 3f f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff"));
+  spdlog::info(base64::encode(hex::decode("30 31 32 33 34 35 36 37 38 39 3a 3b 3c 3d 3e 3f f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff")));
+  spdlog::info(hex::encode(base64::decode("MDEyMzQ1Njc4OTo7PD0+P/Dx8vP09fb3+Pn6+/z9/v8="), true));
 
-  LOG_INFO("\n\n---[ Custom Base64 ]---\n");
-  LOG_INFO(base64::encode(test, "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+"));
-  assert(base64::encode(test, "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+") == "iglGrgWG0ftJsAL=08++");
-  LOG_INFO(base64::decode("iglGrgWG0ftJsAL=08++", "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+"));
-  assert(base64::decode("iglGrgWG0ftJsAL=08++", "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+") == test);
-
-  assert(base64::encode("This won't work", "Thisalphabetistoosmall") == std::string{});
-  assert(base64::decode("This won't work", "Thisalphabetistoosmall") == std::string{});
+  spdlog::info("\n\n---[ Custom Base64 ]---\n");
+  spdlog::info(base64::encode(test, "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+"));
+  spdlog::info(base64::decode("iglGrgWG0ftJsAL=08++", "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+"));
 
 
-  LOG_INFO("\n\n---[ URL encoding ]---\n");
-  LOG_INFO(url::encode(test));
-  LOG_INFO(url::decode(url::encode(test)));
-  assert(url::decode(url::encode(test)) == test);
+  spdlog::info("\n\n---[ URL encoding ]---\n");
+  spdlog::info(url::encode(test));
+  spdlog::info(url::decode(url::encode(test)));
+  spdlog::info(url::encode(hex::decode("10 33 55 77 99 AA BB DD FF")));
 
-  LOG_INFO(url::encode(hex::decode("10 33 55 77 99 AA BB DD FF")));
-  assert(url::encode(hex::decode("10 33 55 77 99 AA BB DD FF")) == "%103Uw%C2%99%C2%AA%C2%BB%C3%FD%C3%FF");
-
-  LOG_INFO("\n\n---[ URL encoding (lazy) ]---\n");
-  LOG_INFO(url::encode(hex::decode("10 33 55 77 99 AA BB DD FF"), true));
-  assert(url::encode(hex::decode("10 33 55 77 99 AA BB DD FF"), true) == "%103Uw%99%AA%BB%DD%FF");
+  spdlog::info("\n\n---[ URL encoding (lazy) ]---\n");
+  spdlog::info(url::encode(hex::decode("10 33 55 77 99 AA BB DD FF"), true));
 
 
-  LOG_INFO("\n\n---[ XOR ]---\n");
-  LOG_INFO(hex::encode(bitwise::xor_with_key(test, "great key")));
+  spdlog::info("\n\n---[ XOR ]---\n");
+  spdlog::info(hex::encode(bitwise::xor_with_key(test, "great key")));
   assert(bitwise::xor_with_key(test, "great key") == hex::decode("2F 17 09 0D 1B 0C 4B 32 16 15 1E 01 40"));
 
   LOG_INFO(hex::encode(bitwise::xor_with_key("12345678", "ABC\xFF")));
@@ -386,7 +327,7 @@ int main()
   assert(hmr::crypto::aes_ecb_decrypt(hmr::base64::decode("401gyzJgpJNkouYaQRZZRg=="), "YELLOW SUBMARINE", false) == "Hello, World!\x03\x03\x03");
 
   auto longer_plaintext = std::string{"Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal"};
-  LOG_INFO(hmr::base64::encode(hmr::crypto::aes_cbc_encrypt(longer_plaintext, "ORANGE SUBMARINE", "ORANGE SUBMARINE")));
+  spdlog::info(hmr::base64::encode(hmr::crypto::aes_cbc_encrypt(longer_plaintext, "ORANGE SUBMARINE", "ORANGE SUBMARINE")));
   assert(hmr::base64::encode(hmr::crypto::aes_cbc_encrypt(longer_plaintext, "ORANGE SUBMARINE", "ORANGE SUBMARINE")) == "rnPbRj30TGD+MRXM2O14b/xSA9oAv8Al/um7hObPUi5wP82Idy3FvXxNYghiPMeB+YLHDpzQDPm4FsNeSARVda55uN8ePdMZhoPkaiNbQcA=");
   assert(hmr::crypto::aes_cbc_decrypt(hmr::base64::decode("rnPbRj30TGD+MRXM2O14b/xSA9oAv8Al/um7hObPUi5wP82Idy3FvXxNYghiPMeB+YLHDpzQDPm4FsNeSARVda55uN8ePdMZhoPkaiNbQcA="), "ORANGE SUBMARINE", "ORANGE SUBMARINE") == longer_plaintext);
 
