@@ -15,5 +15,7 @@ include(../cmake/CompilerWarnings.cmake)
 set_project_warnings(example_warnings)
 
 find_package(hamarr CONFIG REQUIRED)
+
+find_package(spdlog REQUIRED)
 target_link_libraries(hamarr_examples PRIVATE example_options example_warnings
-                                              hamarr::hamarr)
+                                              hamarr::hamarr spdlog::spdlog)

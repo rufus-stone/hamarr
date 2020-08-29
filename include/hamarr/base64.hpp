@@ -7,12 +7,14 @@
 namespace hmr::base64
 {
 
-static const auto base64_alphabet = std::string("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=");
+using namespace std::string_view_literals;
+
+constexpr auto base64_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="sv;
 
 ////////////////////////////////////////////////////////////
-std::string encode(std::string_view input, const std::string &alphabet = base64_alphabet)
+std::string encode(std::string_view input, std::string_view alphabet = base64_alphabet)
 {
-  // Fail point - is the alphabet exactly 65 chars (64 alphabet chars + 1 padding char)?
+  // Abort condition - is the alphabet exactly 65 chars (64 alphabet chars + 1 padding char)?
   if (alphabet.size() != 65)
   {
     LOG_ERROR("Base64 alphabet is only " << alphabet.size() << " characters long! Must be exactly 65 (64 alphabet chars + 1 padding char)!");
@@ -22,7 +24,7 @@ std::string encode(std::string_view input, const std::string &alphabet = base64_
   std::size_t len = input.size();
 
   std::string output;
-  output.reserve(len * (4/3)); // Base64 encoding turns 3 bytes into 4, so the resulting data is 1 1/3 times the size of the input
+  output.reserve(len * (4 / 3)); // Base64 encoding turns 3 bytes into 4, so the resulting data is 1 1/3 times the size of the input
 
   // Get a uint8_t pointer to the data
   auto data = reinterpret_cast<const uint8_t *>(input.data());
@@ -39,7 +41,7 @@ std::string encode(std::string_view input, const std::string &alphabet = base64_
     {
       n += (*data++) << 8;
     }
-    
+
     // Is there a third?
     if (i + 2 < len)
     {
@@ -50,7 +52,7 @@ std::string encode(std::string_view input, const std::string &alphabet = base64_
     uint8_t a = ((n >> 18) & 63);
     uint8_t b = static_cast<uint8_t>((n >> 12) & 63);
     uint8_t c = static_cast<uint8_t>((n >> 6) & 63);
-    uint8_t d = static_cast<uint8_t>(n & 63);    
+    uint8_t d = static_cast<uint8_t>(n & 63);
 
     // Finally, use these 4 numbers to look up the corresponding base64 character
     output.push_back(alphabet[a]);
@@ -84,9 +86,9 @@ std::string encode(std::string_view input, const std::string &alphabet = base64_
 
 
 ////////////////////////////////////////////////////////////
-std::string decode(std::string_view input, const std::string &alphabet = base64_alphabet)
+std::string decode(std::string_view input, std::string_view alphabet = base64_alphabet)
 {
-  // Fail point - is the alphabet exactly 65 chars (64 alphabet chars + 1 padding char)?
+  // Abort condition - is the alphabet exactly 65 chars (64 alphabet chars + 1 padding char)?
   if (alphabet.size() != 65)
   {
     LOG_ERROR("Base64 alphabet is only " << alphabet.size() << " characters long! Must be exactly 65 (64 alphabet chars + 1 padding char)!");
@@ -95,14 +97,14 @@ std::string decode(std::string_view input, const std::string &alphabet = base64_
 
   const std::size_t len = input.size();
 
-  // Fail point - must contain at least two chars, as valid base64 encoding always results in at least two chars
+  // Abort condition - must contain at least two chars, as valid base64 encoding always results in at least two chars
   if (len < 2)
   {
     LOG_ERROR("Input is too short for valid base64! Must have at least 2 chars!");
     return std::string{};
   }
 
-  // Fail point - must contain valid base64 chars
+  // Abort condition - must contain valid base64 chars
   auto e = input.find_first_not_of(alphabet);
   if (e != std::string::npos)
   {
@@ -112,9 +114,9 @@ std::string decode(std::string_view input, const std::string &alphabet = base64_
 
   // We want to ignore any padding, so check if it's present. If it is, we'll stop our base64 decoding loop at that point, otherwise we'll go until the end
   auto end = std::find(std::begin(input), std::end(input), alphabet[alphabet.size() - 1]);
-  
+
   std::string output;
-  output.reserve(len * (3/4)); // Base64 decoding turns 4 bytes into 3, so the resulting data is 3/4 times the size of the input
+  output.reserve(len * (3 / 4)); // Base64 decoding turns 4 bytes into 3, so the resulting data is 3/4 times the size of the input
 
   // Lambda to perform conversion from a given base64 character to the index within the chosen base64 alphabet for that character
   auto b64_to_uint8_t = [&alphabet](const char n) -> uint8_t
@@ -217,4 +219,4 @@ std::string decode(std::string_view input, const std::string &alphabet = base64_
   return output;
 }
 
-} // namespace base64
+} // namespace hmr::base64

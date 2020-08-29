@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15...3.18)
 
 project(
   hamarr
-  VERSION 0.9.0
+  VERSION 1.0.0
   DESCRIPTION "A C++ toolbox for data manipulation."
   HOMEPAGE_URL "https://github.com/rufus-stone/hamarr"
   LANGUAGES CXX)
@@ -74,7 +74,7 @@ configure_package_config_file(
   INSTALL_DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/${PROJECT_NAME}/cmake)
 
 if(INSTALL_LIBRARY)
-  message("Installing library...")
+  message("Configuring library installation...")
   install(
     EXPORT ${PROJECT_NAME}_Targets
     FILE ${PROJECT_NAME}Targets.cmake

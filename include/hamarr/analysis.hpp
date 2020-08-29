@@ -21,31 +21,31 @@ enum class case_sensitivity { enabled, disabled };
 ////////////////////////////////////////////////////////////
 constexpr std::size_t hamming_distance(std::string_view lhs, std::string_view rhs) noexcept
 {
-	auto lhs_bytes = lhs.data(); //const uint8_t *lhs_bytes = reinterpret_cast<const uint8_t*>(lhs.data());
-	auto rhs_bytes = rhs.data(); //const uint8_t *rhs_bytes = reinterpret_cast<const uint8_t*>(rhs.data());
+  auto lhs_bytes = lhs.data(); //const uint8_t *lhs_bytes = reinterpret_cast<const uint8_t*>(lhs.data());
+  auto rhs_bytes = rhs.data(); //const uint8_t *rhs_bytes = reinterpret_cast<const uint8_t*>(rhs.data());
 
-	std::size_t lhs_len = lhs.size();
-	std::size_t rhs_len = rhs.size();
+  std::size_t lhs_len = lhs.size();
+  std::size_t rhs_len = rhs.size();
 
   // Hamming distance calculation expects inputs of equal length. If the inputs are NOT of equal length, ignore any excess data.
   std::size_t len = std::min(lhs_len, rhs_len);
 
-	std::size_t ham = 0;
-	uint8_t xord = 0;
+  std::size_t ham = 0;
+  uint8_t xord = 0;
 
-	for (std::size_t i = 0; i < len; ++i)
-	{
-		xord = lhs_bytes[i] ^ rhs_bytes[i];
+  for (std::size_t i = 0; i < len; ++i)
+  {
+    xord = lhs_bytes[i] ^ rhs_bytes[i];
 
-		for (int j = 0; j < 8; ++j)
-		{
-			if ((xord & 0x01) == 1)
-			{
-				++ham;
-			}
-			xord >>= 1;
-		}
-	}
+    for (int j = 0; j < 8; ++j)
+    {
+      if ((xord & 0x01) == 1)
+      {
+        ++ham;
+      }
+      xord >>= 1;
+    }
+  }
 
   return ham;
 }
@@ -139,7 +139,7 @@ void print_character_frequency(std::vector<std::size_t> freqs, bool show_zeros =
       {
         LOG_INFO("'" << hex::encode(static_cast<uint8_t>(i)) << "' occurs " << static_cast<int>(freqs[i]) << " times");
       }
-      
+
     } else
     {
       if (freqs[i] != 0x00)
@@ -246,7 +246,7 @@ auto find_candidate_keysize(std::string_view input, std::size_t min = 2, std::si
 
   const std::size_t min_key_size = min;
   const std::size_t max_key_size = max;
-  
+
   auto average_hams = std::vector<std::pair<std::size_t, double>>{};
   average_hams.reserve(max_key_size - min_key_size);
 
@@ -274,7 +274,7 @@ auto find_candidate_keysize(std::string_view input, std::size_t min = 2, std::si
 
     // Now average the hamming distances
     auto average_ham = std::accumulate(std::begin(hams), std::end(hams), 0.0) / hams.size();
-    
+
     // Make a note of the hamming distance for the current key_size
     average_hams.emplace_back(std::make_pair(key_size, average_ham));
   }
@@ -301,7 +301,7 @@ auto solve_single_byte_xor(std::string_view input, bool debug_flag = false)
     if (hmr::analysis::looks_like_english(result, debug_flag))
     {
       possible_keys.push_back(key);
-    } 
+    }
 
     key++;
   }
@@ -338,4 +338,4 @@ constexpr bool repeated_blocks(std::string_view input, std::size_t block_size = 
   return false;
 }
 
-} // namespace analysis
+} // namespace hmr::analysis

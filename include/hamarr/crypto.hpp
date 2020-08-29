@@ -134,7 +134,7 @@ std::string aes_ecb_decrypt(std::string_view input, std::string_view key, bool r
   for (std::size_t offset = 0; offset < len; offset += 16, ++current_block)
   {
     auto decrypted_block = aes_ecb_decrypt_block(input.substr(offset, 16), key);
-    
+
     // If this was the last block, check whether we need to remove padding
     if (current_block == num_blocks)
     {

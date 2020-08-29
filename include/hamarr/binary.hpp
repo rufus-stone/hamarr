@@ -19,7 +19,7 @@ std::string encode(std::string_view input, bool delimited = true)
 {
   std::vector<std::string> out_vec;
 
-  std::transform(input.begin(), input.end(), std::back_inserter(out_vec), [](const uint8_t c)
+  std::transform(input.begin(), input.end(), std::back_inserter(out_vec), [](const uint8_t c) -> std::string
   {
     const auto bits = std::bitset<8>(c);
     return bits.to_string();
@@ -39,7 +39,7 @@ std::string encode(std::string_view input, bool delimited = true)
 
 
 ////////////////////////////////////////////////////////////
-template <typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
+template<typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
 std::string encode(T input, bool delimited = true)
 {
   if (delimited)
@@ -81,7 +81,7 @@ std::string encode(T input, bool delimited = true)
 
         auto bits = std::bitset<8>(a);
         output += bits.to_string();
-        
+
         output.push_back(' ');
 
         bits = std::bitset<8>(b);
@@ -91,7 +91,7 @@ std::string encode(T input, bool delimited = true)
 
         bits = std::bitset<8>(c);
         output += bits.to_string();
-        
+
         output.push_back(' ');
 
         bits = std::bitset<8>(d);
@@ -112,7 +112,7 @@ std::string encode(T input, bool delimited = true)
 
         auto bits = std::bitset<8>(a);
         output += bits.to_string();
-        
+
         output.push_back(' ');
 
         bits = std::bitset<8>(b);
@@ -122,7 +122,7 @@ std::string encode(T input, bool delimited = true)
 
         bits = std::bitset<8>(c);
         output += bits.to_string();
-        
+
         output.push_back(' ');
 
         bits = std::bitset<8>(d);
@@ -132,7 +132,7 @@ std::string encode(T input, bool delimited = true)
 
         bits = std::bitset<8>(e);
         output += bits.to_string();
-        
+
         output.push_back(' ');
 
         bits = std::bitset<8>(f);
@@ -142,12 +142,12 @@ std::string encode(T input, bool delimited = true)
 
         bits = std::bitset<8>(g);
         output += bits.to_string();
-        
+
         output.push_back(' ');
 
         bits = std::bitset<8>(h);
         output += bits.to_string();
-        
+
         return output;
       }
       default:
@@ -184,7 +184,7 @@ std::string decode(const std::string &input)
     // Abort condition - is there enough data left?
     if (i + 8 > len)
     {
-      LOG_ERROR("Not enough data left! i+8 == " << (i+8) << "but len == " << len);
+      LOG_ERROR("Not enough data left! i+8 == " << (i + 8) << "but len == " << len);
       return std::string{};
     }
 
@@ -198,7 +198,7 @@ std::string decode(const std::string &input)
 }
 
 ////////////////////////////////////////////////////////////
-template <typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
+template<typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
 T decode(const std::string &input)
 {
   // Strip any spaces
@@ -220,6 +220,13 @@ T decode(const std::string &input)
     return T{};
   }
 
+  // Input binary string must only contain 1s and 0s
+  if (tmp.find_first_not_of("10") != std::string::npos)
+  {
+    LOG_ERROR("Invalid binary char!");
+    return T{};
+  }
+
   const auto bits = std::bitset<sizeof(T) * 8>(tmp);
 
   const auto output = static_cast<T>(bits.to_ullong());
@@ -227,4 +234,4 @@ T decode(const std::string &input)
   return output;
 }
 
-} // namespace binary
+} // namespace hmr::binary
