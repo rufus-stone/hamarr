@@ -209,5 +209,5 @@ TEST_CASE("XOR with key", "[obfuscation][xor][string]")
 
   // Integral as key
   REQUIRE(hmr::bitwise::xor_with_key(input, 1) == hmr::hex::decode("49 64 6d 6d 6e 2d 21 56 6e 73 6d 65 20"));
-  REQUIRE(hmr::bitwise::xor_with_key(input, uint8_t{0x33}) != hmr::hex::decode("7b 56 5f 5f 5c 1f 13 64 5c 41 5f 57 12"));
+  REQUIRE(hmr::bitwise::xor_with_key(input, uint8_t{0x33}) == hmr::hex::decode("7b 56 5f 5f 5c 1f 13 64 5c 41 5f 57 12"));
 }
