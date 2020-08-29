@@ -194,3 +194,20 @@ TEST_CASE("URL encode/decode std::string", "[encoding][url][string]")
   REQUIRE(hmr::url::decode("Invalid percent-encoded hex sequences %ZZ %JJ") == std::string{});
   REQUIRE(hmr::url::decode("Missing data %C2%") == std::string{});
 }
+
+// XOR
+TEST_CASE("XOR with key", "[obfuscation][xor][string]")
+{
+  const auto input = "Hello, World!"s;
+
+  // String as key
+  REQUIRE(hmr::bitwise::xor_with_key(input, "great key") == hmr::hex::decode("2F 17 09 0D 1B 0C 4B 32 16 15 1E 01 40"));
+  REQUIRE(hmr::bitwise::xor_with_key("12345678", "ABC\xFF") == hmr::hex::decode("70 70 70 cb 74 74 74 c7"));
+
+  // Char as key
+  REQUIRE(hmr::bitwise::xor_with_key(input, 'c') == hmr::hex::decode("2b 06 0f 0f 0c 4f 43 34 0c 11 0f 07 42"));
+
+  // Integral as key
+  REQUIRE(hmr::bitwise::xor_with_key(input, 1) == hmr::hex::decode("49 64 6d 6d 6e 2d 21 56 6e 73 6d 65 20"));
+  REQUIRE(hmr::bitwise::xor_with_key(input, uint8_t{0x33}) == hmr::hex::decode("7b 56 5f 5f 5c 1f 13 64 5c 41 5f 57 12"));
+}
