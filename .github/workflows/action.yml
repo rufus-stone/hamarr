@@ -30,7 +30,7 @@ jobs:
     - name: Install Hamarr
       working-directory: ${{runner.workspace}}/build
       shell: bash
-      run: sudo cmake --build . --config Release --target install -DINSTALL_LIBRARY=ON -DBUILD_HAMARR_TESTS=OFF -DBUILD_HAMARR_EXAMPLES=OFF
+      run: sudo cmake --build . --config Release --target install
 
     - name: Configure CMake to build tests
       shell: bash
