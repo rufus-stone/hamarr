@@ -25,17 +25,17 @@ jobs:
     - name: Configure CMake to install Hamarr
       shell: bash
       working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DINSTALL_LIBRARY=ON -DBUILD_HAMARR_TESTS=OFF -DBUILD_HAMARR_EXAMPLES OFF
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DINSTALL_LIBRARY=ON -DBUILD_HAMARR_TESTS=OFF -DBUILD_HAMARR_EXAMPLES=OFF
 
     - name: Install Hamarr
       working-directory: ${{runner.workspace}}/build
       shell: bash
-      run: sudo cmake --build . -config Release --target install -DINSTALL_LIBRARY=ON -DBUILD_HAMARR_TESTS=OFF -DBUILD_HAMARR_EXAMPLES OFF
+      run: sudo cmake --build . -config Release --target install -DINSTALL_LIBRARY=ON -DBUILD_HAMARR_TESTS=OFF -DBUILD_HAMARR_EXAMPLES=OFF
 
     - name: Configure CMake to build tests
       shell: bash
       working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DINSTALL_LIBRARY=OFF -DBUILD_HAMARR_TESTS=ON -DBUILD_HAMARR_EXAMPLES OFF
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DINSTALL_LIBRARY=OFF -DBUILD_HAMARR_TESTS=ON -DBUILD_HAMARR_EXAMPLES=OFF
 
     - name: Build tests
       working-directory: ${{runner.workspace}}/build
