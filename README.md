@@ -1,5 +1,7 @@
 # Hamarr <img align="right" src="https://img.icons8.com/ios-filled/100/000000/thor-hammer.png">
 
+![Latest Build](https://https://github.com/rufus-stone/hamarr/workflows/Build%20and%20Test/badge.svg)
+
 A collection of header-only C++ utilities for performing various kinds of encoding/decoding and other data manipulation operations.
 
 This began life as things I found useful when playing around with the first few [cryptopals challenges](https://cryptopals.com), but has grown to include other kinds of data manipulation operations, functions for generating psuedo-random numbers, very basic benchmarking, encryption/decryption, etc. Basically it's a bunch of stuff that I wish was already available as easy-to-use functions.
