@@ -7,8 +7,8 @@
 #include <cmath>
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 
-#include "logger.hpp"
 #include "hex.hpp"
 #include "bitwise.hpp"
 
@@ -132,11 +132,11 @@ void print_character_frequency(std::vector<std::size_t> freqs, bool show_zeros =
     {
       if (i >= 0x20 && i <= 0x7E)
       {
-        LOG_INFO("'" << static_cast<char>(i) << "' occurs " << static_cast<int>(freqs[i]) << " times");
+        std::cout << "'" << static_cast<char>(i) << "' occurs " << static_cast<int>(freqs[i]) << " times\n";
 
       } else
       {
-        LOG_INFO("'" << hex::encode(static_cast<uint8_t>(i)) << "' occurs " << static_cast<int>(freqs[i]) << " times");
+        std::cout << "'" << hex::encode(static_cast<uint8_t>(i)) << "' occurs " << static_cast<int>(freqs[i]) << " times\n";
       }
 
     } else
@@ -145,11 +145,11 @@ void print_character_frequency(std::vector<std::size_t> freqs, bool show_zeros =
       {
         if (i >= 0x20 && i <= 0x7E)
         {
-          LOG_INFO("'" << static_cast<char>(i) << "' occurs " << static_cast<int>(freqs[i]) << " times");
+          std::cout << "'" << static_cast<char>(i) << "' occurs " << static_cast<int>(freqs[i]) << " times\n";
 
         } else
         {
-          LOG_INFO("'" << hex::encode(static_cast<uint8_t>(i)) << "' occurs " << static_cast<int>(freqs[i]) << " times");
+          std::cout << "'" << hex::encode(static_cast<uint8_t>(i)) << "' occurs " << static_cast<int>(freqs[i]) << " times\n";
         }
       }
     }
@@ -172,7 +172,7 @@ constexpr bool looks_like_english(std::string_view input, bool debug_flag = fals
     // Abort condition - there should be no un-printable byte values (apart from space, tab, newline, carriage return, etc.)
     if ((ch < 0x20 && ch != 0x09 && ch != 0x0A && ch != 0x0B && ch != 0x0C && ch != 0x0D) || ch > 0x7E)
     {
-      if (debug_flag) LOG_INFO("Failed unprintable");
+      if (debug_flag) std::cout << "Failed unprintable\n";
       return false;
     }
 
@@ -210,28 +210,28 @@ constexpr bool looks_like_english(std::string_view input, bool debug_flag = fals
   // There should be more spaces than punctuation
   if (spaces < punctuation)
   {
-    if (debug_flag) LOG_INFO("Failed spaces vs punc");
+    if (debug_flag) std::cout << "Failed spaces vs punc\n";
     return false;
   }
 
   // There should be more alphanumerics than punctuation
   if (numbers + lowercase + uppercase < punctuation)
   {
-    if (debug_flag) LOG_INFO("Failed alphanum vs punc");
+    if (debug_flag) std::cout << "Failed alphanum vs punc\n";
     return false;
   }
 
   // There should be more lowercase letters than uppercase
   if (lowercase < uppercase)
   {
-    if (debug_flag) LOG_INFO("Failed lower vs upper");
+    if (debug_flag) std::cout << "Failed lower vs upper\n";
     return false;
   }
 
   // There should be more letters than numbers
   if (lowercase + uppercase < numbers)
   {
-    if (debug_flag) LOG_INFO("Failed letters vs numbers");
+    if (debug_flag) std::cout << "Failed letters vs numbers\n";
     return false;
   }
 
@@ -280,7 +280,7 @@ auto find_candidate_keysize(std::string_view input, std::size_t min = 2, std::si
 
   // Pick the key_size with the lowest average hamming distance - this is the best candidate for the actual key size
   auto best_candidate = std::min_element(std::begin(average_hams), std::end(average_hams), [](const auto &lhs, const auto &rhs) { return lhs.second < rhs.second; });
-  if (debug_flag) LOG_INFO("Best candidate key size: " << best_candidate->first << " (average Hamming distance: " << best_candidate->second << ")");
+  if (debug_flag) std::cout << "Best candidate key size: " << best_candidate->first << " (average Hamming distance: " << best_candidate->second << ")\n";
 
   return *best_candidate;
 }
@@ -307,8 +307,8 @@ auto solve_single_byte_xor(std::string_view input, bool debug_flag = false)
 
   if (possible_keys.empty() && debug_flag)
   {
-    LOG_INFO("Failed to find any possible keys!");
-    LOG_INFO("Input was: " << input);
+    std::cout << "Failed to find any possible keys!\n";
+    std::cout << "Input was: " << input << '\n';
   }
 
   return possible_keys;

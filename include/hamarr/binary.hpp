@@ -6,9 +6,9 @@
 #include <algorithm>
 #include <numeric>
 #include <bitset>
+#include <iostream>
 
 #include "format.hpp"
-#include "logger.hpp"
 #include "hex.hpp"
 
 namespace hmr::binary
@@ -184,7 +184,7 @@ std::string decode(const std::string &input)
     // Abort condition - is there enough data left?
     if (i + 8 > len)
     {
-      LOG_ERROR("Not enough data left! i+8 == " << (i + 8) << "but len == " << len);
+      std::cerr << "Not enough data left! i+8 == " << (i + 8) << "but len == " << len << '\n';
       return std::string{};
     }
 
@@ -208,7 +208,7 @@ T decode(const std::string &input)
   // Input binary string must be divisible by 8
   if (tmp.size() % 8 != 0)
   {
-    LOG_ERROR("Not divisible by 8!");
+    std::cerr << "Not divisible by 8!\n";
     return T{};
   }
 
@@ -216,14 +216,14 @@ T decode(const std::string &input)
   // TODO: For inputs that are shorter than the desired return type, maybe we could just convert to that type anyway, e.g. an input of "11111111" could be turned into a uint16_t output with the value 0x00FF ??
   if ((tmp.size() / 8) != sizeof(T))
   {
-    LOG_ERROR("Input binary string does not contain the correct number of bits to fit into a " << sizeof(T) << " byte type!");
+    std::cerr << "Input binary string does not contain the correct number of bits to fit into a " << sizeof(T) << " byte type!\n";
     return T{};
   }
 
   // Input binary string must only contain 1s and 0s
   if (tmp.find_first_not_of("10") != std::string::npos)
   {
-    LOG_ERROR("Invalid binary char!");
+    std::cerr << "Invalid binary char!\n";
     return T{};
   }
 

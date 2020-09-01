@@ -3,7 +3,6 @@
 #include <random>
 #include <type_traits>
 
-
 namespace hmr::prng
 {
 // We can reuse the random engine, so declare once statically here
