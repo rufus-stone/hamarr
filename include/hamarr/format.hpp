@@ -4,6 +4,10 @@
 #include <string_view>
 #include <algorithm>
 
+#include "fwd.hpp"
+#include "hex.hpp"
+#include "logger.hpp"
+
 
 namespace hmr::format
 {

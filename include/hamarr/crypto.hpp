@@ -10,6 +10,7 @@
 
 #include "pkcs7.hpp"
 #include "logger.hpp"
+#include "bitwise.hpp"
 
 namespace hmr::crypto
 {
