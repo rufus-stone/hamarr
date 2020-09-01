@@ -52,11 +52,32 @@ cmake . -DINSTALL_LIBRARY=ON -DBUILD_HAMARR_TESTS=OFF -DBUILD_HAMARR_EXAMPLES=OF
 sudo cmake --build . --target install
 ```
 
+## Test and Example Build
+
+Hamarr includes a suite of tests using Catch2, and an example program that demonstrates most usage scenarios. To build these, enable the `BUILD_HAMARR_TESTS` and `BUILD_HAMARR_EXAMPLES` CMake options respectively. The example program uses spdlog for output, so this must be installed before the example program can be built. As a result, `BUILD_HAMARR_EXAMPLES` defaults to `OFF`. For example:
+
+```shell
+git clone git@github.com:rufus-stone/hamarr.git
+
+cd hamarr && mkdir build && cd build
+
+cmake . -DBUILD_HAMARR_EXAMPLES=ON
+
+cmake --build . --target install
+
+# Run the examples program
+./examples/hamarr_examples
+```
+
 
 ### Requirements
 
 - C++17 or newer
 - OpenSSL
+
+### Optional Requirements
+
+- spdlog (for the example program)
 
 
 ## Usage
