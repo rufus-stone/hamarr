@@ -7,7 +7,7 @@ This began life as things I found useful when playing around with the first few 
 
 ## Installation
 
-You can either clone the repo and pop the contents of the include folder into your project, or use git submodules. For example:
+As Hamarr is header-only, you can either clone the repo and pop the contents of the include folder into your project, or use git submodules. For example:
 
 ```shell
 git submodule add git@github.com:rufus-stone/hamarr.git
@@ -21,7 +21,36 @@ Then add the following to your CMakeLists.txt file:
 include_directories(hamarr/include)
 ```
 
-Now you can `#include "hamarr.hpp"` and you're all set!
+Now you can `#include` whichever parts of Hamarr you require.
+
+Note: the functions in `hamarr/crypto.hpp` require OpenSSL, so if using the method described above, you will need to link to the OpenSSL library before you can `#include "hamarr/crypto.hpp"`. Example CMakeLists.txt file:
+
+```cmake
+cmake_minimum_required(VERSION 3.0.0)
+
+project(example_proj)
+
+add_executable(${PROJECT_NAME} main.cpp)
+
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+
+target_include_directories(${PROJECT_NAME} PRIVATE hamarr/include)
+
+find_package(OpenSSL REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::SSL)
+```
+
+Alternatively, you can install Hamarr to the default system location using CMake (or to a location of your choosing by providing a CMAKE_INSTALL_PREFIX). This will automatically pick up the OpenSSL dependency. For example:
+
+```shell
+git clone git@github.com:rufus-stone/hamarr.git
+
+cd hamarr && mkdir build && cd build
+
+cmake . -DINSTALL_LIBRARY=ON -DBUILD_HAMARR_TESTS=OFF -DBUILD_HAMARR_EXAMPLES=OFF
+
+sudo cmake --build . --target install
+```
 
 
 ### Requirements

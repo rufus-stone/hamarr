@@ -6,7 +6,6 @@ add_executable(tests tests.cpp)
 target_compile_features(tests PRIVATE cxx_std_17)
 
 #find_package(hamarr CONFIG REQUIRED)
-#include_directories(../include)
 target_include_directories(tests PRIVATE ../include)
 
 find_package(OpenSSL REQUIRED)

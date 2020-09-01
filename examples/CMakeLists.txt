@@ -14,8 +14,10 @@ add_library(example_warnings INTERFACE)
 include(../cmake/CompilerWarnings.cmake)
 set_project_warnings(example_warnings)
 
-find_package(hamarr CONFIG REQUIRED)
+#find_package(hamarr CONFIG REQUIRED)
+target_include_directories(hamarr_examples PRIVATE ../include)
 
+find_package(OpenSSL REQUIRED)
 find_package(spdlog REQUIRED)
-target_link_libraries(hamarr_examples PRIVATE example_options example_warnings
-                                              hamarr::hamarr spdlog::spdlog)
+#target_link_libraries(hamarr_examples PRIVATE example_options example_warnings hamarr::hamarr spdlog::spdlog)
+target_link_libraries(hamarr_examples PRIVATE example_options example_warnings OpenSSL::SSL spdlog::spdlog)
