@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15...3.18)
 
 project(
   hamarr
-  VERSION 1.0.0
+  VERSION 1.0.1
   DESCRIPTION "A C++ toolbox for data manipulation."
   HOMEPAGE_URL "https://github.com/rufus-stone/hamarr"
   LANGUAGES CXX)
