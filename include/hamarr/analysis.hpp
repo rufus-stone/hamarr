@@ -6,8 +6,7 @@
 #include <numeric>
 #include <cmath>
 #include <algorithm>
-
-#include <assert.h>
+#include <cassert>
 
 #include "logger.hpp"
 #include "hex.hpp"

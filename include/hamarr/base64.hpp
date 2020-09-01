@@ -4,6 +4,8 @@
 #include <string_view>
 #include <algorithm>
 
+#include "logger.hpp"
+
 namespace hmr::base64
 {
 
