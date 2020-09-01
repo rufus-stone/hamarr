@@ -5,10 +5,9 @@
 #include <sstream>
 #include <iomanip>
 #include <type_traits>
+#include <iostream>
 
 #include "format.hpp"
-#include "logger.hpp"
-
 
 namespace hmr::hex
 {
@@ -146,7 +145,7 @@ std::string decode(std::string_view input)
     // Abort condition - is there enough data left?
     if (i + 2 > len)
     {
-      LOG_ERROR("Not enough data left!");
+      std::cerr << "Not enough data left!\n";
       return std::string{};
     }
 
@@ -154,14 +153,14 @@ std::string decode(std::string_view input)
     auto a = hex_alphabet.find(std::toupper(input[i++]));
     if (a == std::string::npos)
     {
-      LOG_ERROR("Invalid hex char " << input[i - 1] << " at index " << i - 1 << "!");
+      std::cerr << "Invalid hex char " << input[i - 1] << " at index " << i - 1 << "!\n";
       return std::string{};
     }
 
     auto b = hex_alphabet.find(std::toupper(input[i]));
     if (b == std::string::npos)
     {
-      LOG_ERROR("Invalid hex char " << input[i] << " at index " << i << "!");
+      std::cerr << "Invalid hex char " << input[i] << " at index " << i << "!\n";
       return std::string{};
     }
 
@@ -192,7 +191,7 @@ T decode(std::string_view input)
   // Abort condition - must be even length
   if (len & 1)
   {
-    LOG_ERROR("Hex strings must be even in length!");
+    std::cerr << "Hex strings must be even in length!\n";
     return T{};
   }
 
@@ -200,7 +199,7 @@ T decode(std::string_view input)
   auto e = tmp.find_first_not_of(hex_alphabet);
   if (e != std::string::npos)
   {
-    LOG_ERROR("Invalid hex char " << tmp[e] << " at index " << e << "!");
+    std::cerr << "Invalid hex char " << tmp[e] << " at index " << e << "!\n";
     return T{};
   }
 
@@ -209,7 +208,7 @@ T decode(std::string_view input)
   // Abort condition - the input can be shorter than the number of bytes taken up by the output, but it cannot be longer
   if (tmp.size() / 2 > sizeof(T))
   {
-    LOG_ERROR("Input hex string contains too much data to fit into a " << sizeof(T) << " byte type!");
+    std::cerr << "Input hex string contains too much data to fit into a " << sizeof(T) << " byte type!\n";
     return T{};
   }
 

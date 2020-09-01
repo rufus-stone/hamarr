@@ -3,8 +3,7 @@
 #include <string>
 #include <string_view>
 #include <algorithm>
-
-#include "logger.hpp"
+#include <iostream>
 
 namespace hmr::base64
 {
@@ -19,7 +18,7 @@ std::string encode(std::string_view input, std::string_view alphabet = base64_al
   // Abort condition - is the alphabet exactly 65 chars (64 alphabet chars + 1 padding char)?
   if (alphabet.size() != 65)
   {
-    LOG_ERROR("Base64 alphabet is only " << alphabet.size() << " characters long! Must be exactly 65 (64 alphabet chars + 1 padding char)!");
+    std::cerr << "Base64 alphabet is only " << alphabet.size() << " characters long! Must be exactly 65 (64 alphabet chars + 1 padding char)!\n";
     return std::string{};
   }
 
@@ -93,7 +92,7 @@ std::string decode(std::string_view input, std::string_view alphabet = base64_al
   // Abort condition - is the alphabet exactly 65 chars (64 alphabet chars + 1 padding char)?
   if (alphabet.size() != 65)
   {
-    LOG_ERROR("Base64 alphabet is only " << alphabet.size() << " characters long! Must be exactly 65 (64 alphabet chars + 1 padding char)!");
+    std::cerr << "Base64 alphabet is only " << alphabet.size() << " characters long! Must be exactly 65 (64 alphabet chars + 1 padding char)!\n";
     return std::string{};
   }
 
@@ -102,7 +101,7 @@ std::string decode(std::string_view input, std::string_view alphabet = base64_al
   // Abort condition - must contain at least two chars, as valid base64 encoding always results in at least two chars
   if (len < 2)
   {
-    LOG_ERROR("Input is too short for valid base64! Must have at least 2 chars!");
+    std::cerr << "Input is too short for valid base64! Must have at least 2 chars!\n";
     return std::string{};
   }
 
@@ -110,7 +109,7 @@ std::string decode(std::string_view input, std::string_view alphabet = base64_al
   auto e = input.find_first_not_of(alphabet);
   if (e != std::string::npos)
   {
-    LOG_ERROR("Invalid base64 char '" << input[e] << "' at index " << e << "!");
+    std::cerr << "Invalid base64 char '" << input[e] << "' at index " << e << "!\n";
     return std::string{};
   }
 
@@ -144,7 +143,7 @@ std::string decode(std::string_view input, std::string_view alphabet = base64_al
     // We should always have at least 2 bytes to play with, otherwise this can't be valid base64 encoded data
     if (end - iter == 1)
     {
-      LOG_ERROR("There's only one byte left!");
+      std::cerr << "There's only one byte left!\n";
       return std::string{};
     }
 
@@ -213,7 +212,7 @@ std::string decode(std::string_view input, std::string_view alphabet = base64_al
         break;
       }
       default:
-        LOG_ERROR("Not enough data left!: " << remaining);
+        std::cerr << "Not enough data left!: " << remaining << '\n';
         return std::string{};
     }
   }

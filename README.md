@@ -26,7 +26,7 @@ Now you can `#include` whichever parts of Hamarr you require.
 Note: the functions in `hamarr/crypto.hpp` require OpenSSL, so if using the method described above, you will need to link to the OpenSSL library before you can `#include "hamarr/crypto.hpp"`. Example CMakeLists.txt file:
 
 ```cmake
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.15)
 
 project(example_proj)
 
@@ -45,28 +45,34 @@ Alternatively, you can install Hamarr to the default system location using CMake
 ```shell
 git clone git@github.com:rufus-stone/hamarr.git
 
-cd hamarr && mkdir build && cd build
+cd hamarr
 
-cmake . -DINSTALL_LIBRARY=ON -DBUILD_HAMARR_TESTS=OFF -DBUILD_HAMARR_EXAMPLES=OFF
+# Get CMake to create a new build directory (optionally specify -DCMAKE_INSTALL_PREFIX=/path/of/your/choosing if you want to install Hamarr to a given location)
+cmake -S . -B build
 
-sudo cmake --build . --target install
+# Build the "install" target within the newly created build directory to install Hamarr
+# This will also build the tests (unless you specifically disabled this by adding -DBUILD_HAMARR_TESTS=OFF to the previous command)
+# If installing to default system folders you'll probably need to run this using sudo
+cmake --build build --target install
 ```
 
 ## Test and Example Build
 
-Hamarr includes a suite of tests using Catch2, and an example program that demonstrates most usage scenarios. To build these, enable the `BUILD_HAMARR_TESTS` and `BUILD_HAMARR_EXAMPLES` CMake options respectively. The example program uses spdlog for output, so this must be installed before the example program can be built. As a result, `BUILD_HAMARR_EXAMPLES` defaults to `OFF`. For example:
+Hamarr includes a suite of tests using Catch2, and an example program that demonstrates most usage scenarios. To build these, enable the `BUILD_HAMARR_TESTS` and `BUILD_HAMARR_EXAMPLES` CMake options respectively. The example program uses [spdlog](https://github.com/gabime/spdlog) for output, so this must be installed before the example program can be built. As a result, `BUILD_HAMARR_EXAMPLES` defaults to `OFF`. For example:
 
 ```shell
 git clone git@github.com:rufus-stone/hamarr.git
 
-cd hamarr && mkdir build && cd build
+cd hamarr
 
-cmake . -DBUILD_HAMARR_EXAMPLES=ON
+# Get CMake to create a new build directory and enable BUILD_HAMARR_EXAMPLES (OFF by default)
+cmake -S . -B build -DBUILD_HAMARR_EXAMPLES=ON
 
-cmake --build . --target install
+# Build the "hamarr_examples" target within the newly created build directory
+cmake --build build --target hamarr_examples
 
 # Run the examples program
-./examples/hamarr_examples
+./build/examples/hamarr_examples
 ```
 
 
@@ -77,20 +83,10 @@ cmake --build . --target install
 
 ### Optional Requirements
 
-- spdlog (for the example program)
+- [spdlog](https://github.com/gabime/spdlog) (for the example program)
 
 
 ## Usage
-
-### Logger
-
-The `LOG_INFO()` and `LOG_ERROR()` macros are just simple wrappers around `std::cout` and `std::cerr` for printing messages to the console. They end with a newline. For example:
-
-```cpp
-LOG_INFO("Blah blah blah " << 123); // Prints: "Blah blah blah 123"
-
-LOG_ERROR("Some message " << 54321); // Prints: "Some message 54321"
-```
 
 ### Formatting
 
@@ -108,12 +104,14 @@ To escape/unescape a string that contains unprintable characters, newlines, etc.
 
 `hmr::format::unescape()`
 
-This both take a `std::string_view` input, and return a `std::string` output. For example:
+These both take a `std::string_view` input, and return a `std::string` output. If `hmr::format::unescape()` encounters any incomplete escape sequences, and empty string is returned. For example:
 
 ```cpp
-LOG_INFO(hmr::format::escape("This \\ has newlines \n and carriage returns \r and unprintable \x7F hex chars")); // LOG_INFO() literally prints "This \\ has newlines \n and carriage returns \r and unprintable \x7F hex chars"
+auto escaped = hmr::format::escape("This \\ has newlines \n and carriage returns \r and unprintable \x7F hex chars"); // escaped contains the string "This \\ has newlines \n and carriage returns \r and unprintable \x7F hex chars"
 
-LOG_INFO(hmr::format::unescape("Backslash \\ hex 1234 \x31\x32\x33\x34")); // LOG_INFO() literally prints "Backslash \ hex 1234 1234"
+auto unescaped = hmr::format::unescape("Backslash \\ hex 1234 \x31\x32\x33\x34"); // unescaped contains the string "Backslash \ hex 1234 1234"
+
+auto broken = hmr::format::unescape("\\x"); // broken is an empty string, as the hex escape sequence is incomplete
 ```
 
 

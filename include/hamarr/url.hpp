@@ -3,10 +3,9 @@
 #include <string>
 #include <string_view>
 #include <algorithm>
+#include <iostream>
 
-#include "logger.hpp"
 #include "hex.hpp"
-
 
 namespace hmr::url
 {
@@ -74,7 +73,7 @@ std::string decode(std::string_view input, bool lazy = false)
     {
       if (i + 2 >= len) // Need room for at least 2 more chars
       {
-        LOG_INFO("Ran out of chars. Uh oh!");
+        std::cerr << "Ran out of chars. Uh oh!\n";
         return std::string{};
       }
 
@@ -83,7 +82,7 @@ std::string decode(std::string_view input, bool lazy = false)
         // Abort condition - expect valid hex chars
         if (!is_valid_hex(input[i + 1]) || !is_valid_hex(input[i + 2]))
         {
-          LOG_INFO("Invalid hex sequence!");
+          std::cerr << "Invalid hex sequence!\n";
           return std::string{};
         }
 
@@ -97,14 +96,14 @@ std::string decode(std::string_view input, bool lazy = false)
           // Abort condition - need room for 5 more chars
           if (i + 5 >= len)
           {
-            LOG_INFO("Ran out of chars. Uh oh!");
+            std::cerr << "Ran out of chars. Uh oh!\n";
             return std::string{};
           }
 
           // Abort condition - of the following 5 chars, the 1st, 2nd, 4th and 5th must be valid hex chars
           if (!is_valid_hex(input[i + 1]) || !is_valid_hex(input[i + 2]) || !is_valid_hex(input[i + 4]) || !is_valid_hex(input[i + 5]))
           {
-            LOG_INFO("Invalid hex sequence!");
+            std::cerr << "Invalid hex sequence!\n";
             return std::string{};
           }
 
@@ -120,7 +119,7 @@ std::string decode(std::string_view input, bool lazy = false)
 
           } else
           {
-            LOG_INFO("Something went wrong!");
+            std::cerr << "Something went wrong!\n";
             return std::string{};
           }
 
@@ -130,7 +129,7 @@ std::string decode(std::string_view input, bool lazy = false)
           // Abort condition - expect valid hex chars
           if (!is_valid_hex(input[i + 1]) || !is_valid_hex(input[i + 2]))
           {
-            LOG_INFO("Invalid hex sequence!");
+            std::cerr << "Invalid hex sequence!\n";
             return std::string{};
           }
 
