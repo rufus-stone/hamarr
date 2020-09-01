@@ -1,6 +1,6 @@
 # Hamarr <img align="right" src="https://img.icons8.com/ios-filled/100/000000/thor-hammer.png">
 
-![Latest Build](https://https://github.com/rufus-stone/hamarr/workflows/Build%20and%20Test/badge.svg)
+![Latest Build](https://github.com/rufus-stone/hamarr/workflows/Build%20and%20Test/badge.svg)
 
 A collection of header-only C++ utilities for performing various kinds of encoding/decoding and other data manipulation operations.
 
