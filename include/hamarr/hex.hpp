@@ -4,9 +4,11 @@
 #include <string_view>
 #include <sstream>
 #include <iomanip>
+#include <type_traits>
 
 #include "format.hpp"
 #include "logger.hpp"
+
 
 namespace hmr::hex
 {
@@ -180,7 +182,7 @@ template<typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
 T decode(std::string_view input)
 {
   // Normalize the string by converting to uppercase
-  std::string tmp = format::to_upper(input);
+  std::string tmp = hmr::format::to_upper(input);
 
   // Strip any spaces
   tmp.erase(std::remove(std::begin(tmp), std::end(tmp), ' '), std::end(tmp));

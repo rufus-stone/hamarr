@@ -1,59 +1,66 @@
 #define CATCH_CONFIG_MAIN // This tells the Catch2 header to generate a main
 
 #include <string>
+#include <string_view>
+#include <vector>
 
-#include <hamarr/hamarr.hpp>
+#include "hamarr/format.hpp"
+#include "hamarr/hex.hpp"
+#include "hamarr/binary.hpp"
+#include "hamarr/base64.hpp"
+#include "hamarr/url.hpp"
+#include "hamarr/prng.hpp"
+#include "hamarr/bitwise.hpp"
+#include "hamarr/analysis.hpp"
+#include "hamarr/pkcs7.hpp"
+#include "hamarr/serialisation.hpp"
+#include "hamarr/uuid.hpp"
+#include "hamarr/crypto.hpp"
 
 #include "catch.hpp"
 
 using namespace std::string_literals;
 
-// Uppercase/lowercase string conversion
-TEST_CASE("Uppercase/lowercase std::string conversion", "[formatting][case][string]")
+// hmr::format
+TEST_CASE("hmr::format", "[formatting]")
 {
-  REQUIRE(hmr::format::to_upper("Hello, World!"s) == "HELLO, WORLD!"s);
-  REQUIRE(hmr::format::to_lower("Hello, World!"s) == "hello, world!"s);
+  const auto input = "Hello,\nWorld!"s;
+  REQUIRE(hmr::format::to_upper(input) == "HELLO,\nWORLD!"s);
+  REQUIRE(hmr::format::to_lower(input) == "hello,\nworld!"s);
+
+  REQUIRE(hmr::format::escape(input) == "Hello,\\nWorld!"s);
+  REQUIRE(hmr::format::unescape("Hello,\\nWorld!"s) == input);
+
+  REQUIRE(hmr::format::split(input, '\n') == std::vector<std::string_view>{"Hello,", "World!"});
 }
 
-// Escaping/un-escaping strings
-TEST_CASE("Escape/un-escape std::string", "[formatting][escape][string]")
+// hmr::hex
+TEST_CASE("hmr::hex", "[encoding][hex]")
 {
-  REQUIRE(hmr::format::escape("This\nhas\nnew\nlines and backslash \\ and unprintable \x03 hex \x00 chars \x7F"s) == "This\\nhas\\nnew\\nlines and backslash \\\\ and unprintable \\x03 hex \\x00 chars \\x7F"s);
-  REQUIRE(hmr::format::unescape("This\\nhas\\nnew\\nlines and backslash \\\\ and unprintable \\x03 hex \\x00 chars \\x7F"s) == "This\nhas\nnew\nlines and backslash \\ and unprintable \x03 hex \x00 chars \x7F"s);
+  const auto input = "Hello, World!"s;
 
-  // Failures
-  REQUIRE(hmr::format::unescape("\\"s) == std::string{}); // Escape sequence is unfinished
-}
-
-// Hex encoding/decoding strings
-TEST_CASE("Hex encode/decode std::string", "[encoding][hex][string]")
-{
   // Padded - uppercase/lowercase/mixed case
-  REQUIRE(hmr::hex::encode("Hello, World!"s) == "48 65 6C 6C 6F 2C 20 57 6F 72 6C 64 21"s);
-  REQUIRE(hmr::hex::decode("48 65 6C 6C 6F 2C 20 57 6F 72 6C 64 21"s) == "Hello, World!"s);
-  REQUIRE(hmr::hex::decode("48 65 6c 6c 6f 2c 20 57 6f 72 6c 64 21"s) == "Hello, World!"s);
-  REQUIRE(hmr::hex::decode("48 65 6C 6C 6F 2C 20 57 6f 72 6c 64 21"s) == "Hello, World!"s);
+  REQUIRE(hmr::hex::encode(input) == "48 65 6C 6C 6F 2C 20 57 6F 72 6C 64 21"s);
+  REQUIRE(hmr::hex::decode("48 65 6C 6C 6F 2C 20 57 6F 72 6C 64 21"s) == input);
+  REQUIRE(hmr::hex::decode("48 65 6c 6c 6f 2c 20 57 6f 72 6c 64 21"s) == input);
+  REQUIRE(hmr::hex::decode("48 65 6C 6C 6F 2C 20 57 6f 72 6c 64 21"s) == input);
 
   // Un-padded - uppercase/lowercase/mixed case
-  REQUIRE(hmr::hex::encode("Hello, World!"s, false) == "48656C6C6F2C20576F726C6421"s);
-  REQUIRE(hmr::hex::decode("48656C6C6F2C20576F726C6421"s) == "Hello, World!"s);
-  REQUIRE(hmr::hex::decode("48656c6c6f2c20576f726c6421"s) == "Hello, World!"s);
+  REQUIRE(hmr::hex::encode(input, false) == "48656C6C6F2C20576F726C6421"s);
+  REQUIRE(hmr::hex::decode("48656C6C6F2C20576F726C6421"s) == input);
+  REQUIRE(hmr::hex::decode("48656c6c6f2c20576f726c6421"s) == input);
 
   // Partially padded - uppercase/lowercase/mixed case
-  REQUIRE(hmr::hex::decode("48656C6C6F2C 20 57 6F 726C6421"s) == "Hello, World!"s);
-  REQUIRE(hmr::hex::decode("48656c6c6f2c 20 57 6f 726c6421"s) == "Hello, World!"s);
-  REQUIRE(hmr::hex::decode("48656C6C6F2C 20 57 6f 726c6421"s) == "Hello, World!"s);
+  REQUIRE(hmr::hex::decode("48656C6C6F2C 20 57 6F 726C6421"s) == input);
+  REQUIRE(hmr::hex::decode("48656c6c6f2c 20 57 6f 726c6421"s) == input);
+  REQUIRE(hmr::hex::decode("48656C6C6F2C 20 57 6f 726c6421"s) == input);
 
   // Failures
   REQUIRE(hmr::hex::decode("Invalid hex input"s) == std::string{}); // Invalid hex chars
   REQUIRE(hmr::hex::decode("11 22 3"s) == std::string{}); // Missing nibble
   REQUIRE(hmr::hex::decode("11223"s) == std::string{}); // Missing nibble
   REQUIRE(hmr::hex::decode("1 122 3"s) == std::string{}); // Missing nibble
-}
 
-// Hex encoding/decoding integrals
-TEST_CASE("Hex encode/decode integral", "[encoding][hex][integral]")
-{
   // uint8_t
   REQUIRE(hmr::hex::encode(uint8_t{18}) == "12"s);
   REQUIRE(hmr::hex::decode<uint8_t>("12"s) == uint8_t{18});
@@ -90,21 +97,15 @@ TEST_CASE("Hex encode/decode integral", "[encoding][hex][integral]")
   REQUIRE(hmr::hex::decode<uint64_t>("AA BB CC DD EE FF 00 11 22 33 44 55 66 77 88 99"s) == uint64_t{}); // Too many bytes for the requested return type
 }
 
-// Binary encoding/decoding strings
-TEST_CASE("Binary encode/decode std::string", "[encoding][binary][string]")
+// hmr::binary
+TEST_CASE("hmr::binary", "[encoding][binary]")
 {
-  // Padded
+  // String-like
   REQUIRE(hmr::binary::encode("Hello, World!"s) == "01001000 01100101 01101100 01101100 01101111 00101100 00100000 01010111 01101111 01110010 01101100 01100100 00100001"s);
-  REQUIRE(hmr::binary::decode("01001000 01100101 01101100 01101100 01101111 00101100 00100000 01010111 01101111 01110010 01101100 01100100 00100001"s) == "Hello, World!"s);
-
-  // Un-padded
   REQUIRE(hmr::binary::encode("Hello, World!"s, false) == "01001000011001010110110001101100011011110010110000100000010101110110111101110010011011000110010000100001"s);
+  REQUIRE(hmr::binary::decode("01001000 01100101 01101100 01101100 01101111 00101100 00100000 01010111 01101111 01110010 01101100 01100100 00100001"s) == "Hello, World!"s);
   REQUIRE(hmr::binary::decode("01001000011001010110110001101100011011110010110000100000010101110110111101110010011011000110010000100001"s) == "Hello, World!"s);
-}
 
-// Binary encoding/decoding integrals
-TEST_CASE("Binary encode/decode integral", "[encoding][binary][integral]")
-{
   // uint8_t
   REQUIRE(hmr::binary::encode(uint8_t{18}) == "00010010"s);
   REQUIRE(hmr::binary::decode<uint8_t>("11110000"s) == uint8_t{240});
@@ -145,12 +146,14 @@ TEST_CASE("Binary encode/decode integral", "[encoding][binary][integral]")
   REQUIRE(hmr::binary::decode<int>("11110000 !INVALID!!CHARS! 00001111"s) == int{}); // Invalid input characters
 }
 
-// Base64 encoding/decoding strings
-TEST_CASE("Base64 encode/decode std::string", "[encoding][base64][string]")
+// hmr::base64
+TEST_CASE("hmr::base64", "[encoding][base64]")
 {
+  const auto input = "Hello, World!"s;
+
   // Standard base64 alphabet
-  REQUIRE(hmr::base64::encode("Hello, World!"s) == "SGVsbG8sIFdvcmxkIQ=="s);
-  REQUIRE(hmr::base64::decode("SGVsbG8sIFdvcmxkIQ=="s) == "Hello, World!"s);
+  REQUIRE(hmr::base64::encode(input) == "SGVsbG8sIFdvcmxkIQ=="s);
+  REQUIRE(hmr::base64::decode("SGVsbG8sIFdvcmxkIQ=="s) == input);
 
   REQUIRE(hmr::base64::encode(hmr::hex::decode("1f 8b 08 00 00 00 00 00 00 00 05 80 21 0d 00 00 10 02 4b 7e 05 f6 c3 60 a0 be b8 9d 3a e7 01 9a 63 4e 27 07 00 00 00"s)) == "H4sIAAAAAAAAAAWAIQ0AABACS34F9sNgoL64nTrnAZpjTicHAAAA"s);
   REQUIRE(hmr::base64::decode("H4sIAAAAAAAAAAWAIQ0AABACS34F9sNgoL64nTrnAZpjTicHAAAA"s) == hmr::hex::decode("1f 8b 08 00 00 00 00 00 00 00 05 80 21 0d 00 00 10 02 4b 7e 05 f6 c3 60 a0 be b8 9d 3a e7 01 9a 63 4e 27 07 00 00 00"s));
@@ -165,16 +168,16 @@ TEST_CASE("Base64 encode/decode std::string", "[encoding][base64][string]")
   REQUIRE(hmr::base64::decode("MDEyMzQ1Njc4OTo7PD0+P/Dx8vP09fb3+Pn6+/z9/v8="s) == hmr::hex::decode("30 31 32 33 34 35 36 37 38 39 3a 3b 3c 3d 3e 3f f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff"s));
 
   // Custom base64 alphabet
-  REQUIRE(hmr::base64::encode("Hello, World!"s, "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+"s) == "iglGrgWG0ftJsAL=08++"s);
-  REQUIRE(hmr::base64::decode("iglGrgWG0ftJsAL=08++"s, "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+"s) == "Hello, World!"s);
+  REQUIRE(hmr::base64::encode(input, "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+"s) == "iglGrgWG0ftJsAL=08++"s);
+  REQUIRE(hmr::base64::decode("iglGrgWG0ftJsAL=08++"s, "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+"s) == input);
 
   // Failures
-  REQUIRE(hmr::base64::encode("This won't work", "Thisalphabetistoosmall") == std::string{});
-  REQUIRE(hmr::base64::decode("This won't work", "Thisalphabetistoosmall") == std::string{});
+  REQUIRE(hmr::base64::encode("This won't work"s, "Thisalphabetistoosmall"s) == std::string{});
+  REQUIRE(hmr::base64::decode("This won't work"s, "Thisalphabetistoosmall"s) == std::string{});
 }
 
-// URL encoding/decoding strings
-TEST_CASE("URL encode/decode std::string", "[encoding][url][string]")
+// hmr::url
+TEST_CASE("hmr::url", "[encoding][url]")
 {
   // RFC 3986 compliant
   REQUIRE(hmr::url::encode(hmr::hex::decode("10 33 55 77 99 AA BB DD FF"s)) == "%103Uw%C2%99%C2%AA%C2%BB%C3%9D%C3%BF"s);
@@ -191,23 +194,171 @@ TEST_CASE("URL encode/decode std::string", "[encoding][url][string]")
   REQUIRE(hmr::url::decode("%103Uw%99%AA%BB%DD%FF"s, true) == hmr::hex::decode("10 33 55 77 99 AA BB DD FF"s));
 
   // Failures
-  REQUIRE(hmr::url::decode("Invalid percent-encoded hex sequences %ZZ %JJ") == std::string{});
-  REQUIRE(hmr::url::decode("Missing data %C2%") == std::string{});
+  REQUIRE(hmr::url::decode("Invalid percent-encoded hex sequences %ZZ %JJ"s) == std::string{});
+  REQUIRE(hmr::url::decode("Missing data %C2%"s) == std::string{});
 }
 
-// XOR
-TEST_CASE("XOR with key", "[obfuscation][xor][string]")
+// hmr::prng
+TEST_CASE("hmr::prng", "[prng]")
+{
+  const auto rnd_int = hmr::prng::number_between<unsigned int>(0, 10);
+  REQUIRE(rnd_int >= 0);
+  REQUIRE(rnd_int <= 10);
+
+  const auto rnd_dbl = hmr::prng::number_between<double>(-1, 1);
+  REQUIRE(rnd_dbl >= -1);
+  REQUIRE(rnd_dbl <= 1);
+
+  REQUIRE(hmr::prng::bytes(16).size() == 16);
+}
+
+// hmr::bitwise
+TEST_CASE("hmr::bitwise", "[obfuscation][xor][bitshift][rotate]")
 {
   const auto input = "Hello, World!"s;
 
   // String as key
-  REQUIRE(hmr::bitwise::xor_with_key(input, "great key") == hmr::hex::decode("2F 17 09 0D 1B 0C 4B 32 16 15 1E 01 40"));
-  REQUIRE(hmr::bitwise::xor_with_key("12345678", "ABC\xFF") == hmr::hex::decode("70 70 70 cb 74 74 74 c7"));
+  REQUIRE(hmr::bitwise::xor_with_key(input, "great key"s) == hmr::hex::decode("2F 17 09 0D 1B 0C 4B 32 16 15 1E 01 40"s));
+  REQUIRE(hmr::bitwise::xor_with_key("12345678"s, "ABC\xFF"s) == hmr::hex::decode("70 70 70 cb 74 74 74 c7"s));
 
   // Char as key
-  REQUIRE(hmr::bitwise::xor_with_key(input, 'c') == hmr::hex::decode("2b 06 0f 0f 0c 4f 43 34 0c 11 0f 07 42"));
+  REQUIRE(hmr::bitwise::xor_with_key(input, 'c') == hmr::hex::decode("2b 06 0f 0f 0c 4f 43 34 0c 11 0f 07 42"s));
 
   // Integral as key
-  REQUIRE(hmr::bitwise::xor_with_key(input, 1) == hmr::hex::decode("49 64 6d 6d 6e 2d 21 56 6e 73 6d 65 20"));
-  REQUIRE(hmr::bitwise::xor_with_key(input, uint8_t{0x33}) == hmr::hex::decode("7b 56 5f 5f 5c 1f 13 64 5c 41 5f 57 12"));
+  REQUIRE(hmr::bitwise::xor_with_key(input, 1) == hmr::hex::decode("49 64 6d 6d 6e 2d 21 56 6e 73 6d 65 20"s));
+  REQUIRE(hmr::bitwise::xor_with_key(input, uint8_t{0x33}) == hmr::hex::decode("7b 56 5f 5f 5c 1f 13 64 5c 41 5f 57 12"s));
+
+  // Rolling XOR
+  REQUIRE(hmr::bitwise::xor_rolling("12345678"s) == hmr::hex::decode("31 03 01 07 01 03 01 0F"s));
+  REQUIRE(hmr::bitwise::xor_rolling("12345678"s, hmr::bitwise::xor_differential::output) == hmr::hex::decode("31 03 30 04 31 07 30 08"s));
+
+  // Counter XOR
+  REQUIRE(hmr::bitwise::xor_counter(input) == hmr::hex::decode("48 64 6E 6F 6B 29 26 50 67 7B 66 6F 2D"s));
+  REQUIRE(hmr::bitwise::xor_counter(input, '\xAA') == hmr::hex::decode("E2 CE C0 C1 C1 83 90 E6 DD C1 D8 D1 97"s));
+  REQUIRE(hmr::bitwise::xor_counter(input, '\xEF', 6) == hmr::hex::decode("A7 90 97 6D 68 21 33 4E 70 57 47 55 16"s));
+  REQUIRE(hmr::bitwise::xor_counter(input, '\x04', -2) == hmr::hex::decode("4C 67 6C 92 93 D6 D8 A1 9B 80 9C 8A CD"s));
+
+  // Bit shift
+  REQUIRE(hmr::binary::encode(hmr::bitwise::shift_left(hmr::binary::decode("00000001"s))) == "00000010"s);
+  REQUIRE(hmr::binary::encode(hmr::bitwise::shift_left(hmr::binary::decode("00000001"s), 7)) == "10000000"s);
+
+  REQUIRE(hmr::binary::encode(hmr::bitwise::shift_right(hmr::binary::decode("00000001"s))) == "00000000"s);
+  REQUIRE(hmr::binary::encode(hmr::bitwise::shift_right(hmr::binary::decode("01001001"s), 6)) == "00000001"s);
+
+  REQUIRE(hmr::binary::encode(hmr::bitwise::shift_right(input, 6)) == "00000001 00000001 00000001 00000001 00000001 00000000 00000000 00000001 00000001 00000001 00000001 00000001 00000000"s);
+  REQUIRE(hmr::binary::encode(hmr::bitwise::shift_right("Another"s, 2)) == "00010000 00011011 00011011 00011101 00011010 00011001 00011100"s);
+
+  REQUIRE(hmr::binary::encode(hmr::bitwise::shift_left<uint16_t>(255, 8)) == "11111111 00000000"s);
+  REQUIRE(hmr::binary::encode(hmr::bitwise::shift_left<uint64_t>(7890123499999, 8)) == "00000000 00000111 00101101 00010000 00000010 00101001 11011111 00000000"s);
+  REQUIRE(hmr::binary::encode(hmr::bitwise::shift_left<int8_t>(-27, 3)) == "00101000"s);
+
+  REQUIRE(hmr::binary::encode(hmr::bitwise::shift_right<uint8_t>(16, 2)) == "00000100"s);
+  REQUIRE(hmr::binary::encode(hmr::bitwise::shift_right<int16_t>(-1000, 3)) == "11111111 10000011"s);
+  REQUIRE(hmr::binary::encode(hmr::bitwise::shift_right(int16_t(-1000), 3)) == "11111111 10000011"s);
+
+  // Bit rotate
+  REQUIRE(hmr::binary::encode(hmr::bitwise::rotate_left(input, 5)) == "00001001 10101100 10001101 10001101 11101101 10000101 00000100 11101010 11101101 01001110 10001101 10001100 00100100"s);
+  REQUIRE(hmr::binary::encode(hmr::bitwise::rotate_left(hmr::binary::decode("01100111 11100010 11110000 00001111"s), 4)) == "01110110 00101110 00001111 11110000"s);
+  REQUIRE(hmr::binary::encode(hmr::bitwise::rotate_right(input, 12)) == "10000100 01010110 11000110 11000110 11110110 11000010 00000010 01110101 11110110 00100111 11000110 01000110 00010010"s);
+  REQUIRE(hmr::binary::encode(hmr::bitwise::rotate_right(hmr::binary::decode("01100111 11100010 11110000 00001111"s), 4)) == "01110110 00101110 00001111 11110000"s);
+
+  // // Bit rotate with carry through
+  REQUIRE(hmr::binary::encode(hmr::bitwise::rotate_left(input, 5, hmr::bitwise::carry_through::enabled)) == "00001100 10101101 10001101 10001101 11100101 10000100 00001010 11101101 11101110 01001101 10001100 10000100 00101001"s);
+  REQUIRE(hmr::binary::encode(hmr::bitwise::rotate_left(hmr::binary::decode("10000000 00000000 11111111 00000001"s), 20, hmr::bitwise::carry_through::enabled)) == "11110000 00011000 00000000 00001111"s);
+  REQUIRE(hmr::binary::encode(hmr::bitwise::rotate_right(input, 2, hmr::bitwise::carry_through::enabled)) == "01010010 00011001 01011011 00011011 00011011 11001011 00001000 00010101 11011011 11011100 10011011 00011001 00001000"s);
+  REQUIRE(hmr::binary::encode(hmr::bitwise::rotate_right(hmr::binary::decode("10001000 01110111 00110010"s), 7, hmr::bitwise::carry_through::enabled)) == "01100101 00010000 11101110"s);
+}
+
+// hmr::analysis
+TEST_CASE("hmr::analysis", "[analysis]")
+{
+  const auto input = "Hello, World!"s;
+
+  // Hamming distance
+  REQUIRE(hmr::analysis::hamming_distance("this is a test"s, "wokka wokka!!!"s) == 37);
+  REQUIRE(hmr::analysis::hamming_distance("this is a testEXTRASTUFF"s, "wokka wokka!!!"s) == 37);
+
+  // Character frequency analysis
+  auto freqs_1 = hmr::analysis::character_frequency(input);
+  REQUIRE(freqs_1['l'] == 3);
+  REQUIRE(freqs_1['o'] == 2);
+
+  auto freqs_2 = hmr::analysis::character_frequency("Mix OF upPer AND LOWER"s, hmr::analysis::case_sensitivity::disabled);
+  REQUIRE(freqs_2['p'] == 2);
+  REQUIRE(freqs_2['e'] == 2);
+
+  auto freqs_3 = hmr::analysis::character_frequency("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula eu tempor congue, eros est euismod turpis, id tincidunt sapien risus a quam. Maecenas fermentum consequat mi. Donec fermentum. Pellentesque malesuada nulla a mi. Duis sapien sem, aliquet nec, commodo eget, consequat quis, neque. Aliquam faucibus, elit ut dictum aliquet, felis nisl adipiscing sapien, sed malesuada diam lacus eget erat. Cras mollis scelerisque nunc. Nullam arcu. Aliquam consequat. Curabitur augue lorem, dapibus quis, laoreet et, pretium ac, nisi. Aenean magna nisl, mollis quis, molestie eu, feugiat in, orci. In hac habitasse platea dictumst."s);
+  REQUIRE(freqs_3['e'] == 114);
+  REQUIRE(freqs_3['u'] == 97);
+
+  // English-like text detection
+  REQUIRE(hmr::analysis::looks_like_english("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula eu tempor congue, eros est euismod turpis, id tincidunt sapien risus a quam. Maecenas fermentum consequat mi. Donec fermentum. Pellentesque malesuada nulla a mi. Duis sapien sem, aliquet nec, commodo eget, consequat quis, neque. Aliquam faucibus, elit ut dictum aliquet, felis nisl adipiscing sapien, sed malesuada diam lacus eget erat. Cras mollis scelerisque nunc. Nullam arcu. Aliquam consequat. Curabitur augue lorem, dapibus quis, laoreet et, pretium ac, nisi. Aenean magna nisl, mollis quis, molestie eu, feugiat in, orci. In hac habitasse platea dictumst."s));
+  REQUIRE(hmr::analysis::looks_like_english("ASD(*&'(*$T^&%!G$^(&*'%$^'G$%F"s) == false);
+
+  // Shannon entropy score
+  REQUIRE(hmr::analysis::entropy("1223334444"s) < 2);
+  REQUIRE(hmr::analysis::entropy(input) > 3);
+
+  // Single byte XOR key solution
+  const auto xord = hmr::hex::decode("01 3d 3c 26 75 3c 26 75 34 75 27 30 34 39 39 2c 75 32 27 30 34 21 75 30 2d 34 38 25 39 30 75 3a 33 75 34 75 38 30 31 3c 20 38 75 26 3c 2f 30 31 75 10 3b 32 39 3c 26 3d 75 26 21 27 3c 3b 32 79 75 22 3c 21 3d 75 34 75 32 3a 3a 31 75 38 3c 2d 75 3a 33 75 00 05 05 10 07 16 14 06 10 75 34 3b 31 75 39 3a 22 30 27 36 34 26 30 75 39 30 21 21 30 27 26 79 75 25 20 3b 36 21 20 34 21 3c 3a 3b 79 75 30 21 36 7b 74"s);
+  auto possible_keys = hmr::analysis::solve_single_byte_xor(xord);
+  REQUIRE(possible_keys.size() == 1);
+
+  // TODO: Multi-byte XOR key solution
+
+  // Repeated block detection
+  REQUIRE(hmr::analysis::repeated_blocks("12345678ABCDEFGH12345678ZYXWVUTS"s, 8) == true);
+  REQUIRE(hmr::analysis::repeated_blocks("11111111111111112222222222222222"s) == false);
+  REQUIRE(hmr::analysis::repeated_blocks("111111111111111122222222222222221111111111111111"s) == true);
+}
+
+// hmr::pkcs7
+TEST_CASE("hmr::pkcs7", "[pkcs7]")
+{
+  const auto input = "Hello, World!"s;
+
+  REQUIRE(hmr::pkcs7::unpad(hmr::pkcs7::pad(input)) == input);
+  REQUIRE(hmr::pkcs7::padded(input) == false);
+  REQUIRE(hmr::pkcs7::padded(hmr::pkcs7::pad(input)) == true);
+
+  REQUIRE(hmr::pkcs7::padded(hmr::hex::decode("AA AA AA AA AA AA AA AA AA AA AA AA AA AA 02 02"s)) == true);
+  REQUIRE(hmr::pkcs7::padded(hmr::hex::decode("AA AA AA AA AA AA AA AA AA AA AA AA AA AA 00 00"s)) == false);
+  REQUIRE(hmr::pkcs7::padded(hmr::hex::decode("AA AA AA AA AA 03 03 03"s), 8) == true);
+  REQUIRE(hmr::pkcs7::padded(hmr::hex::decode("AA AA AA AA AA 0B 0B 0B 0B 0B 0B 0B 0B 0B 0B 0B"s)) == true);
+  REQUIRE(hmr::pkcs7::pad("Test"s) == hmr::hex::decode("54 65 73 74 0C 0C 0C 0C 0C 0C 0C 0C 0C 0C 0C 0C"s));
+  REQUIRE(hmr::pkcs7::pad("Test"s, 8) == hmr::hex::decode("54 65 73 74 04 04 04 04"s));
+}
+
+// hmr::kvp
+TEST_CASE("hmr::kvp", "[serialisation][kvp]")
+{
+  const auto kvps = std::map<std::string_view, std::string_view>{{"key1", "value1"}, {"key2", "value2"}, {"key3", "value3"}};
+
+  REQUIRE(hmr::kvp::serialise(kvps) == "key1=value1&key2=value2&key3=value3"s);
+  REQUIRE(hmr::kvp::deserialise("key1=value1&key2=value2&key3=value3"s) == kvps);
+}
+
+// hmr::uuid
+TEST_CASE("hmr::uuid", "[uuid]")
+{
+  const auto uuid = hmr::uuid::generate();
+
+  REQUIRE(uuid.size() == 36);
+  REQUIRE(uuid.find_first_not_of("0123456789ABCDEF-") == std::string::npos);
+}
+
+// hmr::crypto
+TEST_CASE("hmr::crypto", "[crypto][aes]")
+{
+  const auto input = "Hello, World!"s;
+
+  REQUIRE(hmr::base64::encode(hmr::crypto::aes_ecb_encrypt(input, "YELLOW SUBMARINE")) == "401gyzJgpJNkouYaQRZZRg==");
+  REQUIRE(hmr::crypto::aes_ecb_decrypt(hmr::base64::decode("401gyzJgpJNkouYaQRZZRg=="), "YELLOW SUBMARINE") == input);
+
+  REQUIRE(hmr::crypto::aes_ecb_decrypt(hmr::base64::decode("401gyzJgpJNkouYaQRZZRg=="), "YELLOW SUBMARINE", false) == "Hello, World!\x03\x03\x03");
+  REQUIRE(hmr::pkcs7::padded(hmr::crypto::aes_ecb_decrypt(hmr::base64::decode("401gyzJgpJNkouYaQRZZRg=="), "YELLOW SUBMARINE", false)));
+
+  const auto longer_plaintext = "Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal"s;
+  REQUIRE(hmr::base64::encode(hmr::crypto::aes_cbc_encrypt(longer_plaintext, "ORANGE SUBMARINE", "ORANGE SUBMARINE")) == "rnPbRj30TGD+MRXM2O14b/xSA9oAv8Al/um7hObPUi5wP82Idy3FvXxNYghiPMeB+YLHDpzQDPm4FsNeSARVda55uN8ePdMZhoPkaiNbQcA=");
+  REQUIRE(hmr::crypto::aes_cbc_decrypt(hmr::base64::decode("rnPbRj30TGD+MRXM2O14b/xSA9oAv8Al/um7hObPUi5wP82Idy3FvXxNYghiPMeB+YLHDpzQDPm4FsNeSARVda55uN8ePdMZhoPkaiNbQcA="), "ORANGE SUBMARINE", "ORANGE SUBMARINE") == longer_plaintext);
 }
