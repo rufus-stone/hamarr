@@ -2,8 +2,6 @@
 
 #include <chrono>
 
-#include "logger.hpp"
-
 namespace hmr::profile
 {
 
@@ -18,10 +16,6 @@ std::size_t benchmark(lambda f)
   auto finish = std::chrono::high_resolution_clock::now();
 
   auto nanoseconds_taken = (finish - start).count();
-  auto milliseconds_taken = std::chrono::duration<double, std::milli>(finish - start).count();
-  auto seconds_taken = std::chrono::duration<double>(finish - start).count();
-
-  LOG_INFO("Execution took " << nanoseconds_taken << " ns (" << milliseconds_taken << " ms / " << seconds_taken << " s)");
 
   return nanoseconds_taken;
 }

@@ -3,11 +3,10 @@
 #include <string>
 #include <string_view>
 #include <algorithm>
+#include <iostream>
 
 #include "fwd.hpp"
 #include "hex.hpp"
-#include "logger.hpp"
-
 
 namespace hmr::format
 {
@@ -85,7 +84,7 @@ std::string unescape(std::string_view input)
       // Is there at least one char remaining?
       if (pos + 1 >= std::end(input))
       {
-        LOG_ERROR("Ran out of data for escape sequence!");
+        std::cerr << "Ran out of data for escape sequence!\n";
         return std::string{};
       }
 
@@ -120,7 +119,7 @@ std::string unescape(std::string_view input)
           // Are there at least two chars remaining?
           if (pos + 2 >= std::end(input))
           {
-            LOG_ERROR("Ran out of data for hex escape sequence!");
+            std::cerr << "Ran out of data for hex escape sequence!\n";
             return std::string{};
           }
 

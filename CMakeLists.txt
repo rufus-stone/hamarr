@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15...3.18)
 
 project(
   hamarr
-  VERSION 1.0.0
+  VERSION 1.0.1
   DESCRIPTION "A C++ toolbox for data manipulation."
   HOMEPAGE_URL "https://github.com/rufus-stone/hamarr"
   LANGUAGES CXX)
@@ -15,17 +15,10 @@ include(GNUInstallDirs) # This provides GNU standard installation directories,
 
 include(CTest) # This adds the BUILD_TESTING option (ON by default)
 
-if(CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME)
-  set(IS_TOPLEVEL_PROJECT TRUE)
-else()
-  set(IS_TOPLEVEL_PROJECT FALSE)
-endif()
-
 option(INSTALL_LIBRARY
-       "Enable installation of Hamarr library into default locations"
-       ${IS_TOPLEVEL_PROJECT})
-option(BUILD_HAMARR_TESTS "Build Hamarr tests" ${IS_TOPLEVEL_PROJECT})
-option(BUILD_HAMARR_EXAMPLES "Build Hamarr examples" ${IS_TOPLEVEL_PROJECT})
+       "Enable installation of Hamarr library into default locations" ON)
+option(BUILD_HAMARR_TESTS "Build Hamarr tests" ON)
+option(BUILD_HAMARR_EXAMPLES "Build Hamarr examples" OFF)
 
 add_library(${PROJECT_NAME} INTERFACE)
 
@@ -92,11 +85,3 @@ endif()
 set(CPACK_RESOURCE_FILE_LICENSE "${PROJECT_SOURCE_DIR}/LICENSE")
 
 include(CPack)
-
-message(STATUS "CMAKE_INSTALL_PREFIX: ${CMAKE_INSTALL_PREFIX}")
-message(STATUS "CMAKE_INSTALL_INCLUDEDIR: ${CMAKE_INSTALL_INCLUDEDIR}")
-message(STATUS "PROJECT_NAME: ${PROJECT_NAME}")
-message(STATUS "PROJECT_SOURCE_DIR: ${PROJECT_SOURCE_DIR}")
-message(STATUS "PROJECT_BINARY_DIR: ${PROJECT_BINARY_DIR}")
-message(STATUS "IS_TOPLEVEL_PROJECT: ${IS_TOPLEVEL_PROJECT}")
-message(STATUS "CMAKE_INSTALL_DATAROOTDIR: ${CMAKE_INSTALL_DATAROOTDIR}")

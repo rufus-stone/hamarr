@@ -5,9 +5,9 @@
 #include <vector>
 #include <map>
 #include <algorithm>
+#include <iostream>
 
 #include "format.hpp"
-#include "logger.hpp"
 
 namespace hmr::kvp
 {
@@ -47,7 +47,7 @@ kvps deserialise(std::string_view input, char kv_delimiter = '=', char kvp_delim
 
     if (key_value_pair.size() != 2)
     {
-      LOG_ERROR("Failed to split into key-value pair!");
+      std::cerr << "Failed to split into key-value pair!\n";
       return kvps{};
     }
 

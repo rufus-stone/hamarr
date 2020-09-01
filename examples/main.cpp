@@ -1,5 +1,3 @@
-#include <assert.h>
-
 #include <hamarr/format.hpp>
 #include <hamarr/hex.hpp>
 #include <hamarr/binary.hpp>
@@ -115,146 +113,85 @@ int main()
 
   spdlog::info("\n\n---[ XOR ]---\n");
   spdlog::info(hex::encode(bitwise::xor_with_key(test, "great key")));
-  assert(bitwise::xor_with_key(test, "great key") == hex::decode("2F 17 09 0D 1B 0C 4B 32 16 15 1E 01 40"));
+  spdlog::info(hex::encode(bitwise::xor_with_key("12345678", "ABC\xFF")));
+  spdlog::info(hex::encode(bitwise::xor_with_key(test, 1))); // 49 64 6d 6d 6e 2d 21 56 6e 73 6d 65 20
+  spdlog::info(hex::encode(bitwise::xor_with_key(test, 'c'))); // 2b 06 0f 0f 0c 4f 43 34 0c 11 0f 07 42
+  spdlog::info(hex::encode(bitwise::xor_with_key(test, uint8_t{0x33}))); // 7b 56 5f 5f 5c 1f 13 64 5c 41 5f 57 12
 
-  LOG_INFO(hex::encode(bitwise::xor_with_key("12345678", "ABC\xFF")));
-  assert(bitwise::xor_with_key("12345678", "ABC\xFF") == hex::decode("70 70 70 cb 74 74 74 c7"));
+  spdlog::info("\n\n---[ XOR (rolling) ]---\n");
+  spdlog::info(hex::encode(bitwise::xor_rolling("12345678")));
+  spdlog::info(hex::encode(bitwise::xor_rolling("12345678", bitwise::xor_differential::output)));
 
-  LOG_INFO(hex::encode(bitwise::xor_with_key(test, 1))); // 49 64 6d 6d 6e 2d 21 56 6e 73 6d 65 20
-  assert(bitwise::xor_with_key(test, 1) == hex::decode("49 64 6d 6d 6e 2d 21 56 6e 73 6d 65 20"));
-
-  LOG_INFO(hex::encode(bitwise::xor_with_key(test, 'c'))); // 2b 06 0f 0f 0c 4f 43 34 0c 11 0f 07 42
-  assert(bitwise::xor_with_key(test, 'c') == hex::decode("2b 06 0f 0f 0c 4f 43 34 0c 11 0f 07 42"));
-
-  LOG_INFO(hex::encode(bitwise::xor_with_key(test, uint8_t{0x33}))); // 7b 56 5f 5f 5c 1f 13 64 5c 41 5f 57 12
-  assert(bitwise::xor_with_key(test, uint8_t{0x33}) == hex::decode("7b 56 5f 5f 5c 1f 13 64 5c 41 5f 57 12"));
-
-  LOG_INFO("\n\n---[ XOR (rolling) ]---\n");
-  LOG_INFO(hex::encode(bitwise::xor_rolling("12345678")));
-  assert(bitwise::xor_rolling("12345678") == hex::decode("31 03 01 07 01 03 01 0F"));
-
-  LOG_INFO(hex::encode(bitwise::xor_rolling("12345678", bitwise::xor_differential::output)));
-  assert(bitwise::xor_rolling("12345678", bitwise::xor_differential::output) == hex::decode("31 03 30 04 31 07 30 08"));
-
-  LOG_INFO("\n\n---[ XOR (counter) ]---\n");
-  LOG_INFO(hex::encode(bitwise::xor_counter(test)));
-  assert(bitwise::xor_counter(test) == hex::decode("48 64 6E 6F 6B 29 26 50 67 7B 66 6F 2D"));
-
-  LOG_INFO(hex::encode(bitwise::xor_counter(test, '\xAA')));
-  assert(bitwise::xor_counter(test, '\xAA') == hex::decode("E2 CE C0 C1 C1 83 90 E6 DD C1 D8 D1 97"));
-
-  LOG_INFO(hex::encode(bitwise::xor_counter(test, '\xEF', 6)));
-  assert(bitwise::xor_counter(test, '\xEF', 6) == hex::decode("A7 90 97 6D 68 21 33 4E 70 57 47 55 16"));
-
-  LOG_INFO(hex::encode(bitwise::xor_counter(test, '\x04', -2)));
-  assert(bitwise::xor_counter(test, '\x04', -2) == hex::decode("4C 67 6C 92 93 D6 D8 A1 9B 80 9C 8A CD"));
+  spdlog::info("\n\n---[ XOR (counter) ]---\n");
+  spdlog::info(hex::encode(bitwise::xor_counter(test)));
+  spdlog::info(hex::encode(bitwise::xor_counter(test, '\xAA')));
+  spdlog::info(hex::encode(bitwise::xor_counter(test, '\xEF', 6)));
+  spdlog::info(hex::encode(bitwise::xor_counter(test, '\x04', -2)));
 
 
-  LOG_INFO("\n\n---[ Bit shift ]---\n");
-  LOG_INFO(binary::encode(bitwise::shift_left(binary::decode("00000001"))));
-  assert(binary::encode(bitwise::shift_left(binary::decode("00000001"))) == "00000010");
+  spdlog::info("\n\n---[ Bit shift ]---\n");
+  spdlog::info(binary::encode(bitwise::shift_left(binary::decode("00000001"))));
+  spdlog::info(binary::encode(bitwise::shift_left(binary::decode("00000001"), 7)));
+  spdlog::info(binary::encode(bitwise::shift_right(binary::decode("00000001"))));
+  spdlog::info(binary::encode(bitwise::shift_right(binary::decode("01001001"), 6)));
+  spdlog::info(binary::encode(bitwise::shift_right(test, 6)));
+  spdlog::info(binary::encode(bitwise::shift_right("Another", 2)));
 
-  LOG_INFO(binary::encode(bitwise::shift_left(binary::decode("00000001"), 7)));
-  assert(binary::encode(bitwise::shift_left(binary::decode("00000001"), 7)) == "10000000");
-
-  LOG_INFO(binary::encode(bitwise::shift_right(binary::decode("00000001"))));
-  assert(binary::encode(bitwise::shift_right(binary::decode("00000001"))) == "00000000");
-
-  LOG_INFO(binary::encode(bitwise::shift_right(binary::decode("01001001"), 6)));
-  assert(binary::encode(bitwise::shift_right(binary::decode("01001001"), 6)) == "00000001");
-
-  LOG_INFO(binary::encode(bitwise::shift_right(test, 6)));
-  assert(binary::encode(bitwise::shift_right(test, 6)) == "00000001 00000001 00000001 00000001 00000001 00000000 00000000 00000001 00000001 00000001 00000001 00000001 00000000");
-
-  LOG_INFO(binary::encode(bitwise::shift_right("Another", 2)));
-  assert(binary::encode(bitwise::shift_right("Another", 2)) == "00010000 00011011 00011011 00011101 00011010 00011001 00011100");
-
-  LOG_INFO(binary::encode(bitwise::shift_left<uint16_t>(255, 8)));
-  assert(binary::encode(bitwise::shift_left<uint16_t>(255, 8)) == "11111111 00000000");
-
-  LOG_INFO(binary::encode(bitwise::shift_left<uint64_t>(7890123499999, 8)));
-  assert(binary::encode(bitwise::shift_left<uint64_t>(7890123499999, 8)) == "00000000 00000111 00101101 00010000 00000010 00101001 11011111 00000000");
-
-  LOG_INFO(binary::encode(bitwise::shift_left<int8_t>(-27, 3)));
-  assert(binary::encode(bitwise::shift_left<int8_t>(-27, 3)) == "00101000");
-
-  LOG_INFO(binary::encode(bitwise::shift_right<uint8_t>(16, 2)));
-  assert(binary::encode(bitwise::shift_right<uint8_t>(16, 2)) == "00000100");
-
-  LOG_INFO(binary::encode(bitwise::shift_right<int16_t>(-1000, 3)));
-  assert(binary::encode(bitwise::shift_right<int16_t>(-1000, 3)) == "11111111 10000011");
-
-  LOG_INFO(binary::encode(bitwise::shift_right(int16_t(-1000), 3)));
-  assert(binary::encode(bitwise::shift_right(int16_t(-1000), 3)) == "11111111 10000011");
+  spdlog::info(binary::encode(bitwise::shift_left<uint16_t>(255, 8)));
+  spdlog::info(binary::encode(bitwise::shift_left<uint64_t>(7890123499999, 8)));
+  spdlog::info(binary::encode(bitwise::shift_left<int8_t>(-27, 3)));
+  spdlog::info(binary::encode(bitwise::shift_right<uint8_t>(16, 2)));
+  spdlog::info(binary::encode(bitwise::shift_right<int16_t>(-1000, 3)));
+  spdlog::info(binary::encode(bitwise::shift_right(int16_t(-1000), 3)));
 
 
-  LOG_INFO("\n\n---[ Bit rotate ]---\n");
-  LOG_INFO(binary::encode(bitwise::rotate_left(test, 5)));
-  assert(binary::encode(bitwise::rotate_left(test, 5)) == "00001001 10101100 10001101 10001101 11101101 10000101 00000100 11101010 11101101 01001110 10001101 10001100 00100100");
-
-  LOG_INFO(binary::encode(bitwise::rotate_left(binary::decode("01100111 11100010 11110000 00001111"), 4)));
-  assert(binary::encode(bitwise::rotate_left(binary::decode("01100111 11100010 11110000 00001111"), 4)) == "01110110 00101110 00001111 11110000");
-
-  LOG_INFO(binary::encode(bitwise::rotate_left(test, 5, bitwise::carry_through::enabled)));
-  assert(binary::encode(bitwise::rotate_left(test, 5, bitwise::carry_through::enabled)) == "00001100 10101101 10001101 10001101 11100101 10000100 00001010 11101101 11101110 01001101 10001100 10000100 00101001");
-
-  LOG_INFO(binary::encode(bitwise::rotate_left(binary::decode("10000000 00000000 11111111 00000001"), 20, bitwise::carry_through::enabled)));
-  assert(binary::encode(bitwise::rotate_left(binary::decode("10000000 00000000 11111111 00000001"), 20, bitwise::carry_through::enabled)) == "11110000 00011000 00000000 00001111");
-
-  LOG_INFO(binary::encode(bitwise::rotate_right(test, 12)));
-  assert(binary::encode(bitwise::rotate_right(test, 12)) == "10000100 01010110 11000110 11000110 11110110 11000010 00000010 01110101 11110110 00100111 11000110 01000110 00010010");
-
-  LOG_INFO(binary::encode(bitwise::rotate_right(binary::decode("01100111 11100010 11110000 00001111"), 4)));
-  assert(binary::encode(bitwise::rotate_right(binary::decode("01100111 11100010 11110000 00001111"), 4)) == "01110110 00101110 00001111 11110000");
-
-  LOG_INFO(binary::encode(bitwise::rotate_right(test, 2, bitwise::carry_through::enabled)));
-  assert(binary::encode(bitwise::rotate_right(test, 2, bitwise::carry_through::enabled)) == "01010010 00011001 01011011 00011011 00011011 11001011 00001000 00010101 11011011 11011100 10011011 00011001 00001000");
-
-  LOG_INFO(binary::encode(bitwise::rotate_right(binary::decode("10001000 01110111 00110010"), 7, bitwise::carry_through::enabled)));
-  assert(binary::encode(bitwise::rotate_right(binary::decode("10001000 01110111 00110010"), 7, bitwise::carry_through::enabled)) == "01100101 00010000 11101110");
+  spdlog::info("\n\n---[ Bit rotate ]---\n");
+  spdlog::info(binary::encode(bitwise::rotate_left(test, 5)));
+  spdlog::info(binary::encode(bitwise::rotate_left(binary::decode("01100111 11100010 11110000 00001111"), 4)));
+  spdlog::info(binary::encode(bitwise::rotate_left(test, 5, bitwise::carry_through::enabled)));
+  spdlog::info(binary::encode(bitwise::rotate_left(binary::decode("10000000 00000000 11111111 00000001"), 20, bitwise::carry_through::enabled)));
+  spdlog::info(binary::encode(bitwise::rotate_right(test, 12)));
+  spdlog::info(binary::encode(bitwise::rotate_right(binary::decode("01100111 11100010 11110000 00001111"), 4)));
+  spdlog::info(binary::encode(bitwise::rotate_right(test, 2, bitwise::carry_through::enabled)));
+  spdlog::info(binary::encode(bitwise::rotate_right(binary::decode("10001000 01110111 00110010"), 7, bitwise::carry_through::enabled)));
 
 
-  LOG_INFO("\n\n---[ Pseudo-Random Number Generator ]---\n");
-  LOG_INFO(prng::number<unsigned int>());
-  LOG_INFO(static_cast<int>(prng::number<uint8_t>()));
-  LOG_INFO(prng::number<double>());
-  LOG_INFO(prng::number<unsigned long long int>());
-  LOG_INFO(prng::number_between<unsigned int>(0, 10));
-  LOG_INFO(prng::number_between<uint16_t>(0, 1));
-  LOG_INFO(prng::number_between<double>(-1, 1));
-  LOG_INFO(hex::encode(prng::bytes(16)));
+  spdlog::info("\n\n---[ Pseudo-Random Number Generator ]---\n");
+  spdlog::info(prng::number<unsigned int>());
+  spdlog::info(static_cast<int>(prng::number<uint8_t>()));
+  spdlog::info(prng::number<double>());
+  spdlog::info(prng::number<unsigned long long int>());
+  spdlog::info(prng::number_between<unsigned int>(0, 10));
+  spdlog::info(prng::number_between<uint16_t>(0, 1));
+  spdlog::info(prng::number_between<double>(-1, 1));
+  spdlog::info(hex::encode(prng::bytes(16)));
 
 
-  LOG_INFO("\n\n---[ Hamming Distance ]---\n");
-  LOG_INFO("Hamming distance between 'this is a test' and 'wokka wokka!!!' is: " << analysis::hamming_distance("this is a test", "wokka wokka!!!"));
-  assert(analysis::hamming_distance("this is a test", "wokka wokka!!!") == 37);
-  LOG_INFO(analysis::hamming_distance("this is a testEXTRASTUFF", "wokka wokka!!!"));
-  assert(analysis::hamming_distance("this is a testEXTRASTUFF", "wokka wokka!!!") == 37);
+  spdlog::info("\n\n---[ Hamming Distance ]---\n");
+  spdlog::info("Hamming distance between 'this is a test' and 'wokka wokka!!!' is: {}", analysis::hamming_distance("this is a test", "wokka wokka!!!"));
+  spdlog::info(analysis::hamming_distance("this is a testEXTRASTUFF", "wokka wokka!!!"));
 
 
-  LOG_INFO("\n\n---[ Character Frequency Analysis ]---\n");
+  spdlog::info("\n\n---[ Character Frequency Analysis ]---\n");
   auto freqs_1 = analysis::character_frequency(test);
-  assert(freqs_1['l'] == 3 && freqs_1['o'] == 2);
+  analysis::print_character_frequency(freqs_1);
 
   auto freqs_2 = analysis::character_frequency("Mix OF upPer AND LOWER", analysis::case_sensitivity::disabled);
-  assert(freqs_2['p'] == 2 && freqs_2['e'] == 2);
+  analysis::print_character_frequency(freqs_2);
 
   auto freqs_3 = analysis::character_frequency("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula eu tempor congue, eros est euismod turpis, id tincidunt sapien risus a quam. Maecenas fermentum consequat mi. Donec fermentum. Pellentesque malesuada nulla a mi. Duis sapien sem, aliquet nec, commodo eget, consequat quis, neque. Aliquam faucibus, elit ut dictum aliquet, felis nisl adipiscing sapien, sed malesuada diam lacus eget erat. Cras mollis scelerisque nunc. Nullam arcu. Aliquam consequat. Curabitur augue lorem, dapibus quis, laoreet et, pretium ac, nisi. Aenean magna nisl, mollis quis, molestie eu, feugiat in, orci. In hac habitasse platea dictumst.");
-  assert(freqs_3['e'] == 114 && freqs_3['u'] == 97);
+  analysis::print_character_frequency(freqs_3);
 
   auto freqs_4 = analysis::character_frequency(prng::bytes(16));
   analysis::print_character_frequency(freqs_4);
 
 
-  LOG_INFO("\n\n---[ English Text Detection ]---\n");
-  LOG_INFO(std::boolalpha << analysis::looks_like_english("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula eu tempor congue, eros est euismod turpis, id tincidunt sapien risus a quam. Maecenas fermentum consequat mi. Donec fermentum. Pellentesque malesuada nulla a mi. Duis sapien sem, aliquet nec, commodo eget, consequat quis, neque. Aliquam faucibus, elit ut dictum aliquet, felis nisl adipiscing sapien, sed malesuada diam lacus eget erat. Cras mollis scelerisque nunc. Nullam arcu. Aliquam consequat. Curabitur augue lorem, dapibus quis, laoreet et, pretium ac, nisi. Aenean magna nisl, mollis quis, molestie eu, feugiat in, orci. In hac habitasse platea dictumst."));
-  assert(analysis::looks_like_english("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula eu tempor congue, eros est euismod turpis, id tincidunt sapien risus a quam. Maecenas fermentum consequat mi. Donec fermentum. Pellentesque malesuada nulla a mi. Duis sapien sem, aliquet nec, commodo eget, consequat quis, neque. Aliquam faucibus, elit ut dictum aliquet, felis nisl adipiscing sapien, sed malesuada diam lacus eget erat. Cras mollis scelerisque nunc. Nullam arcu. Aliquam consequat. Curabitur augue lorem, dapibus quis, laoreet et, pretium ac, nisi. Aenean magna nisl, mollis quis, molestie eu, feugiat in, orci. In hac habitasse platea dictumst.") == true);
-
-  LOG_INFO(std::boolalpha << analysis::looks_like_english("ASD(*&'(*$T^&%!G$^(&*'%$^'G$%F"));
-  assert(analysis::looks_like_english("ASD(*&'(*$T^&%!G$^(&*'%$^'G$%F") == false);
+  spdlog::info("\n\n---[ English Text Detection ]---\n");
+  spdlog::info(analysis::looks_like_english("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula eu tempor congue, eros est euismod turpis, id tincidunt sapien risus a quam. Maecenas fermentum consequat mi. Donec fermentum. Pellentesque malesuada nulla a mi. Duis sapien sem, aliquet nec, commodo eget, consequat quis, neque. Aliquam faucibus, elit ut dictum aliquet, felis nisl adipiscing sapien, sed malesuada diam lacus eget erat. Cras mollis scelerisque nunc. Nullam arcu. Aliquam consequat. Curabitur augue lorem, dapibus quis, laoreet et, pretium ac, nisi. Aenean magna nisl, mollis quis, molestie eu, feugiat in, orci. In hac habitasse platea dictumst."));
+  spdlog::info(analysis::looks_like_english("ASD(*&'(*$T^&%!G$^(&*'%$^'G$%F"));
 
 
-  LOG_INFO("\n\n---[ Code Profiling ]---\n");
+  spdlog::info("\n\n---[ Code Profiling ]---\n");
   profile::benchmark([&test]()
   {
     for (int i = 0; i < 1000; ++i)
@@ -280,68 +217,45 @@ int main()
   });
 
 
-  LOG_INFO("\n\n---[ PKCS7 Padding ]---\n");
-  LOG_INFO(hex::encode(pkcs7::pad(test)));
-  LOG_INFO(hex::encode(pkcs7::unpad(pkcs7::pad(test))));
-  assert(pkcs7::unpad(pkcs7::pad(test)) == test);
-
-  assert(pkcs7::padded(test) == false);
-  assert(pkcs7::padded(pkcs7::pad(test)) == true);
-  assert(pkcs7::padded(hex::decode("AA AA AA AA AA AA AA AA AA AA AA AA AA AA 02 02")) == true);
-  assert(pkcs7::padded(hex::decode("AA AA AA AA AA AA AA AA AA AA AA AA AA AA 00 00")) == false);
-  assert(pkcs7::padded(hex::decode("AA AA AA AA AA 03 03 03"), 8) == true);
-  assert(pkcs7::padded(hex::decode("AA AA AA AA AA 0B 0B 0B 0B 0B 0B 0B 0B 0B 0B 0B")) == true);
-
-  LOG_INFO(hex::encode(pkcs7::pad("Test")));
-  assert(pkcs7::pad("Test") == hex::decode("54 65 73 74 0C 0C 0C 0C 0C 0C 0C 0C 0C 0C 0C 0C"));
-  LOG_INFO(hex::encode(pkcs7::pad("Test", 8)));
-  assert(pkcs7::pad("Test", 8) == hex::decode("54 65 73 74 04 04 04 04"));
+  spdlog::info("\n\n---[ PKCS7 Padding ]---\n");
+  spdlog::info(hex::encode(pkcs7::pad(test)));
+  spdlog::info(hex::encode(pkcs7::unpad(pkcs7::pad(test))));
+  spdlog::info(hex::encode(pkcs7::pad("Test")));
+  spdlog::info(hex::encode(pkcs7::pad("Test", 8)));
 
 
-  LOG_INFO("\n\n---[ Shannon Entropy ]---\n");
-  LOG_INFO("1223334444 has entropy: " << analysis::entropy("1223334444"));
-  LOG_INFO(test << " has entropy: " << analysis::entropy(test));
+  spdlog::info("\n\n---[ Shannon Entropy ]---\n");
+  spdlog::info("1223334444 has entropy: {}", analysis::entropy("1223334444"));
+  spdlog::info("{} has entropy: {}", test, analysis::entropy(test));
 
 
-  LOG_INFO("\n\n---[ Solve Single Byte XOR ]---\n");
+  spdlog::info("\n\n---[ Solve Single Byte XOR ]---\n");
   auto xord = hex::decode("01 3d 3c 26 75 3c 26 75 34 75 27 30 34 39 39 2c 75 32 27 30 34 21 75 30 2d 34 38 25 39 30 75 3a 33 75 34 75 38 30 31 3c 20 38 75 26 3c 2f 30 31 75 10 3b 32 39 3c 26 3d 75 26 21 27 3c 3b 32 79 75 22 3c 21 3d 75 34 75 32 3a 3a 31 75 38 3c 2d 75 3a 33 75 00 05 05 10 07 16 14 06 10 75 34 3b 31 75 39 3a 22 30 27 36 34 26 30 75 39 30 21 21 30 27 26 79 75 25 20 3b 36 21 20 34 21 3c 3a 3b 79 75 30 21 36 7b 74");
   auto possible_keys = analysis::solve_single_byte_xor(xord);
-  assert(possible_keys.size() == 1);
-  LOG_INFO("XOR key == " << hex::encode(possible_keys[0]));
-  LOG_INFO("Output  == " << bitwise::xor_with_key(xord, possible_keys[0]));
+  spdlog::info("XOR key == {}", hex::encode(possible_keys[0]));
+  spdlog::info("Output  == {}", bitwise::xor_with_key(xord, possible_keys[0]));
 
 
-  LOG_INFO("\n\n---[ Repeated Block Detection ]---\n");
-  LOG_INFO(std::boolalpha << analysis::repeated_blocks("12345678ABCDEFGH12345678ZYXWVUTS", 8));
-  assert(analysis::repeated_blocks("12345678ABCDEFGH12345678ZYXWVUTS", 8) == true);
-  LOG_INFO(std::boolalpha << analysis::repeated_blocks("11111111111111112222222222222222"));
-  assert(analysis::repeated_blocks("11111111111111112222222222222222") == false);
-  assert(analysis::repeated_blocks("111111111111111122222222222222221111111111111111") == true);
+  spdlog::info("\n\n---[ Repeated Block Detection ]---\n");
+  spdlog::info(analysis::repeated_blocks("12345678ABCDEFGH12345678ZYXWVUTS", 8));
+  spdlog::info(analysis::repeated_blocks("11111111111111112222222222222222"));
 
 
-  LOG_INFO("\n\n---[ Data Serialisation ]---\n");
+  spdlog::info("\n\n---[ Data Serialisation ]---\n");
   auto kvps = std::map<std::string_view, std::string_view>{{"key1", "value1"}, {"key2", "value2"}, {"key3", "value3"}};
-  LOG_INFO(hmr::kvp::serialise(kvps));
-  assert(hmr::kvp::serialise(kvps) == "key1=value1&key2=value2&key3=value3");
-  assert(hmr::kvp::deserialise("key1=value1&key2=value2&key3=value3") == kvps);
+  spdlog::info(hmr::kvp::serialise(kvps));
 
 
-  LOG_INFO("\n\n---[ UUID Generation ]---\n");
-  LOG_INFO(hmr::uuid::generate());
+  spdlog::info("\n\n---[ UUID Generation ]---\n");
+  spdlog::info(hmr::uuid::generate());
 
 
-  LOG_INFO("\n\n---[ Crypto - AES ]---\n");
-  LOG_INFO(hmr::base64::encode(hmr::crypto::aes_ecb_encrypt(test, "YELLOW SUBMARINE")));
-  assert(hmr::base64::encode(hmr::crypto::aes_ecb_encrypt(test, "YELLOW SUBMARINE")) == "401gyzJgpJNkouYaQRZZRg==");
-  assert(hmr::crypto::aes_ecb_decrypt(hmr::base64::decode("401gyzJgpJNkouYaQRZZRg=="), "YELLOW SUBMARINE") == test);
-
-  LOG_INFO(hmr::format::escape(hmr::crypto::aes_ecb_decrypt(hmr::base64::decode("401gyzJgpJNkouYaQRZZRg=="), "YELLOW SUBMARINE", false)));
-  assert(hmr::crypto::aes_ecb_decrypt(hmr::base64::decode("401gyzJgpJNkouYaQRZZRg=="), "YELLOW SUBMARINE", false) == "Hello, World!\x03\x03\x03");
+  spdlog::info("\n\n---[ Crypto - AES ]---\n");
+  spdlog::info(hmr::base64::encode(hmr::crypto::aes_ecb_encrypt(test, "YELLOW SUBMARINE")));
+  spdlog::info(hmr::format::escape(hmr::crypto::aes_ecb_decrypt(hmr::base64::decode("401gyzJgpJNkouYaQRZZRg=="), "YELLOW SUBMARINE", false)));
 
   auto longer_plaintext = std::string{"Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal"};
   spdlog::info(hmr::base64::encode(hmr::crypto::aes_cbc_encrypt(longer_plaintext, "ORANGE SUBMARINE", "ORANGE SUBMARINE")));
-  assert(hmr::base64::encode(hmr::crypto::aes_cbc_encrypt(longer_plaintext, "ORANGE SUBMARINE", "ORANGE SUBMARINE")) == "rnPbRj30TGD+MRXM2O14b/xSA9oAv8Al/um7hObPUi5wP82Idy3FvXxNYghiPMeB+YLHDpzQDPm4FsNeSARVda55uN8ePdMZhoPkaiNbQcA=");
-  assert(hmr::crypto::aes_cbc_decrypt(hmr::base64::decode("rnPbRj30TGD+MRXM2O14b/xSA9oAv8Al/um7hObPUi5wP82Idy3FvXxNYghiPMeB+YLHDpzQDPm4FsNeSARVda55uN8ePdMZhoPkaiNbQcA="), "ORANGE SUBMARINE", "ORANGE SUBMARINE") == longer_plaintext);
 
   return 0;
 }

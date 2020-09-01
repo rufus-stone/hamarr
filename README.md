@@ -26,7 +26,7 @@ Now you can `#include` whichever parts of Hamarr you require.
 Note: the functions in `hamarr/crypto.hpp` require OpenSSL, so if using the method described above, you will need to link to the OpenSSL library before you can `#include "hamarr/crypto.hpp"`. Example CMakeLists.txt file:
 
 ```cmake
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.15)
 
 project(example_proj)
 
@@ -45,11 +45,52 @@ Alternatively, you can install Hamarr to the default system location using CMake
 ```shell
 git clone git@github.com:rufus-stone/hamarr.git
 
-cd hamarr && mkdir build && cd build
+cd hamarr
 
-cmake . -DINSTALL_LIBRARY=ON -DBUILD_HAMARR_TESTS=OFF -DBUILD_HAMARR_EXAMPLES=OFF
+# Get CMake to create a new build directory (optionally specify -DCMAKE_INSTALL_PREFIX=/path/of/your/choosing if you want to install Hamarr to a given location)
+cmake -S . -B build
 
-sudo cmake --build . --target install
+# Build the "install" target to install Hamarr
+# This will also build the tests (unless you specifically disabled this by adding -DBUILD_HAMARR_TESTS=OFF to the previous command)
+# If installing to default system folders you'll probably need to run this using sudo
+cmake --build build --target install
+```
+
+Having installed the library, you can then use find_package() in CMake to find it. For example:
+
+```cmake
+cmake_minimum_required(VERSION 3.15)
+
+project(example_proj)
+
+add_executable(${PROJECT_NAME} main.cpp)
+
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+
+find_package(hamarr CONFIG REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE hamarr::hamarr)
+```
+
+You can then `#include <hamarr/base64.hpp>` or whichever parts of Hamarr you require.
+
+
+## Test and Example Build
+
+Hamarr includes a suite of tests using Catch2, and an example program that demonstrates most usage scenarios. To build these, enable the `BUILD_HAMARR_TESTS` and `BUILD_HAMARR_EXAMPLES` CMake options respectively. The example program uses [spdlog](https://github.com/gabime/spdlog) for output, so this must be installed before the example program can be built. As a result, `BUILD_HAMARR_EXAMPLES` defaults to `OFF`. For example:
+
+```shell
+git clone git@github.com:rufus-stone/hamarr.git
+
+cd hamarr
+
+# Get CMake to create a new build directory and enable BUILD_HAMARR_EXAMPLES (OFF by default)
+cmake -S . -B build -DBUILD_HAMARR_EXAMPLES=ON
+
+# Build the "hamarr_examples" target within the newly created build directory
+cmake --build build --target hamarr_examples
+
+# Run the examples program
+./build/examples/hamarr_examples
 ```
 
 
@@ -58,20 +99,16 @@ sudo cmake --build . --target install
 - C++17 or newer
 - OpenSSL
 
+### Optional Requirements
+
+- [spdlog](https://github.com/gabime/spdlog) (for the example program)
+
 
 ## Usage
 
-### Logger
-
-The `LOG_INFO()` and `LOG_ERROR()` macros are just simple wrappers around `std::cout` and `std::cerr` for printing messages to the console. They end with a newline. For example:
-
-```cpp
-LOG_INFO("Blah blah blah " << 123); // Prints: "Blah blah blah 123"
-
-LOG_ERROR("Some message " << 54321); // Prints: "Some message 54321"
-```
-
 ### Formatting
+
+Defined in header `hamarr/format.hpp`
 
 To convert a string to uppercase/lowercase, there are two functions:
 
@@ -87,16 +124,20 @@ To escape/unescape a string that contains unprintable characters, newlines, etc.
 
 `hmr::format::unescape()`
 
-This both take a `std::string_view` input, and return a `std::string` output. For example:
+These both take a `std::string_view` input, and return a `std::string` output. If `hmr::format::unescape()` encounters any incomplete escape sequences, and empty string is returned. For example:
 
 ```cpp
-LOG_INFO(hmr::format::escape("This \\ has newlines \n and carriage returns \r and unprintable \x7F hex chars")); // LOG_INFO() literally prints "This \\ has newlines \n and carriage returns \r and unprintable \x7F hex chars"
+auto escaped = hmr::format::escape("This \\ has newlines \n and carriage returns \r and unprintable \x7F hex chars"); // escaped contains the string "This \\ has newlines \n and carriage returns \r and unprintable \x7F hex chars"
 
-LOG_INFO(hmr::format::unescape("Backslash \\ hex 1234 \x31\x32\x33\x34")); // LOG_INFO() literally prints "Backslash \ hex 1234 1234"
+auto unescaped = hmr::format::unescape("Backslash \\ hex 1234 \x31\x32\x33\x34"); // unescaped contains the string "Backslash \ hex 1234 1234"
+
+auto broken = hmr::format::unescape("\\x"); // broken is an empty string, as the hex escape sequence is incomplete
 ```
 
 
 ### Hex
+
+Defined in header `hamarr/hex.hpp`
 
 To convert to/from hexadecimal string representations of data, there are various overloads of two functions:
 
@@ -155,6 +196,8 @@ If the input to `hmr::hex::decode()` contains invalid hex characters, or is unev
 
 ### Binary
 
+Defined in header `hamarr/binary.hpp`
+
 To convert to/from binary string representations of data, there are two functions:
 
 `hmr::binary::encode()`
@@ -195,6 +238,8 @@ If the input to `hmr::binary::decode()` contains anything other than 1s and 0s (
 
 ### Base64
 
+Defined in header `hamarr/base64.hpp`
+
 To convert to/from base64 string representations of data, there are two functions:
 
 `hmr::base64::encode()`
@@ -209,20 +254,23 @@ auto encoded = hmr::base64::encode("Hello, World!"); // encoded contains the str
 auto decoded = hmr::base64::decode("SGVsbG8sIFdvcmxkIQ=="); // decoded contains the string "Hello, World!"
 ```
 
-For both functions, you can optionally specify a custom base64 alphabet by passing this as the second argument to the relevant function. This alphabet must contain exactly 64 characters, the final character of which will be used as the padding character. For example:
+For both functions, you can optionally specify a custom base64 alphabet by passing this as the second argument to the relevant function. This alphabet must contain exactly 64 characters, the final character of which will be used as the padding character, and must not contain any duplicate characters. For example:
 
 ```cpp
 auto encoded = hmr::base64::encode("Hello, World!", "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+"); // encoded contains the string "iglGrgWG0ftJsAL=08++"
 
 auto decoded = hmr::base64::decode("iglGrgWG0ftJsAL=08++", "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+"); // decoded contains the string "Hello, World!"
+
+auto broken = hmr::base64::encode("This won't work", "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWZZZZ"); // broken is an empty string, as the custom alphabet contains multiple instances of the same character ('Z') which is invalid
 ```
 
 - Todo: Allow the user to toggle on/off the insertion of padding characters
 - Todo: Add checks to ensure that padding characters are not found in the middle of the input data
-- Todo: Add checks to ensure that custom base64 alphabets do not contain duplicate characters
 
 
 ### URL encoding
+
+Defined in header `hamarr/url.hpp`
 
 To convert to/from URL encoded string representations of data, there are two functions:
 
@@ -261,6 +309,8 @@ When decoding, if the input string ends prematurely, or an invalid UTF-8 sequenc
 
 ### Random number generator
 
+Defined in header `hamarr/prng.hpp`
+
 To generate various kinds of pseudo-random numbers, there are two templated functions:
 
 `hmr::prng::number<>()`
@@ -297,6 +347,8 @@ auto random_string = hmr::prng::bytes(16); // random_string will be a std::strin
 
 
 ### Bitwise operations
+
+Defined in header `hamarr/bitwise.hpp`
 
 ##### XOR
 
@@ -359,7 +411,6 @@ The templated variant takes an integral value as its input and a `std::size_t` s
 
 ```cpp
 auto shifted_right = hmr::bitwise::shift_right<uint8_t>(27, 3); // shifted_right is a uint8_t with the value 3 (binary 00000011)
-
 ```
 
 ##### Bit Rotation
@@ -383,7 +434,11 @@ rotate_right = hmr::bitwise::rotate_left(hmr::binary::decode("11110000 00111100"
 ```
 
 
-### Hamming distance
+### Data analysis
+
+Defined in header `hamarr/analysis.hpp`
+
+#### Hamming distance
 
 The Hamming distance between two equal-length inputs is the number of bits that differ. This can be calculated using the following function:
 
@@ -403,8 +458,19 @@ auto diff = hmr::analysis::hamming_distance("this is a testEXTRASTUFF", "wokka w
 
 - Todo: Add support for non-string/string_view inputs
 
+#### Shannon entropy
 
-### Character frequency
+To calculate the Shannon entropy of a given input, there is the following function:
+
+`hmr::analysis::entropy()`
+
+This takes a `std::string_view` input and returns a `double` with the calculated entropy. Given 256 possible values for a given byte, the maximum possible entropy value for a string is log2(256) which is 8 (representing complete randomness). The minimum possible value is 0 (indicating that all the bytes of the input are identical). For example:
+
+```cpp
+auto entropy = hmr::analysis::entropy("Hello, World!"); // entropy is a double set to 3.18083
+```
+
+#### Character frequency
 
 The function `hmr::analysis::character_frequency()` can be used to count the number of times each character occurs in a given string. This takes a `std::string_view` input, and returns a `std::vector<std::size_t>` containing a count for each byte. The index into the `std::vector` is the byte value, and the value at that index is the count. By default this is case sensitive, but to make it case insensitive add the argument `hmr::analysis::case_sensitivity::disabled` to the function. For example:
 
@@ -414,7 +480,7 @@ auto freqs = hmr::analysis::character_frequency("Mix OF upPer AND LOWER"); // fr
 freqs = hmr::analysis::character_frequency("Mix OF upPer AND LOWER", hmr::analysis::case_sensitivity::disabled); // freqs['p'] == 2, freqs['e'] == 2
 ```
 
-### English text detection
+#### English text detection
 
 The function `hmr::analysis::looks_like_english()` can be used to assess whether a given string appears to be English text (or at least, printable English-like ASCII). This takes a `std::string_view` input, and returns a `bool` indicating whether it passed or failed the various tests that it applies. These include checks for the presence of un-printable characters, the presence of more punctuation characters than alphanumeric characters, more uppercase than lowercase letters, etc. Short input strings are prone to false negatives. In theory, this should correctly identify English-like text, even if fed a random selection of characters taken from a genuine English text. For example:
 
@@ -428,6 +494,8 @@ result = hmr::analysis::looks_like_english("*&^786989 \xFF sdha;''a;'d;s;a;!"); 
 
 
 ### Code profiling
+
+Defined in header `hamarr/profiling.hpp`
 
 To measure the execution time for a given bit of code, there is the following function:
 
@@ -465,6 +533,8 @@ auto nanoseconds_taken = hmr::profile::benchmark([]()
 
 ### PKCS7 padding
 
+Defined in header `hamarr/pkcs7.hpp`
+
 To apply or remove PKCS7 padding, there are two functions:
 
 `hmr::pkcs7::pad()`
@@ -494,23 +564,9 @@ result = hmr::pkcs7::unpad(result); // Because pkcs7::unpad() calls pkcs7::padde
 ```
 
 
-### Shannon entropy
-
-To calculate the Shannon entropy of a given input, there is the following function:
-
-`hmr::analysis::entropy()`
-
-This takes a `std::string_view` input and returns a `double` with the calculated entropy. Given 256 possible values for a given byte, the maximum possible entropy value for a string is log2(256) which is 8 (representing complete randomness). The minimum possible value is 0 (indicating that all the bytes of the input are identical). For example:
-
-```cpp
-auto entropy = hmr::analysis::entropy("Hello, World!"); // entropy is a double set to 3.18083
-```
-
-
-- Todo: Document the new analysis functions!
-
-
 ### Data serialisation
+
+Defined in header `hamarr/serialisation.hpp`
 
 To serialise data into an ampersand-delimited set of key=value pairs (e.g. key1=value1&key2=value2), and to deserialise back into a `std::map`, there are the following functions:
 
@@ -530,6 +586,8 @@ auto deserialised = hmr::kvp::deserialise("key1=value1&key2=value2&key3=value3")
 
 ### UUID generation
 
+Defined in header `hamarr/uuid.hpp`
+
 To generate a random UUID, there is the following function:
 
 `hmr::uuid::generate()`
@@ -544,6 +602,8 @@ auto uuid = hmr::uuid::generate(); // uuid is a string containing a randomly gen
 
 
 ### Crypto
+
+Defined in header `hamarr/crypto.hpp`
 
 To encrypt and decrypt data using AES in either ECB or CBC mode, there are the following functions:
 

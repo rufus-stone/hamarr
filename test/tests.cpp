@@ -172,8 +172,11 @@ TEST_CASE("hmr::base64", "[encoding][base64]")
   REQUIRE(hmr::base64::decode("iglGrgWG0ftJsAL=08++"s, "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+"s) == input);
 
   // Failures
-  REQUIRE(hmr::base64::encode("This won't work"s, "Thisalphabetistoosmall"s) == std::string{});
-  REQUIRE(hmr::base64::decode("This won't work"s, "Thisalphabetistoosmall"s) == std::string{});
+  REQUIRE(hmr::base64::encode("This won't work"s, "Thisalphabetistoosmall"s) == std::string{}); // Custom alphabet is too short
+  REQUIRE(hmr::base64::decode("This won't work"s, "Thisalphabetistoosmall"s) == std::string{}); // Custom alphabet is too short
+  REQUIRE(hmr::base64::encode("This won't work"s, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123455555+/="s) == std::string{}); // Custom alphabet contains repeat chars ('5')
+  REQUIRE(hmr::base64::decode("This won't work"s, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123455555+/="s) == std::string{}); // Custom alphabet contains repeat chars ('5')
+  REQUIRE(hmr::base64::decode("This won't work"s) == std::string{}); // Invalid base64 chars in input
 }
 
 // hmr::url
