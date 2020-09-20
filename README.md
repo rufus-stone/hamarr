@@ -285,7 +285,7 @@ These both take a `std::string_view` input, and return a `std::string` output. A
 ```cpp
 auto encoded = hmr::url::encode("Hello, World!"); // encoded contains the string "Hello%2C%20World%21"
 
-auto decoded = hmr::url::encode("Hello%2C%20World%21"); // decoded contains the string "Hello, World!"
+auto decoded = hmr::url::decode("Hello%2C%20World%21"); // decoded contains the string "Hello, World!"
 ```
 
 According to RFC 3986, URL encoding routines should convert non-ASCII characters to their UTF-8 byte sequence before percent-encoding. For single bytes, this means any value between \x80-\xFF gets turned into the appropriate two-byte UTF-8 sequence. This is the default behaviour for `hmr::url::encode()` (and for `hmr::url::decode()` in reverse), but you can toggle lazy mode by adding the argument `true` to the function, which will prevent any conversions to/from UTF-8. For example:
