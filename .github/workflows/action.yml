@@ -20,6 +20,9 @@ jobs:
     - uses: actions/checkout@v2
 
     - name: Create Build Environment
+      env:
+        CC: ${{matrix.config.cc}}
+        CXX: ${{matrix.config.cxx}}
       run: cmake -S . -B ${{runner.workspace}}/build  -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DBUILD_HAMARR_TESTS=ON -DBUILD_HAMARR_EXAMPLES=OFF -DINSTALL_LIBRARY=OFF
 
     - name: Build Tests
