@@ -15,7 +15,7 @@ std::string escape(std::string_view input);
 std::string unescape(std::string_view input);
 auto split(std::string_view input, char delimiter) -> std::vector<std::string_view>;
 
-}
+} // namespace hmr::format
 
 namespace hmr::hex
 {
