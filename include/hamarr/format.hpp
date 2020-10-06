@@ -5,7 +5,6 @@
 #include <algorithm>
 #include <iostream>
 
-#include "fwd.hpp"
 #include "hex.hpp"
 
 namespace hmr::format
