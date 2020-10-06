@@ -136,7 +136,7 @@ void print_character_frequency(std::vector<std::size_t> freqs, bool show_zeros =
 
       } else
       {
-        std::cout << "'" << hex::encode(static_cast<uint8_t>(i)) << "' occurs " << static_cast<int>(freqs[i]) << " times\n";
+        std::cout << "'" << hmr::hex::encode(static_cast<uint8_t>(i)) << "' occurs " << static_cast<int>(freqs[i]) << " times\n";
       }
 
     } else
@@ -149,7 +149,7 @@ void print_character_frequency(std::vector<std::size_t> freqs, bool show_zeros =
 
         } else
         {
-          std::cout << "'" << hex::encode(static_cast<uint8_t>(i)) << "' occurs " << static_cast<int>(freqs[i]) << " times\n";
+          std::cout << "'" << hmr::hex::encode(static_cast<uint8_t>(i)) << "' occurs " << static_cast<int>(freqs[i]) << " times\n";
         }
       }
     }
