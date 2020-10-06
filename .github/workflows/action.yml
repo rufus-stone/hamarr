@@ -25,7 +25,7 @@ jobs:
     - name: Build Tests
       working-directory: ${{runner.workspace}}
       shell: bash
-      run: cmake --build build --config $BUILD_TYPE --target tests
+      run: cmake --build build --config $BUILD_TYPE --target hamarr_tests
 
     - name: Run Tests
       working-directory: ${{runner.workspace}}
