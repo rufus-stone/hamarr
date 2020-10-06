@@ -30,21 +30,21 @@ std::string encode(std::string_view input, bool lazy = false)
     // If we get to here, then it must be a reserved char
     if (lazy == true) // If we're being lazy, just convert to hex and append
     {
-      output += ("%" + hex::encode(c));
+      output += ("%" + hmr::hex::encode(c));
 
     } else // If not lazy, convert to UTF8 first and then append
     {
       if (static_cast<uint8_t>(c) < 0x80) // Char values less than 0x80 remain unchanged
       {
-        output += ("%" + hex::encode(c));
+        output += ("%" + hmr::hex::encode(c));
 
       } else if (static_cast<uint8_t>(c) >= 0x80 && static_cast<uint8_t>(c) < 0xC0)
       {
-        output += ("%C2%" + hex::encode(c));
+        output += ("%C2%" + hmr::hex::encode(c));
 
       } else if (static_cast<uint8_t>(c) >= 0xC0)
       {
-        output += ("%C3%" + hex::encode(static_cast<uint8_t>(c ^ 0x40))); // Casting to uint8_t is necessary because, even though c is a char, c ^ 40 produces an int, which is not just a single byte, so the hex::encode() function messes it up
+        output += ("%C3%" + hmr::hex::encode(static_cast<uint8_t>(c ^ 0x40))); // Casting to uint8_t is necessary because, even though c is a char, c ^ 40 produces an int, which is not just a single byte, so the hex::encode() function messes it up
 
       } else // This shouldn't happen
       {
@@ -86,7 +86,7 @@ std::string decode(std::string_view input, bool lazy = false)
           return std::string{};
         }
 
-        output += hex::decode(std::string(input.data() + i + 1, 2));
+        output += hmr::hex::decode(std::string(input.data() + i + 1, 2));
         i += 2;
       } else
       {
@@ -109,12 +109,12 @@ std::string decode(std::string_view input, bool lazy = false)
 
           if (input[i + 2] == '2')
           {
-            auto adj = hex::decode(std::string(input.data() + i + 4, 2));
-            output += hex::decode(std::string(input.data() + i + 4, 2));
+            auto adj = hmr::hex::decode(std::string(input.data() + i + 4, 2));
+            output += hmr::hex::decode(std::string(input.data() + i + 4, 2));
 
           } else if (input[i + 2] == '3')
           {
-            auto adj = static_cast<uint8_t>(hex::decode<uint8_t>(std::string(input.data() + i + 4, 2)) | 0x40);
+            auto adj = static_cast<uint8_t>(hmr::hex::decode<uint8_t>(std::string(input.data() + i + 4, 2)) | 0x40);
             output.push_back(adj);
 
           } else
@@ -133,7 +133,7 @@ std::string decode(std::string_view input, bool lazy = false)
             return std::string{};
           }
 
-          output += hex::decode(std::string(input.data() + i + 1, 2));
+          output += hmr::hex::decode(std::string(input.data() + i + 1, 2));
           i += 2;
         }
       }

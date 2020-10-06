@@ -6,8 +6,7 @@
 #include <iomanip>
 #include <type_traits>
 #include <iostream>
-
-#include "format.hpp"
+#include <algorithm>
 
 namespace hmr::hex
 {
@@ -53,7 +52,7 @@ std::string encode(const char *input, bool delimited = true) noexcept
 
 ////////////////////////////////////////////////////////////
 template<typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
-std::string encode(T input, bool delimited)
+std::string encode(T input, bool delimited = true)
 {
   // How many bytes is the integral value?
   const std::size_t s = sizeof(input);
@@ -181,7 +180,16 @@ template<typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
 T decode(std::string_view input)
 {
   // Normalize the string by converting to uppercase
-  std::string tmp = hmr::format::to_upper(input);
+  auto to_upper = [](std::string_view input_)
+  {
+    std::string output_;
+    output_.reserve(input_.size());
+
+    std::transform(input_.begin(), input_.end(), std::back_inserter(output_), [](const unsigned char ch) { return std::toupper(ch); });
+    return output_;
+  };
+
+  std::string tmp = to_upper(input);
 
   // Strip any spaces
   tmp.erase(std::remove(std::begin(tmp), std::end(tmp), ' '), std::end(tmp));

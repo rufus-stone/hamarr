@@ -8,9 +8,6 @@
 #include <bitset>
 #include <iostream>
 
-#include "format.hpp"
-#include "hex.hpp"
-
 namespace hmr::binary
 {
 
