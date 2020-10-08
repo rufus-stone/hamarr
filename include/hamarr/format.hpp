@@ -3,7 +3,8 @@
 #include <string>
 #include <string_view>
 #include <algorithm>
-#include <iostream>
+
+#include <spdlog/spdlog.h>
 
 #include "hex.hpp"
 
@@ -16,7 +17,7 @@ std::string to_upper(std::string_view input)
   std::string output;
   output.reserve(input.size());
 
-  std::transform(input.begin(), input.end(), std::back_inserter(output), [](const unsigned char ch) { return std::toupper(ch); });
+  std::transform(input.begin(), input.end(), std::back_inserter(output), [](unsigned char const ch) { return std::toupper(ch); });
   return output;
 }
 
@@ -27,7 +28,7 @@ std::string to_lower(std::string_view input)
   std::string output;
   output.reserve(input.size());
 
-  std::transform(input.begin(), input.end(), std::back_inserter(output), [](const unsigned char ch) { return std::tolower(ch); });
+  std::transform(input.begin(), input.end(), std::back_inserter(output), [](unsigned char const ch) { return std::tolower(ch); });
   return output;
 }
 
@@ -38,9 +39,9 @@ std::string escape(std::string_view input)
   std::string output;
   output.reserve(input.size());
 
-  for (const auto &c : input)
+  for (auto const &c : input)
   {
-    auto ch = static_cast<uint8_t>(c);
+    auto const ch = static_cast<uint8_t>(c);
 
     switch (ch)
     {
@@ -83,7 +84,7 @@ std::string unescape(std::string_view input)
       // Is there at least one char remaining?
       if (pos + 1 >= std::end(input))
       {
-        std::cerr << "Ran out of data for escape sequence!\n";
+        spdlog::error("Ran out of data for escape sequence!");
         return std::string{};
       }
 
@@ -118,7 +119,7 @@ std::string unescape(std::string_view input)
           // Are there at least two chars remaining?
           if (pos + 2 >= std::end(input))
           {
-            std::cerr << "Ran out of data for hex escape sequence!\n";
+            spdlog::error("Ran out of data for hex escape sequence!");
             return std::string{};
           }
 

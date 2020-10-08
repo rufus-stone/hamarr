@@ -3,14 +3,17 @@
 #include <string>
 #include <string_view>
 #include <algorithm>
-#include <iostream>
+
+#include <spdlog/spdlog.h>
 
 #include "hex.hpp"
 
 namespace hmr::url
 {
 
-static const auto unreserved_chars = std::string("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~");
+using namespace std::string_view_literals;
+
+constexpr auto unreserved_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~"sv;
 
 ////////////////////////////////////////////////////////////
 std::string encode(std::string_view input, bool lazy = false)
@@ -21,7 +24,7 @@ std::string encode(std::string_view input, bool lazy = false)
   for (auto &c : input)
   {
     // Is it an unreserved char? If so, append unchanged
-    if (unreserved_chars.find(c) != std::string::npos)
+    if (unreserved_chars.find(c) != std::string_view::npos)
     {
       output.push_back(c);
       continue;
@@ -59,7 +62,7 @@ std::string encode(std::string_view input, bool lazy = false)
 ////////////////////////////////////////////////////////////
 std::string decode(std::string_view input, bool lazy = false)
 {
-  const std::size_t len = input.size();
+  auto const len = input.size();
 
   std::string output;
   output.reserve(len); // If there are any percent-encoded elements then we'll actually need less space, but over-reserving probably hurts less than under-reserving
@@ -73,7 +76,7 @@ std::string decode(std::string_view input, bool lazy = false)
     {
       if (i + 2 >= len) // Need room for at least 2 more chars
       {
-        std::cerr << "Ran out of chars. Uh oh!\n";
+        spdlog::error("Not enough chars remaining to parse escape sequence!");
         return std::string{};
       }
 
@@ -82,7 +85,7 @@ std::string decode(std::string_view input, bool lazy = false)
         // Abort condition - expect valid hex chars
         if (!is_valid_hex(input[i + 1]) || !is_valid_hex(input[i + 2]))
         {
-          std::cerr << "Invalid hex sequence!\n";
+          spdlog::error("Invalid hex escape sequence: {}", input.substr(i, 3));
           return std::string{};
         }
 
@@ -96,14 +99,14 @@ std::string decode(std::string_view input, bool lazy = false)
           // Abort condition - need room for 5 more chars
           if (i + 5 >= len)
           {
-            std::cerr << "Ran out of chars. Uh oh!\n";
+            spdlog::error("Not enough chars remaining to parse two-byte UTF-8 escape sequence - expected 5 but only {} left!", (len - i));
             return std::string{};
           }
 
           // Abort condition - of the following 5 chars, the 1st, 2nd, 4th and 5th must be valid hex chars
           if (!is_valid_hex(input[i + 1]) || !is_valid_hex(input[i + 2]) || !is_valid_hex(input[i + 4]) || !is_valid_hex(input[i + 5]))
           {
-            std::cerr << "Invalid hex sequence!\n";
+            spdlog::error("Invalid two-byte UTF-8 hex escape sequence: {}", input.substr(i, 6));
             return std::string{};
           }
 
@@ -119,7 +122,7 @@ std::string decode(std::string_view input, bool lazy = false)
 
           } else
           {
-            std::cerr << "Something went wrong!\n";
+            spdlog::error("No valid UTF-8 -> ASCII conversion for two-byte hex escape sequences starting: {}", input.substr(i, 3));
             return std::string{};
           }
 
@@ -129,7 +132,7 @@ std::string decode(std::string_view input, bool lazy = false)
           // Abort condition - expect valid hex chars
           if (!is_valid_hex(input[i + 1]) || !is_valid_hex(input[i + 2]))
           {
-            std::cerr << "Invalid hex sequence!\n";
+            spdlog::error("Invalid hex escape sequence: {}", input.substr(i, 3));
             return std::string{};
           }
 

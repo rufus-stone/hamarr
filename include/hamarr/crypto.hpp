@@ -22,21 +22,21 @@ std::string aes_ecb_decrypt_block(std::string_view input, std::string_view key);
 std::string aes_ecb_encrypt(std::string_view input, std::string_view key);
 std::string aes_ecb_decrypt(std::string_view input, std::string_view key, bool remove_padding = true);
 
-std::string aes_cbc_encrypt(std::string_view input, std::string_view key, const std::string &iv = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"s);
-std::string aes_cbc_decrypt(std::string_view input, std::string_view key, const std::string &iv = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"s, bool remove_padding = true);
+std::string aes_cbc_encrypt(std::string_view input, std::string_view key, std::string const &iv = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"s);
+std::string aes_cbc_decrypt(std::string_view input, std::string_view key, std::string const &iv = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"s, bool remove_padding = true);
 
 
 ////////////////////////////////////////////////////////////////
 std::string aes_ecb_encrypt_block(std::string_view input, std::string_view key)
 {
-  const std::size_t len = input.size();
+  std::size_t const len = input.size();
 
   // AES-128 keys and blocks must be 16 bytes long
   assert(input.size() == 16);
   assert(key.size() == 16);
 
-  auto plaintext_ptr = reinterpret_cast<const uint8_t *>(input.data());
-  auto key_ptr = reinterpret_cast<const uint8_t *>(key.data());
+  auto plaintext_ptr = reinterpret_cast<uint8_t const *>(input.data());
+  auto key_ptr = reinterpret_cast<uint8_t const *>(key.data());
 
   auto encrypted = std::vector<uint8_t>(len, 0x00); // We have to initialise the vector with something to start with
 
@@ -56,14 +56,14 @@ std::string aes_ecb_encrypt_block(std::string_view input, std::string_view key)
 ////////////////////////////////////////////////////////////////
 std::string aes_ecb_decrypt_block(std::string_view input, std::string_view key)
 {
-  const std::size_t len = input.size();
+  std::size_t const len = input.size();
 
   // AES-128 keys and blocks must be 16 bytes long
   assert(len == 16);
   assert(key.size() == 16);
 
-  auto ciphertext_ptr = reinterpret_cast<const uint8_t *>(input.data());
-  auto key_ptr = reinterpret_cast<const uint8_t *>(key.data());
+  auto ciphertext_ptr = reinterpret_cast<uint8_t const *>(input.data());
+  auto key_ptr = reinterpret_cast<uint8_t const *>(key.data());
 
   auto decrypted = std::vector<uint8_t>(len, 0x00); // We have to initialise the vector with something to start with
 
@@ -87,14 +87,14 @@ std::string aes_ecb_encrypt(std::string_view input, std::string_view key)
   assert(key.size() == 16);
 
   // Will the input need padding? Make sure we account for this when initialising the output vector
-  const std::size_t len = input.size();
-  const std::size_t padding = ((len % 16) == 0) ? 0 : 16 - (len % 16);
+  std::size_t const len = input.size();
+  std::size_t const padding = ((len % 16) == 0) ? 0 : 16 - (len % 16);
 
   auto result = std::string{};
   result.reserve(len + padding);
 
   // How many complete blocks are there
-  const std::size_t num_blocks = len / 16;
+  std::size_t const num_blocks = len / 16;
 
   // Encrypt all the complete blocks first
   std::size_t offset;
@@ -118,7 +118,7 @@ std::string aes_ecb_encrypt(std::string_view input, std::string_view key)
 ////////////////////////////////////////////////////////////////
 std::string aes_ecb_decrypt(std::string_view input, std::string_view key, bool remove_padding)
 {
-  const std::size_t len = input.size();
+  std::size_t const len = input.size();
 
   // AES encrypted data should a multiple of 16 bytes
   assert(len % 16 == 0);
@@ -126,7 +126,7 @@ std::string aes_ecb_decrypt(std::string_view input, std::string_view key, bool r
   auto result = std::string{};
 
   // How many blocks are there
-  const std::size_t num_blocks = len / 16;
+  std::size_t const num_blocks = len / 16;
   std::size_t current_block = 1;
 
   // Decrypt all the blocks
@@ -154,21 +154,21 @@ std::string aes_ecb_decrypt(std::string_view input, std::string_view key, bool r
 }
 
 ////////////////////////////////////////////////////////////////
-std::string aes_cbc_encrypt(std::string_view input, std::string_view key, const std::string &iv)
+std::string aes_cbc_encrypt(std::string_view input, std::string_view key, std::string const &iv)
 {
   // AES-128 keys and IVs must be 16 bytes long
   assert(key.size() == 16);
   assert(iv.size() == 16);
 
   // Will the input need padding? Make sure we account for this when initialising the output string
-  const std::size_t len = input.size();
-  const std::size_t padding = ((len % 16) == 0) ? 0 : 16 - (len % 16);
+  std::size_t const len = input.size();
+  std::size_t const padding = ((len % 16) == 0) ? 0 : 16 - (len % 16);
 
   auto result = std::string{};
   result.reserve(len + padding);
 
   // How many complete blocks are there
-  const std::size_t num_blocks = len / 16;
+  std::size_t const num_blocks = len / 16;
 
   // In CBC mode, each block of ciphertext is XORed against the next block of plaintext before that plaintext is encrypted. The IV is used as a fake block of ciphertext to kick things off
   auto previous_ciphertext = iv;
@@ -200,9 +200,9 @@ std::string aes_cbc_encrypt(std::string_view input, std::string_view key, const 
 }
 
 ////////////////////////////////////////////////////////////////
-std::string aes_cbc_decrypt(std::string_view input, std::string_view key, const std::string &iv, bool remove_padding)
+std::string aes_cbc_decrypt(std::string_view input, std::string_view key, std::string const &iv, bool remove_padding)
 {
-  const std::size_t len = input.size();
+  std::size_t const len = input.size();
 
   // AES-128 keys and IVs must be 16 bytes long
   assert(key.size() == 16);
@@ -215,7 +215,7 @@ std::string aes_cbc_decrypt(std::string_view input, std::string_view key, const 
   result.reserve(len); // If the decrypted data is padded then the actual result will be smaller than len, but it can't hurt to over reserve
 
   // How many blocks are there
-  const std::size_t num_blocks = len / 16;
+  std::size_t const num_blocks = len / 16;
   std::size_t current_block = 1;
 
   // In CBC mode, each block of ciphertext is XORed against the next block of plaintext after that plaintext is decrypted. The IV is used as a fake block of ciphertext to kick things off

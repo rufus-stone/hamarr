@@ -5,8 +5,9 @@
 #include <sstream>
 #include <iomanip>
 #include <type_traits>
-#include <iostream>
 #include <algorithm>
+
+#include <spdlog/spdlog.h>
 
 namespace hmr::hex
 {
@@ -21,7 +22,7 @@ std::string encode(std::string_view input, bool delimited = true) noexcept
   std::string output;
   output.reserve(input.size() * 2);
 
-  for (const auto &ch : input)
+  for (auto const &ch : input)
   {
     output.push_back(hex_alphabet[(ch & 0xF0) >> 4]);
     output.push_back(hex_alphabet[(ch & 0x0F)]);
@@ -43,9 +44,9 @@ std::string encode(std::string_view input, bool delimited = true) noexcept
 }
 
 ////////////////////////////////////////////////////////////
-std::string encode(const char *input, bool delimited = true) noexcept
+std::string encode(char const *input, bool delimited = true) noexcept
 {
-  const std::string tmp(input);
+  std::string const tmp(input);
 
   return encode(tmp, delimited);
 }
@@ -55,7 +56,7 @@ template<typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
 std::string encode(T input, bool delimited = true)
 {
   // How many bytes is the integral value?
-  const std::size_t s = sizeof(input);
+  std::size_t const s = sizeof(input);
 
   std::string output;
   output.reserve(s);
@@ -127,7 +128,7 @@ std::string encode(T input, bool delimited = true)
 ////////////////////////////////////////////////////////////
 std::string decode(std::string_view input)
 {
-  const std::size_t len = input.size();
+  auto const len = input.size();
 
   std::string output;
   output.reserve(len / 2); // If there are space chars then we'll actually need less space, but over-reserving probably hurts less than under-reserving
@@ -144,7 +145,7 @@ std::string decode(std::string_view input)
     // Abort condition - is there enough data left?
     if (i + 2 > len)
     {
-      std::cerr << "Not enough data left!\n";
+      spdlog::error("Not enough data left for valid hex pair!");
       return std::string{};
     }
 
@@ -152,14 +153,14 @@ std::string decode(std::string_view input)
     auto a = hex_alphabet.find(std::toupper(input[i++]));
     if (a == std::string::npos)
     {
-      std::cerr << "Invalid hex char " << input[i - 1] << " at index " << i - 1 << "!\n";
+      spdlog::error("Invalid hex char {} at index {} !", input[i - 1], i - 1);
       return std::string{};
     }
 
     auto b = hex_alphabet.find(std::toupper(input[i]));
     if (b == std::string::npos)
     {
-      std::cerr << "Invalid hex char " << input[i] << " at index " << i << "!\n";
+      spdlog::error("Invalid hex char {} at index {} !", input[i], i);
       return std::string{};
     }
 
@@ -185,7 +186,7 @@ T decode(std::string_view input)
     std::string output_;
     output_.reserve(input_.size());
 
-    std::transform(input_.begin(), input_.end(), std::back_inserter(output_), [](const unsigned char ch) { return std::toupper(ch); });
+    std::transform(input_.begin(), input_.end(), std::back_inserter(output_), [](unsigned char const ch) { return std::toupper(ch); });
     return output_;
   };
 
@@ -194,12 +195,12 @@ T decode(std::string_view input)
   // Strip any spaces
   tmp.erase(std::remove(std::begin(tmp), std::end(tmp), ' '), std::end(tmp));
 
-  const std::size_t len = tmp.size();
+  auto const len = tmp.size();
 
   // Abort condition - must be even length
   if (len & 1)
   {
-    std::cerr << "Hex strings must be even in length!\n";
+    spdlog::error("Hex strings must be even in length!");
     return T{};
   }
 
@@ -207,7 +208,7 @@ T decode(std::string_view input)
   auto e = tmp.find_first_not_of(hex_alphabet);
   if (e != std::string::npos)
   {
-    std::cerr << "Invalid hex char " << tmp[e] << " at index " << e << "!\n";
+    spdlog::error("Invalid hex char {} at index {} !", tmp[e], e);
     return T{};
   }
 
@@ -216,7 +217,7 @@ T decode(std::string_view input)
   // Abort condition - the input can be shorter than the number of bytes taken up by the output, but it cannot be longer
   if (tmp.size() / 2 > sizeof(T))
   {
-    std::cerr << "Input hex string contains too much data to fit into a " << sizeof(T) << " byte type!\n";
+    spdlog::error("Input hex string contains too much data to fit into a {} byte type!", sizeof(T));
     return T{};
   }
 

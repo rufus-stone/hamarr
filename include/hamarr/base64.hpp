@@ -3,7 +3,8 @@
 #include <string>
 #include <string_view>
 #include <algorithm>
-#include <iostream>
+
+#include <spdlog/spdlog.h>
 
 namespace hmr::base64
 {
@@ -17,7 +18,7 @@ constexpr auto is_invalid_alphabet = [](std::string_view input)
 {
   auto counts = std::array<std::size_t, 265>{};
 
-  for (const auto &ch : input)
+  for (auto const &ch : input)
   {
     if (counts[static_cast<std::size_t>(ch)] > 1)
     {
@@ -36,14 +37,14 @@ std::string encode(std::string_view input, std::string_view alphabet = base64_al
   // Abort condition - is the alphabet exactly 65 chars (64 alphabet chars + 1 padding char)?
   if (alphabet.size() != 65)
   {
-    std::cerr << "Base64 alphabet is only " << alphabet.size() << " characters long! Must be exactly 65 (64 alphabet chars + 1 padding char)!\n";
+    spdlog::error("Base64 alphabet is only {} characters long! Must be exactly 65 (64 alphabet chars + 1 padding char)!", alphabet.size());
     return std::string{};
   }
 
   // Abort condition - does the alphabet contain duplicate entries?
   if (is_invalid_alphabet(alphabet))
   {
-    std::cerr << "Base64 alphabet has duplicate characters: " << alphabet << '\n';
+    spdlog::error("Base64 alphabet has duplicate characters: {}", alphabet);
     return std::string{};
   }
 
@@ -53,7 +54,7 @@ std::string encode(std::string_view input, std::string_view alphabet = base64_al
   output.reserve(len * (4 / 3)); // Base64 encoding turns 3 bytes into 4, so the resulting data is 1 1/3 times the size of the input
 
   // Get a uint8_t pointer to the data
-  auto data = reinterpret_cast<const uint8_t *>(input.data());
+  auto data = reinterpret_cast<uint8_t const *>(input.data());
 
   // Loop through the input 3 bytes at a time
   for (std::size_t i = 0; i < len; i += 3)
@@ -117,23 +118,23 @@ std::string decode(std::string_view input, std::string_view alphabet = base64_al
   // Abort condition - is the alphabet exactly 65 chars (64 alphabet chars + 1 padding char)?
   if (alphabet.size() != 65)
   {
-    std::cerr << "Base64 alphabet is only " << alphabet.size() << " characters long! Must be exactly 65 (64 alphabet chars + 1 padding char)!\n";
+    spdlog::error("Base64 alphabet is only {} characters long! Must be exactly 65 (64 alphabet chars + 1 padding char)!", alphabet.size());
     return std::string{};
   }
 
   // Abort condition - does the alphabet contain duplicate entries?
   if (is_invalid_alphabet(alphabet))
   {
-    std::cerr << "Base64 alphabet has duplicate characters: " << alphabet << '\n';
+    spdlog::error("Base64 alphabet has duplicate characters: {}", alphabet);
     return std::string{};
   }
 
-  const std::size_t len = input.size();
+  auto const len = input.size();
 
   // Abort condition - must contain at least two chars, as valid base64 encoding always results in at least two chars
   if (len < 2)
   {
-    std::cerr << "Input is too short for valid base64! Must have at least 2 chars!\n";
+    spdlog::error("Input is too short for valid base64! Must have at least 2 chars!");
     return std::string{};
   }
 
@@ -141,7 +142,7 @@ std::string decode(std::string_view input, std::string_view alphabet = base64_al
   auto e = input.find_first_not_of(alphabet);
   if (e != std::string::npos)
   {
-    std::cerr << "Invalid base64 char '" << input[e] << "' at index " << e << "!\n";
+    spdlog::error("Invalid base64 char '{}' at index {}!", input[e], e);
     return std::string{};
   }
 
@@ -152,7 +153,7 @@ std::string decode(std::string_view input, std::string_view alphabet = base64_al
   output.reserve(len * (3 / 4)); // Base64 decoding turns 4 bytes into 3, so the resulting data is 3/4 times the size of the input
 
   // Lambda to perform conversion from a given base64 character to the index within the chosen base64 alphabet for that character
-  auto b64_to_uint8_t = [&alphabet](const char n) -> uint8_t
+  auto b64_to_uint8_t = [&alphabet](char const n) -> uint8_t
   {
     auto p = alphabet.find(n); // Todo: I bet there's a more efficient way of doing this...
 
@@ -175,7 +176,7 @@ std::string decode(std::string_view input, std::string_view alphabet = base64_al
     // We should always have at least 2 bytes to play with, otherwise this can't be valid base64 encoded data
     if (end - iter == 1)
     {
-      std::cerr << "There's only one byte left!\n";
+      spdlog::error("Only one byte left! Need at least 2 more for valid base64!");
       return std::string{};
     }
 
@@ -244,7 +245,7 @@ std::string decode(std::string_view input, std::string_view alphabet = base64_al
         break;
       }
       default:
-        std::cerr << "Not enough data left!: " << remaining << '\n';
+        spdlog::error("Not enough data left!: {} bytes remain", remaining);
         return std::string{};
     }
   }
