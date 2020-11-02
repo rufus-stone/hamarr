@@ -198,7 +198,7 @@ int main()
     {
       hex::encode(test);
     }
-  });
+  }, true);
 
   profile::benchmark([]()
   {
@@ -206,7 +206,7 @@ int main()
     {
       hex::decode("48 65 6c 6c 6f 2c 20 57 6f 72 6c 64 21");
     }
-  });
+  }, true);
 
   profile::benchmark([]()
   {
@@ -214,7 +214,7 @@ int main()
     {
       hex::encode(prng::number<uint32_t>());
     }
-  });
+  }, true);
 
 
   spdlog::info("\n\n---[ PKCS7 Padding ]---\n");

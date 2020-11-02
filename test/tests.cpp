@@ -4,18 +4,18 @@
 #include <string_view>
 #include <vector>
 
-#include "hamarr/format.hpp"
-#include "hamarr/hex.hpp"
-#include "hamarr/binary.hpp"
-#include "hamarr/base64.hpp"
-#include "hamarr/url.hpp"
-#include "hamarr/prng.hpp"
-#include "hamarr/bitwise.hpp"
-#include "hamarr/analysis.hpp"
-#include "hamarr/pkcs7.hpp"
-#include "hamarr/serialisation.hpp"
-#include "hamarr/uuid.hpp"
-#include "hamarr/crypto.hpp"
+#include <hamarr/format.hpp>
+#include <hamarr/hex.hpp>
+#include <hamarr/binary.hpp>
+#include <hamarr/base64.hpp>
+#include <hamarr/url.hpp>
+#include <hamarr/prng.hpp>
+#include <hamarr/bitwise.hpp>
+#include <hamarr/analysis.hpp>
+#include <hamarr/pkcs7.hpp>
+#include <hamarr/serialisation.hpp>
+#include <hamarr/uuid.hpp>
+#include <hamarr/crypto.hpp>
 
 #include "catch.hpp"
 
