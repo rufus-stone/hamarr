@@ -2,7 +2,7 @@
 
 ![Latest Build](https://github.com/rufus-stone/hamarr/workflows/Build%20and%20Test/badge.svg)
 
-A collection of header-only C++ utilities for performing various kinds of encoding/decoding and other data manipulation operations.
+A collection of C++ utilities for performing various kinds of encoding/decoding and other data manipulation operations.
 
 This began life as things I found useful when playing around with the first few [cryptopals challenges](https://cryptopals.com), but has grown to include other kinds of data manipulation operations, functions for generating psuedo-random numbers, very basic benchmarking, encryption/decryption, etc. Basically it's a bunch of stuff that I wish was already available as easy-to-use functions.
 
@@ -80,42 +80,6 @@ You can then `#include <hamarr/base64.hpp>` or whichever parts of Hamarr you req
 
 - TODO: Break out the parts requiring OpenSSL into separate components that you can opt into by using CMake's `find_package()` with `COMPONENTS`.
 
-
-### Copy Include Folder
-
-As Hamarr is header-only, you can also simply clone the repo and pop the contents of the include folder into your project, or use git submodules. For example:
-
-```shell
-git submodule add git@github.com:rufus-stone/hamarr.git
-
-git submodule update --init --recursive
-```
-
-Then add the following to your CMakeLists.txt file:
-
-```cmake
-target_include_directories(${PROJECT_NAME} PRIVATE hamarr/include)
-```
-
-Now you can `#include` whichever parts of Hamarr you require.
-
-Note: the functions in `hamarr/crypto.hpp` require OpenSSL, so if using the method described above, you will need to link to the OpenSSL library before you can `#include "hamarr/crypto.hpp"`. Similarly, you will need to link to spdlog if using analysis, base64, binary, format, hex, serialisation, or url headers. Example CMakeLists.txt file:
-
-```cmake
-cmake_minimum_required(VERSION 3.15)
-
-project(example_proj)
-
-add_executable(${PROJECT_NAME} main.cpp)
-
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
-
-target_include_directories(${PROJECT_NAME} PRIVATE hamarr/include)
-
-find_package(OpenSSL REQUIRED)
-find_package(spdlog REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::SSL spdlog::spdlog)
-```
 
 ## Test and Example Build
 
