@@ -17,7 +17,7 @@ std::string xor_with_key(std::string_view input, std::string_view key)
   std::string output;
   output.reserve(input.size());
 
-  const std::size_t len = input.size();
+  auto const len = input.size();
 
   for (std::size_t i = 0; i < len; ++i)
   {
@@ -34,7 +34,7 @@ std::string xor_with_key(std::string_view input, uint8_t key)
   std::string output;
   output.reserve(input.size());
 
-  std::transform(std::begin(input), std::end(input), std::back_inserter(output), [&key](const uint8_t &ch)
+  std::transform(std::begin(input), std::end(input), std::back_inserter(output), [&key](uint8_t const &ch)
   {
     return (ch ^ key);
   });
@@ -49,7 +49,7 @@ std::string xor_rolling(std::string_view input, xor_differential differential = 
   std::string output;
   output.reserve(input.size());
 
-  const std::size_t len = input.size();
+  auto const len = input.size();
 
   // Insert the first byte unchanged
   output.push_back(input[0]);
@@ -79,7 +79,7 @@ std::string xor_counter(std::string_view input, uint8_t key = 0x00, int incremen
   std::string output;
   output.reserve(input.size());
 
-  for (const auto &ch : input)
+  for (auto const &ch : input)
   {
     uint8_t a = static_cast<uint8_t>(ch ^ key);
 
@@ -103,7 +103,7 @@ std::string shift_left(std::string_view input, std::size_t amount = 1)
     amount %= 8;
   }
 
-  std::transform(std::begin(input), std::end(input), std::back_inserter(output), [&amount](const char &ch)
+  std::transform(std::begin(input), std::end(input), std::back_inserter(output), [&amount](char const &ch)
   {
     return (ch << amount);
   });
@@ -136,7 +136,7 @@ std::string shift_right(std::string_view input, std::size_t amount = 1)
     amount %= 8;
   }
 
-  std::transform(std::begin(input), std::end(input), std::back_inserter(output), [&amount](const char &ch)
+  std::transform(std::begin(input), std::end(input), std::back_inserter(output), [&amount](char const &ch)
   {
     return (ch >> amount);
   });
@@ -161,7 +161,7 @@ T shift_right(T input, std::size_t amount = 1)
 ////////////////////////////////////////////////////////////
 std::string rotate_left(std::string_view input, std::size_t amount = 1, carry_through carry = carry_through::disabled)
 {
-  const auto len = input.size();
+  auto const len = input.size();
 
   std::string output;
 
@@ -174,7 +174,7 @@ std::string rotate_left(std::string_view input, std::size_t amount = 1, carry_th
 
     output.reserve(len);
 
-    std::transform(std::begin(input), std::end(input), std::back_inserter(output), [&amount](const uint8_t ch) {
+    std::transform(std::begin(input), std::end(input), std::back_inserter(output), [&amount](uint8_t const ch) {
       auto tmp = ch;
 
       for (std::size_t n = 0; n < amount; ++n)
@@ -232,7 +232,7 @@ std::string rotate_left(std::string_view input, std::size_t amount = 1, carry_th
 ////////////////////////////////////////////////////////////
 std::string rotate_right(std::string_view input, std::size_t amount = 1, carry_through carry = carry_through::disabled)
 {
-  const auto len = input.size();
+  auto const len = input.size();
 
   std::string output;
 
@@ -245,7 +245,7 @@ std::string rotate_right(std::string_view input, std::size_t amount = 1, carry_t
 
     output.reserve(len);
 
-    std::transform(std::begin(input), std::end(input), std::back_inserter(output), [&amount](const uint8_t ch) {
+    std::transform(std::begin(input), std::end(input), std::back_inserter(output), [&amount](uint8_t const ch) {
       auto tmp = ch;
 
       for (std::size_t n = 0; n < amount; ++n)

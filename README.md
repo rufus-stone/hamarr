@@ -7,42 +7,18 @@ A collection of header-only C++ utilities for performing various kinds of encodi
 This began life as things I found useful when playing around with the first few [cryptopals challenges](https://cryptopals.com), but has grown to include other kinds of data manipulation operations, functions for generating psuedo-random numbers, very basic benchmarking, encryption/decryption, etc. Basically it's a bunch of stuff that I wish was already available as easy-to-use functions.
 
 
+## Requirements
+
+- C++17
+- OpenSSL
+- [spdlog](https://github.com/gabime/spdlog)
+- CMake 3.15 or higher (currently tested up to 3.18)
+
 ## Installation
 
-As Hamarr is header-only, you can either clone the repo and pop the contents of the include folder into your project, or use git submodules. For example:
+### CMake Library Installation
 
-```shell
-git submodule add git@github.com:rufus-stone/hamarr.git
-
-git submodule update --init --recursive
-```
-
-Then add the following to your CMakeLists.txt file:
-
-```cmake
-include_directories(hamarr/include)
-```
-
-Now you can `#include` whichever parts of Hamarr you require.
-
-Note: the functions in `hamarr/crypto.hpp` require OpenSSL, so if using the method described above, you will need to link to the OpenSSL library before you can `#include "hamarr/crypto.hpp"`. Example CMakeLists.txt file:
-
-```cmake
-cmake_minimum_required(VERSION 3.15)
-
-project(example_proj)
-
-add_executable(${PROJECT_NAME} main.cpp)
-
-target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
-
-target_include_directories(${PROJECT_NAME} PRIVATE hamarr/include)
-
-find_package(OpenSSL REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::SSL)
-```
-
-Alternatively, you can install Hamarr to the default system location using CMake (or to a location of your choosing by providing a CMAKE_INSTALL_PREFIX). This will automatically pick up the OpenSSL dependency. For example:
+You can install Hamarr to the default system location using CMake (or to a location of your choosing by providing a CMAKE_INSTALL_PREFIX). This requires you to have the OpenSSL headers and [spdlog](https://github.com/gabime/spdlog) library already installed on your system. For example:
 
 ```shell
 git clone git@github.com:rufus-stone/hamarr.git
@@ -58,7 +34,7 @@ cmake -S . -B build
 cmake --build build --target install
 ```
 
-Having installed the library, you can then use find_package() in CMake to find it. For example:
+Having installed the library, you can then use `find_package()` in CMake to find it. For example:
 
 ```cmake
 cmake_minimum_required(VERSION 3.15)
@@ -76,34 +52,92 @@ target_link_libraries(${PROJECT_NAME} PRIVATE hamarr::hamarr)
 You can then `#include <hamarr/base64.hpp>` or whichever parts of Hamarr you require.
 
 
+### CMake FetchContent
+
+Another simple method is to use CMake's FetchContent module. This will also take care of fetching the spdlog dependency for you, so it does not matter if you have [spdlog](https://github.com/gabime/spdlog) installed on your system or not (although currently you still need the OpenSSL headers to already be installed). For example:
+
+```cmake
+cmake_minimum_required(VERSION 3.15)
+
+project(example_proj)
+
+add_executable(${PROJECT_NAME} main.cpp)
+
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+
+include(FetchContent)
+
+FetchContent_Declare(
+  hamarr
+  GIT_REPOSITORY https://github.com/rufus-stone/hamarr.git)
+
+FetchContent_MakeAvailable(hamarr)
+
+target_link_libraries(${PROJECT_NAME} PRIVATE hamarr::hamarr)
+```
+
+You can then `#include <hamarr/base64.hpp>` or whichever parts of Hamarr you require.
+
+- TODO: Break out the parts requiring OpenSSL into separate components that you can opt into by using CMake's `find_package()` with `COMPONENTS`.
+
+
+### Copy Include Folder
+
+As Hamarr is header-only, you can also simply clone the repo and pop the contents of the include folder into your project, or use git submodules. For example:
+
+```shell
+git submodule add git@github.com:rufus-stone/hamarr.git
+
+git submodule update --init --recursive
+```
+
+Then add the following to your CMakeLists.txt file:
+
+```cmake
+target_include_directories(${PROJECT_NAME} PRIVATE hamarr/include)
+```
+
+Now you can `#include` whichever parts of Hamarr you require.
+
+Note: the functions in `hamarr/crypto.hpp` require OpenSSL, so if using the method described above, you will need to link to the OpenSSL library before you can `#include "hamarr/crypto.hpp"`. Similarly, you will need to link to spdlog if using analysis, base64, binary, format, hex, serialisation, or url headers. Example CMakeLists.txt file:
+
+```cmake
+cmake_minimum_required(VERSION 3.15)
+
+project(example_proj)
+
+add_executable(${PROJECT_NAME} main.cpp)
+
+target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
+
+target_include_directories(${PROJECT_NAME} PRIVATE hamarr/include)
+
+find_package(OpenSSL REQUIRED)
+find_package(spdlog REQUIRED)
+target_link_libraries(${PROJECT_NAME} PRIVATE OpenSSL::SSL spdlog::spdlog)
+```
+
 ## Test and Example Build
 
-Hamarr includes a suite of tests using Catch2, and an example program that demonstrates most usage scenarios. To build these, enable the `BUILD_HAMARR_TESTS` and `BUILD_HAMARR_EXAMPLES` CMake options respectively. The example program uses [spdlog](https://github.com/gabime/spdlog) for output, so this must be installed before the example program can be built. As a result, `BUILD_HAMARR_EXAMPLES` defaults to `OFF`. For example:
+Hamarr includes a suite of tests using Catch2, and an example program that demonstrates most usage scenarios. These are both enabled by default if Hamarr is the top level CMake project, and disabled by default if Hamarr is being used within another project. To override this and force the tests and/or examples to be built, enable the `BUILD_HAMARR_TESTS` and `BUILD_HAMARR_EXAMPLES` CMake options respectively, which will cause the `hamarr_tests` and `hamarr_examples` targets to be built. For example:
 
 ```shell
 git clone git@github.com:rufus-stone/hamarr.git
 
 cd hamarr
 
-# Get CMake to create a new build directory and enable BUILD_HAMARR_EXAMPLES (OFF by default)
-cmake -S . -B build -DBUILD_HAMARR_EXAMPLES=ON
+# Get CMake to create a new build directory and explicitly enable the tests and example programs
+cmake -S . -B build -DBUILD_HAMARR_EXAMPLES=ON -DBUILD_HAMARR_TESTS=ON
 
-# Build the "hamarr_examples" target within the newly created build directory
-cmake --build build --target hamarr_examples
+# Build the "hamarr_tests" and "hamarr_examples" targets
+cmake --build build --target hamarr_tests hamarr_examples
+
+# Run the tests
+./build/test/hamarr_tests
 
 # Run the examples program
 ./build/examples/hamarr_examples
 ```
-
-
-### Requirements
-
-- C++17 or newer
-- OpenSSL
-
-### Optional Requirements
-
-- [spdlog](https://github.com/gabime/spdlog) (for the example program)
 
 
 ## Usage
@@ -285,7 +319,7 @@ These both take a `std::string_view` input, and return a `std::string` output. A
 ```cpp
 auto encoded = hmr::url::encode("Hello, World!"); // encoded contains the string "Hello%2C%20World%21"
 
-auto decoded = hmr::url::encode("Hello%2C%20World%21"); // decoded contains the string "Hello, World!"
+auto decoded = hmr::url::decode("Hello%2C%20World%21"); // decoded contains the string "Hello, World!"
 ```
 
 According to RFC 3986, URL encoding routines should convert non-ASCII characters to their UTF-8 byte sequence before percent-encoding. For single bytes, this means any value between \x80-\xFF gets turned into the appropriate two-byte UTF-8 sequence. This is the default behaviour for `hmr::url::encode()` (and for `hmr::url::decode()` in reverse), but you can toggle lazy mode by adding the argument `true` to the function, which will prevent any conversions to/from UTF-8. For example:

@@ -5,7 +5,8 @@
 #include <vector>
 #include <map>
 #include <algorithm>
-#include <iostream>
+
+#include <spdlog/spdlog.h>
 
 #include "format.hpp"
 
@@ -19,7 +20,7 @@ std::string serialise(kvps input, char kv_delimiter = '=', char kvp_delimiter = 
 {
   auto output = std::string{};
 
-  for (const auto &kvp : input)
+  for (auto const &kvp : input)
   {
     auto tmp = std::string{kvp.first} + kv_delimiter + std::string{kvp.second} + kvp_delimiter;
     output += tmp;
@@ -38,16 +39,16 @@ kvps deserialise(std::string_view input, char kv_delimiter = '=', char kvp_delim
   auto output = kvps{};
 
   // First divide the input up into groups of pairs by splitting around the kvp_delimiter
-  auto pairs = hmr::format::split(input, kvp_delimiter);
+  auto const pairs = hmr::format::split(input, kvp_delimiter);
 
   // Now divide each group into a key-value pair and add to the output map
-  for (const auto pair : pairs)
+  for (auto const pair : pairs)
   {
     auto key_value_pair = hmr::format::split(pair, kv_delimiter);
 
     if (key_value_pair.size() != 2)
     {
-      std::cerr << "Failed to split into key-value pair!\n";
+      spdlog::error("Failed to split into a single key-value pair!");
       return kvps{};
     }
 

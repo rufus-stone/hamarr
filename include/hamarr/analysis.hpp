@@ -7,7 +7,8 @@
 #include <cmath>
 #include <algorithm>
 #include <cassert>
-#include <iostream>
+
+#include <spdlog/spdlog.h>
 
 #include "hex.hpp"
 #include "bitwise.hpp"
@@ -52,7 +53,7 @@ constexpr std::size_t hamming_distance(std::string_view lhs, std::string_view rh
 ////////////////////////////////////////////////////////////
 constexpr double entropy(std::string_view input)
 {
-  const std::size_t len = input.size();
+  auto const len = input.size();
 
   // I'm not sure if std::array default initalizes ints to 0, so doing that here just in case
   auto char_freqs = std::array<std::size_t, 256>{
@@ -73,14 +74,14 @@ constexpr double entropy(std::string_view input)
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
-  for (const auto &ch : input)
+  for (auto const &ch : input)
   {
     char_freqs[static_cast<uint8_t>(ch)]++;
   }
 
   double entropy = 0;
 
-  for (const auto &freq : char_freqs)
+  for (auto const &freq : char_freqs)
   {
     if (freq != 0)
     {
@@ -102,7 +103,7 @@ std::vector<std::size_t> character_frequency(std::string_view input, analysis::c
     case analysis::case_sensitivity::enabled:
     {
       // Increment the value at the index of the current char by one
-      for (const auto &ch : input)
+      for (auto const &ch : input)
       {
         freqs[static_cast<uint8_t>(ch)] += 1;
       }
@@ -112,7 +113,7 @@ std::vector<std::size_t> character_frequency(std::string_view input, analysis::c
     case analysis::case_sensitivity::disabled:
     {
       // Increment the value at the index of the current char by one - normalise to lower case first
-      for (const auto &ch : input)
+      for (auto const &ch : input)
       {
         freqs[static_cast<uint8_t>(std::tolower(ch))] += 1;
       }
@@ -124,7 +125,7 @@ std::vector<std::size_t> character_frequency(std::string_view input, analysis::c
 }
 
 ////////////////////////////////////////////////////////////
-void print_character_frequency(std::vector<std::size_t> freqs, bool show_zeros = false)
+void print_character_frequency(std::vector<std::size_t> freqs, bool const show_zeros = false)
 {
   for (std::size_t i = 0; i < freqs.size(); ++i)
   {
@@ -132,11 +133,11 @@ void print_character_frequency(std::vector<std::size_t> freqs, bool show_zeros =
     {
       if (i >= 0x20 && i <= 0x7E)
       {
-        std::cout << "'" << static_cast<char>(i) << "' occurs " << static_cast<int>(freqs[i]) << " times\n";
+        spdlog::info("'{}' occurs {} times", static_cast<char>(i), static_cast<int>(freqs[i]));
 
       } else
       {
-        std::cout << "'" << hmr::hex::encode(static_cast<uint8_t>(i)) << "' occurs " << static_cast<int>(freqs[i]) << " times\n";
+        spdlog::info("'{}' occurs {} times", hmr::hex::encode(static_cast<uint8_t>(i)), static_cast<int>(freqs[i]));
       }
 
     } else
@@ -145,11 +146,11 @@ void print_character_frequency(std::vector<std::size_t> freqs, bool show_zeros =
       {
         if (i >= 0x20 && i <= 0x7E)
         {
-          std::cout << "'" << static_cast<char>(i) << "' occurs " << static_cast<int>(freqs[i]) << " times\n";
+          spdlog::info("'{}' occurs {} times", static_cast<char>(i), static_cast<int>(freqs[i]));
 
         } else
         {
-          std::cout << "'" << hmr::hex::encode(static_cast<uint8_t>(i)) << "' occurs " << static_cast<int>(freqs[i]) << " times\n";
+          spdlog::info("'{}' occurs {} times", hmr::hex::encode(static_cast<uint8_t>(i)), static_cast<int>(freqs[i]));
         }
       }
     }
@@ -157,7 +158,7 @@ void print_character_frequency(std::vector<std::size_t> freqs, bool show_zeros =
 }
 
 ////////////////////////////////////////////////////////////
-constexpr bool looks_like_english(std::string_view input, bool debug_flag = false)
+constexpr bool looks_like_english(std::string_view input, bool const debug_flag = false)
 {
   std::size_t spaces = 0;
   std::size_t punctuation = 0;
@@ -165,14 +166,14 @@ constexpr bool looks_like_english(std::string_view input, bool debug_flag = fals
   std::size_t lowercase = 0;
   std::size_t uppercase = 0;
 
-  for (const auto &c : input)
+  for (auto const &c : input)
   {
     auto ch = static_cast<uint8_t>(c);
 
     // Abort condition - there should be no un-printable byte values (apart from space, tab, newline, carriage return, etc.)
     if ((ch < 0x20 && ch != 0x09 && ch != 0x0A && ch != 0x0B && ch != 0x0C && ch != 0x0D) || ch > 0x7E)
     {
-      if (debug_flag) std::cout << "Failed unprintable\n";
+      if (debug_flag) spdlog::info("Found unprintable char: {0:x}", ch);
       return false;
     }
 
@@ -210,28 +211,28 @@ constexpr bool looks_like_english(std::string_view input, bool debug_flag = fals
   // There should be more spaces than punctuation
   if (spaces < punctuation)
   {
-    if (debug_flag) std::cout << "Failed spaces vs punc\n";
+    if (debug_flag) spdlog::info("Failed spaces vs punc check: {}", input);
     return false;
   }
 
   // There should be more alphanumerics than punctuation
   if (numbers + lowercase + uppercase < punctuation)
   {
-    if (debug_flag) std::cout << "Failed alphanum vs punc\n";
+    if (debug_flag) spdlog::info("Failed alphanum vs punc check: {}", input);
     return false;
   }
 
   // There should be more lowercase letters than uppercase
   if (lowercase < uppercase)
   {
-    if (debug_flag) std::cout << "Failed lower vs upper\n";
+    if (debug_flag) spdlog::info("Failed lower vs upper check: {}", input);
     return false;
   }
 
   // There should be more letters than numbers
   if (lowercase + uppercase < numbers)
   {
-    if (debug_flag) std::cout << "Failed letters vs numbers\n";
+    if (debug_flag) spdlog::info("Failed letters vs numbers check: {}", input);
     return false;
   }
 
@@ -239,12 +240,12 @@ constexpr bool looks_like_english(std::string_view input, bool debug_flag = fals
 }
 
 ////////////////////////////////////////////////////////////
-auto find_candidate_keysize(std::string_view input, std::size_t min = 2, std::size_t max = 40, bool debug_flag = false)
+auto find_candidate_keysize(std::string_view input, std::size_t const min = 2, std::size_t const max = 40, bool const debug_flag = false)
 {
-  const std::size_t len = input.size();
+  auto const len = input.size();
 
-  const std::size_t min_key_size = min;
-  const std::size_t max_key_size = max;
+  auto const min_key_size = min;
+  auto const max_key_size = max;
 
   auto average_hams = std::vector<std::pair<std::size_t, double>>{};
   average_hams.reserve(max_key_size - min_key_size);
@@ -279,14 +280,14 @@ auto find_candidate_keysize(std::string_view input, std::size_t min = 2, std::si
   }
 
   // Pick the key_size with the lowest average hamming distance - this is the best candidate for the actual key size
-  auto best_candidate = std::min_element(std::begin(average_hams), std::end(average_hams), [](const auto &lhs, const auto &rhs) { return lhs.second < rhs.second; });
-  if (debug_flag) std::cout << "Best candidate key size: " << best_candidate->first << " (average Hamming distance: " << best_candidate->second << ")\n";
+  auto best_candidate = std::min_element(std::begin(average_hams), std::end(average_hams), [](auto const &lhs, auto const &rhs) { return lhs.second < rhs.second; });
+  if (debug_flag) spdlog::info("Best candidate key size: {} (average Hamming distance: {})", best_candidate->first, best_candidate->second);
 
   return *best_candidate;
 }
 
 ////////////////////////////////////////////////////////////
-auto solve_single_byte_xor(std::string_view input, bool debug_flag = false)
+auto solve_single_byte_xor(std::string_view input, bool const debug_flag = false)
 {
   uint8_t key = 0x00;
 
@@ -307,15 +308,15 @@ auto solve_single_byte_xor(std::string_view input, bool debug_flag = false)
 
   if (possible_keys.empty() && debug_flag)
   {
-    std::cout << "Failed to find any possible keys!\n";
-    std::cout << "Input was: " << input << '\n';
+    spdlog::warn("Failed to find any possible keys!");
+    spdlog::warn("Input was: {}", input);
   }
 
   return possible_keys;
 }
 
 ////////////////////////////////////////////////////////////
-constexpr bool repeated_blocks(std::string_view input, std::size_t block_size = 16)
+constexpr bool repeated_blocks(std::string_view input, std::size_t const block_size = 16)
 {
   auto len = input.size();
   assert(len % block_size == 0);

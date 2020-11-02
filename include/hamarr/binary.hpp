@@ -6,7 +6,8 @@
 #include <algorithm>
 #include <numeric>
 #include <bitset>
-#include <iostream>
+
+#include <spdlog/spdlog.h>
 
 namespace hmr::binary
 {
@@ -16,9 +17,9 @@ std::string encode(std::string_view input, bool delimited = true)
 {
   std::vector<std::string> out_vec;
 
-  std::transform(input.begin(), input.end(), std::back_inserter(out_vec), [](const uint8_t c) -> std::string
+  std::transform(input.begin(), input.end(), std::back_inserter(out_vec), [](uint8_t const c) -> std::string
   {
-    const auto bits = std::bitset<8>(c);
+    auto const bits = std::bitset<8>(c);
     return bits.to_string();
   });
 
@@ -42,7 +43,7 @@ std::string encode(T input, bool delimited = true)
   if (delimited)
   {
     // How many bytes is the integral value?
-    const std::size_t s = sizeof(input);
+    std::size_t const s = sizeof(input);
 
     std::string output;
     output.reserve(s + (s - 1));
@@ -163,9 +164,9 @@ std::string encode(T input, bool delimited = true)
 
 
 ////////////////////////////////////////////////////////////
-std::string decode(const std::string &input)
+std::string decode(std::string const &input)
 {
-  const std::size_t len = input.size();
+  auto const len = input.size();
 
   std::string output;
   output.reserve(len / 8); // If there are space chars then we'll actually need less space, but over-reserving probably hurts less than under-reserving
@@ -181,11 +182,11 @@ std::string decode(const std::string &input)
     // Abort condition - is there enough data left?
     if (i + 8 > len)
     {
-      std::cerr << "Not enough data left! i+8 == " << (i + 8) << "but len == " << len << '\n';
+      spdlog::error("Not enough data left! i+8 == {} but len == {}", (i + 8), len);
       return std::string{};
     }
 
-    const auto bits = std::bitset<8>(input.substr(i, 8));
+    auto const bits = std::bitset<8>(input.substr(i, 8));
     output.push_back(bits.to_ulong());
 
     i += 7;
@@ -196,7 +197,7 @@ std::string decode(const std::string &input)
 
 ////////////////////////////////////////////////////////////
 template<typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
-T decode(const std::string &input)
+T decode(std::string const &input)
 {
   // Strip any spaces
   std::string tmp = input;
@@ -205,7 +206,7 @@ T decode(const std::string &input)
   // Input binary string must be divisible by 8
   if (tmp.size() % 8 != 0)
   {
-    std::cerr << "Not divisible by 8!\n";
+    spdlog::error("Input length not divisible by 8!");
     return T{};
   }
 
@@ -213,20 +214,20 @@ T decode(const std::string &input)
   // TODO: For inputs that are shorter than the desired return type, maybe we could just convert to that type anyway, e.g. an input of "11111111" could be turned into a uint16_t output with the value 0x00FF ??
   if ((tmp.size() / 8) != sizeof(T))
   {
-    std::cerr << "Input binary string does not contain the correct number of bits to fit into a " << sizeof(T) << " byte type!\n";
+    spdlog::error("Input binary string does not contain the correct number of bits to fit into a {} byte type!", sizeof(T));
     return T{};
   }
 
   // Input binary string must only contain 1s and 0s
   if (tmp.find_first_not_of("10") != std::string::npos)
   {
-    std::cerr << "Invalid binary char!\n";
+    spdlog::error("Invalid binary char in input!");
     return T{};
   }
 
-  const auto bits = std::bitset<sizeof(T) * 8>(tmp);
+  auto const bits = std::bitset<sizeof(T) * 8>(tmp);
 
-  const auto output = static_cast<T>(bits.to_ullong());
+  auto const output = static_cast<T>(bits.to_ullong());
 
   return output;
 }

@@ -24,7 +24,7 @@ using namespace std::string_literals;
 // hmr::format
 TEST_CASE("hmr::format", "[formatting]")
 {
-  const auto input = "Hello,\nWorld!"s;
+  auto const input = "Hello,\nWorld!"s;
   REQUIRE(hmr::format::to_upper(input) == "HELLO,\nWORLD!"s);
   REQUIRE(hmr::format::to_lower(input) == "hello,\nworld!"s);
 
@@ -37,7 +37,7 @@ TEST_CASE("hmr::format", "[formatting]")
 // hmr::hex
 TEST_CASE("hmr::hex", "[encoding][hex]")
 {
-  const auto input = "Hello, World!"s;
+  auto const input = "Hello, World!"s;
 
   // Padded - uppercase/lowercase/mixed case
   REQUIRE(hmr::hex::encode(input) == "48 65 6C 6C 6F 2C 20 57 6F 72 6C 64 21"s);
@@ -149,7 +149,7 @@ TEST_CASE("hmr::binary", "[encoding][binary]")
 // hmr::base64
 TEST_CASE("hmr::base64", "[encoding][base64]")
 {
-  const auto input = "Hello, World!"s;
+  auto const input = "Hello, World!"s;
 
   // Standard base64 alphabet
   REQUIRE(hmr::base64::encode(input) == "SGVsbG8sIFdvcmxkIQ=="s);
@@ -199,16 +199,19 @@ TEST_CASE("hmr::url", "[encoding][url]")
   // Failures
   REQUIRE(hmr::url::decode("Invalid percent-encoded hex sequences %ZZ %JJ"s) == std::string{});
   REQUIRE(hmr::url::decode("Missing data %C2%"s) == std::string{});
+  REQUIRE(hmr::url::decode("Invalid UTF-8 -> ASCII conversion %C4%11"s) == std::string{});
+  REQUIRE(hmr::url::decode("Invalid second half of UTF-8 -> ASCII conversion %C2%ZZ"s) == std::string{});
+  REQUIRE(hmr::url::decode("Unprintable chars mixed in %1\x98"s) == std::string{});
 }
 
 // hmr::prng
 TEST_CASE("hmr::prng", "[prng]")
 {
-  const auto rnd_int = hmr::prng::number_between<unsigned int>(0, 10);
+  auto const rnd_int = hmr::prng::number_between<unsigned int>(0, 10);
   REQUIRE(rnd_int >= 0);
   REQUIRE(rnd_int <= 10);
 
-  const auto rnd_dbl = hmr::prng::number_between<double>(-1, 1);
+  auto const rnd_dbl = hmr::prng::number_between<double>(-1, 1);
   REQUIRE(rnd_dbl >= -1);
   REQUIRE(rnd_dbl <= 1);
 
@@ -218,7 +221,7 @@ TEST_CASE("hmr::prng", "[prng]")
 // hmr::bitwise
 TEST_CASE("hmr::bitwise", "[obfuscation][xor][bitshift][rotate]")
 {
-  const auto input = "Hello, World!"s;
+  auto const input = "Hello, World!"s;
 
   // String as key
   REQUIRE(hmr::bitwise::xor_with_key(input, "great key"s) == hmr::hex::decode("2F 17 09 0D 1B 0C 4B 32 16 15 1E 01 40"s));
@@ -275,24 +278,29 @@ TEST_CASE("hmr::bitwise", "[obfuscation][xor][bitshift][rotate]")
 // hmr::analysis
 TEST_CASE("hmr::analysis", "[analysis]")
 {
-  const auto input = "Hello, World!"s;
+  auto const input = "Hello, World!"s;
 
   // Hamming distance
   REQUIRE(hmr::analysis::hamming_distance("this is a test"s, "wokka wokka!!!"s) == 37);
   REQUIRE(hmr::analysis::hamming_distance("this is a testEXTRASTUFF"s, "wokka wokka!!!"s) == 37);
 
   // Character frequency analysis
-  auto freqs_1 = hmr::analysis::character_frequency(input);
+  auto const freqs_1 = hmr::analysis::character_frequency(input);
   REQUIRE(freqs_1['l'] == 3);
   REQUIRE(freqs_1['o'] == 2);
 
-  auto freqs_2 = hmr::analysis::character_frequency("Mix OF upPer AND LOWER"s, hmr::analysis::case_sensitivity::disabled);
+  auto const freqs_2 = hmr::analysis::character_frequency("Mix OF upPer AND LOWER"s, hmr::analysis::case_sensitivity::disabled);
   REQUIRE(freqs_2['p'] == 2);
   REQUIRE(freqs_2['e'] == 2);
 
-  auto freqs_3 = hmr::analysis::character_frequency("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula eu tempor congue, eros est euismod turpis, id tincidunt sapien risus a quam. Maecenas fermentum consequat mi. Donec fermentum. Pellentesque malesuada nulla a mi. Duis sapien sem, aliquet nec, commodo eget, consequat quis, neque. Aliquam faucibus, elit ut dictum aliquet, felis nisl adipiscing sapien, sed malesuada diam lacus eget erat. Cras mollis scelerisque nunc. Nullam arcu. Aliquam consequat. Curabitur augue lorem, dapibus quis, laoreet et, pretium ac, nisi. Aenean magna nisl, mollis quis, molestie eu, feugiat in, orci. In hac habitasse platea dictumst."s);
+  auto const freqs_3 = hmr::analysis::character_frequency("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula eu tempor congue, eros est euismod turpis, id tincidunt sapien risus a quam. Maecenas fermentum consequat mi. Donec fermentum. Pellentesque malesuada nulla a mi. Duis sapien sem, aliquet nec, commodo eget, consequat quis, neque. Aliquam faucibus, elit ut dictum aliquet, felis nisl adipiscing sapien, sed malesuada diam lacus eget erat. Cras mollis scelerisque nunc. Nullam arcu. Aliquam consequat. Curabitur augue lorem, dapibus quis, laoreet et, pretium ac, nisi. Aenean magna nisl, mollis quis, molestie eu, feugiat in, orci. In hac habitasse platea dictumst."s);
   REQUIRE(freqs_3['e'] == 114);
   REQUIRE(freqs_3['u'] == 97);
+
+  auto const freqs_4 = hmr::analysis::character_frequency("Some \x99 unprintable \t chars \x8c\x8c\x8c \x10 \x02 11111"s);
+  REQUIRE(freqs_4['1'] == 5);
+  REQUIRE(freqs_4[0x8c] == 3);
+  hmr::analysis::print_character_frequency(freqs_4);
 
   // English-like text detection
   REQUIRE(hmr::analysis::looks_like_english("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula eu tempor congue, eros est euismod turpis, id tincidunt sapien risus a quam. Maecenas fermentum consequat mi. Donec fermentum. Pellentesque malesuada nulla a mi. Duis sapien sem, aliquet nec, commodo eget, consequat quis, neque. Aliquam faucibus, elit ut dictum aliquet, felis nisl adipiscing sapien, sed malesuada diam lacus eget erat. Cras mollis scelerisque nunc. Nullam arcu. Aliquam consequat. Curabitur augue lorem, dapibus quis, laoreet et, pretium ac, nisi. Aenean magna nisl, mollis quis, molestie eu, feugiat in, orci. In hac habitasse platea dictumst."s));
@@ -303,11 +311,25 @@ TEST_CASE("hmr::analysis", "[analysis]")
   REQUIRE(hmr::analysis::entropy(input) > 3);
 
   // Single byte XOR key solution
-  const auto xord = hmr::hex::decode("01 3d 3c 26 75 3c 26 75 34 75 27 30 34 39 39 2c 75 32 27 30 34 21 75 30 2d 34 38 25 39 30 75 3a 33 75 34 75 38 30 31 3c 20 38 75 26 3c 2f 30 31 75 10 3b 32 39 3c 26 3d 75 26 21 27 3c 3b 32 79 75 22 3c 21 3d 75 34 75 32 3a 3a 31 75 38 3c 2d 75 3a 33 75 00 05 05 10 07 16 14 06 10 75 34 3b 31 75 39 3a 22 30 27 36 34 26 30 75 39 30 21 21 30 27 26 79 75 25 20 3b 36 21 20 34 21 3c 3a 3b 79 75 30 21 36 7b 74"s);
-  auto possible_keys = hmr::analysis::solve_single_byte_xor(xord);
+  auto const xord_1 = hmr::hex::decode("01 3d 3c 26 75 3c 26 75 34 75 27 30 34 39 39 2c 75 32 27 30 34 21 75 30 2d 34 38 25 39 30 75 3a 33 75 34 75 38 30 31 3c 20 38 75 26 3c 2f 30 31 75 10 3b 32 39 3c 26 3d 75 26 21 27 3c 3b 32 79 75 22 3c 21 3d 75 34 75 32 3a 3a 31 75 38 3c 2d 75 3a 33 75 00 05 05 10 07 16 14 06 10 75 34 3b 31 75 39 3a 22 30 27 36 34 26 30 75 39 30 21 21 30 27 26 79 75 25 20 3b 36 21 20 34 21 3c 3a 3b 79 75 30 21 36 7b 74"s);
+  auto possible_keys = hmr::analysis::solve_single_byte_xor(xord_1);
   REQUIRE(possible_keys.size() == 1);
 
-  // TODO: Multi-byte XOR key solution
+  // Single byte XOR failure - try solving for 64 random bytes
+  auto possible_keys_2 = hmr::analysis::solve_single_byte_xor(hmr::prng::bytes(64));
+  REQUIRE(possible_keys_2.empty() == true);
+
+  // Multi-byte XOR key size solution
+  auto const random_xor_key = hmr::prng::bytes(20);
+  auto const plaintext = "This should be a long enough bit of example text to demonstrate multi-byte XOR key length detection. Fingers crossed this works!"s;
+  auto const xord_2 = hmr::bitwise::xor_with_key(plaintext, random_xor_key);
+  auto const most_likely_xor_keysize = hmr::analysis::find_candidate_keysize(xord_2).first;
+  REQUIRE(most_likely_xor_keysize == 20);
+
+  // Multi-byte XOR key size failure - try solving for 64 random bytes
+  auto const random_input = hmr::prng::bytes(64);
+  auto const probable_xor_keysize = hmr::analysis::find_candidate_keysize(random_input).first;
+  REQUIRE(probable_xor_keysize != 64);
 
   // Repeated block detection
   REQUIRE(hmr::analysis::repeated_blocks("12345678ABCDEFGH12345678ZYXWVUTS"s, 8) == true);
@@ -318,7 +340,7 @@ TEST_CASE("hmr::analysis", "[analysis]")
 // hmr::pkcs7
 TEST_CASE("hmr::pkcs7", "[pkcs7]")
 {
-  const auto input = "Hello, World!"s;
+  auto const input = "Hello, World!"s;
 
   REQUIRE(hmr::pkcs7::unpad(hmr::pkcs7::pad(input)) == input);
   REQUIRE(hmr::pkcs7::padded(input) == false);
@@ -335,16 +357,21 @@ TEST_CASE("hmr::pkcs7", "[pkcs7]")
 // hmr::kvp
 TEST_CASE("hmr::kvp", "[serialisation][kvp]")
 {
-  const auto kvps = std::map<std::string_view, std::string_view>{{"key1", "value1"}, {"key2", "value2"}, {"key3", "value3"}};
+  auto const kvps = std::map<std::string_view, std::string_view>{{"key1", "value1"}, {"key2", "value2"}, {"key3", "value3"}};
 
   REQUIRE(hmr::kvp::serialise(kvps) == "key1=value1&key2=value2&key3=value3"s);
   REQUIRE(hmr::kvp::deserialise("key1=value1&key2=value2&key3=value3"s) == kvps);
+
+  // Failures
+  REQUIRE(hmr::kvp::deserialise("key1=value1=value2") == std::map<std::string_view, std::string_view>{});
+  REQUIRE(hmr::kvp::deserialise("key1=value1&something&key2=value2") == std::map<std::string_view, std::string_view>{});
+  REQUIRE(hmr::kvp::deserialise("key1=value1& &key2=value2") == std::map<std::string_view, std::string_view>{});
 }
 
 // hmr::uuid
 TEST_CASE("hmr::uuid", "[uuid]")
 {
-  const auto uuid = hmr::uuid::generate();
+  auto const uuid = hmr::uuid::generate();
 
   REQUIRE(uuid.size() == 36);
   REQUIRE(uuid.find_first_not_of("0123456789ABCDEF-") == std::string::npos);
@@ -353,7 +380,7 @@ TEST_CASE("hmr::uuid", "[uuid]")
 // hmr::crypto
 TEST_CASE("hmr::crypto", "[crypto][aes]")
 {
-  const auto input = "Hello, World!"s;
+  auto const input = "Hello, World!"s;
 
   REQUIRE(hmr::base64::encode(hmr::crypto::aes_ecb_encrypt(input, "YELLOW SUBMARINE")) == "401gyzJgpJNkouYaQRZZRg==");
   REQUIRE(hmr::crypto::aes_ecb_decrypt(hmr::base64::decode("401gyzJgpJNkouYaQRZZRg=="), "YELLOW SUBMARINE") == input);
@@ -361,7 +388,7 @@ TEST_CASE("hmr::crypto", "[crypto][aes]")
   REQUIRE(hmr::crypto::aes_ecb_decrypt(hmr::base64::decode("401gyzJgpJNkouYaQRZZRg=="), "YELLOW SUBMARINE", false) == "Hello, World!\x03\x03\x03");
   REQUIRE(hmr::pkcs7::padded(hmr::crypto::aes_ecb_decrypt(hmr::base64::decode("401gyzJgpJNkouYaQRZZRg=="), "YELLOW SUBMARINE", false)));
 
-  const auto longer_plaintext = "Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal"s;
+  auto const longer_plaintext = "Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal"s;
   REQUIRE(hmr::base64::encode(hmr::crypto::aes_cbc_encrypt(longer_plaintext, "ORANGE SUBMARINE", "ORANGE SUBMARINE")) == "rnPbRj30TGD+MRXM2O14b/xSA9oAv8Al/um7hObPUi5wP82Idy3FvXxNYghiPMeB+YLHDpzQDPm4FsNeSARVda55uN8ePdMZhoPkaiNbQcA=");
   REQUIRE(hmr::crypto::aes_cbc_decrypt(hmr::base64::decode("rnPbRj30TGD+MRXM2O14b/xSA9oAv8Al/um7hObPUi5wP82Idy3FvXxNYghiPMeB+YLHDpzQDPm4FsNeSARVda55uN8ePdMZhoPkaiNbQcA="), "ORANGE SUBMARINE", "ORANGE SUBMARINE") == longer_plaintext);
 }
