@@ -8,7 +8,7 @@ Project Setup
 
 project(
   hamarr
-  VERSION 1.1.0
+  VERSION 1.1.1
   DESCRIPTION "A C++ toolbox for data manipulation."
   HOMEPAGE_URL "https://github.com/rufus-stone/hamarr"
   LANGUAGES CXX)
@@ -24,8 +24,7 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 # We require C++17
 target_compile_features(${PROJECT_NAME} INTERFACE cxx_std_17)
 
-# Install interface generator ensures that the include files are installed to
-# the proper location (provided by GNUInstallDirs)
+
 target_include_directories(
   ${PROJECT_NAME}
   INTERFACE $<BUILD_INTERFACE:${${PROJECT_NAME}_SOURCE_DIR}/include>
@@ -45,7 +44,7 @@ if(NOT spdlog_FOUND)
   message("Failed to find spdlog! Fetching it instead...")
 
   include(FetchContent)
-  
+
   FetchContent_Declare(
     spdlog
     GIT_REPOSITORY https://github.com/gabime/spdlog.git
@@ -62,8 +61,8 @@ Tests and Examples
 ------------------
 ]]
 
-# Check if Hamarr is being used as the main project, or via sub_directory() or
-# similar We'll use this to enable or disable tests, installation, etc.
+# Check if Hamarr is being used as the main project vs. via sub_directory() or
+# similar. We'll use this to enable or disable tests, installation, etc.
 if(NOT DEFINED HAMARR_MAIN_PROJECT)
   if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     set(HAMARR_MAIN_PROJECT ON)
@@ -72,17 +71,17 @@ if(NOT DEFINED HAMARR_MAIN_PROJECT)
   endif()
 endif()
 
-option(INSTALL_HAMARR "Enable installation of Hamarr library"
-       ${HAMARR_MAIN_PROJECT})
 option(BUILD_HAMARR_TESTS "Build Hamarr tests" ${HAMARR_MAIN_PROJECT})
-option(BUILD_HAMARR_EXAMPLES "Build Hamarr examples" OFF)
 
 include(CTest) # Provides the BUILD_TESTING option (ON by default)
-if(BUILD_TESTING AND BUILD_HAMARR_TESTS)
+if(((CMAKE_PROJECT_NAME STREQUAL PROJECT_NAME) OR BUILD_HAMARR_TESTS)
+   AND BUILD_TESTING)
   message("Hamarr tests will be built...")
   enable_testing()
   add_subdirectory(test)
 endif()
+
+option(BUILD_HAMARR_EXAMPLES "Build Hamarr examples" ${HAMARR_MAIN_PROJECT})
 
 if(BUILD_HAMARR_EXAMPLES)
   message("Hamarr examples will be built...")
@@ -94,6 +93,9 @@ endif()
 Library Installation
 --------------------
 ]]
+
+option(INSTALL_HAMARR "Enable installation of Hamarr library"
+       ${HAMARR_MAIN_PROJECT})
 
 if(INSTALL_HAMARR)
   message("Configuring library installation...")
@@ -135,3 +137,6 @@ if(INSTALL_HAMARR)
   # include(CPack)
 
 endif()
+
+
+message("CMAKE_INSTALL_INCLUDEDIR: ${CMAKE_INSTALL_INCLUDEDIR}")
