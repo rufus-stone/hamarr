@@ -56,10 +56,10 @@ TEST_CASE("hmr::hex", "[encoding][hex]")
   REQUIRE(hmr::hex::decode("48656C6C6F2C 20 57 6f 726c6421"s) == input);
 
   // Failures
-  REQUIRE(hmr::hex::decode("Invalid hex input"s) == std::string{}); // Invalid hex chars
-  REQUIRE(hmr::hex::decode("11 22 3"s) == std::string{}); // Missing nibble
-  REQUIRE(hmr::hex::decode("11223"s) == std::string{}); // Missing nibble
-  REQUIRE(hmr::hex::decode("1 122 3"s) == std::string{}); // Missing nibble
+  REQUIRE_THROWS(hmr::hex::decode("Invalid hex input"s) == std::string{}); // Invalid hex chars
+  REQUIRE_THROWS(hmr::hex::decode("11 22 3"s) == std::string{}); // Missing nibble
+  REQUIRE_THROWS(hmr::hex::decode("11223"s) == std::string{}); // Missing nibble
+  REQUIRE_THROWS(hmr::hex::decode("1 122 3"s) == std::string{}); // Missing nibble
 
   // uint8_t
   REQUIRE(hmr::hex::encode(uint8_t{18}) == "12"s);
@@ -91,10 +91,10 @@ TEST_CASE("hmr::hex", "[encoding][hex]")
   REQUIRE(hmr::hex::decode<int>("00000100"s) == 256);
 
   // Failures
-  REQUIRE(hmr::hex::decode<uint8_t>("FF FF"s) == uint8_t{}); // Too many bytes for the requested return type
-  REQUIRE(hmr::hex::decode<uint16_t>("FF FF FF"s) == uint16_t{}); // Too many bytes for the requested return type
-  REQUIRE(hmr::hex::decode<uint32_t>("FF FF FF FF FF FF"s) == uint32_t{}); // Too many bytes for the requested return type
-  REQUIRE(hmr::hex::decode<uint64_t>("AA BB CC DD EE FF 00 11 22 33 44 55 66 77 88 99"s) == uint64_t{}); // Too many bytes for the requested return type
+  REQUIRE_THROWS(hmr::hex::decode<uint8_t>("FF FF"s) == uint8_t{}); // Too many bytes for the requested return type
+  REQUIRE_THROWS(hmr::hex::decode<uint16_t>("FF FF FF"s) == uint16_t{}); // Too many bytes for the requested return type
+  REQUIRE_THROWS(hmr::hex::decode<uint32_t>("FF FF FF FF FF FF"s) == uint32_t{}); // Too many bytes for the requested return type
+  REQUIRE_THROWS(hmr::hex::decode<uint64_t>("AA BB CC DD EE FF 00 11 22 33 44 55 66 77 88 99"s) == uint64_t{}); // Too many bytes for the requested return type
 }
 
 // hmr::binary
@@ -140,10 +140,10 @@ TEST_CASE("hmr::binary", "[encoding][binary]")
   REQUIRE(hmr::binary::decode<int>("11111111111111110000000000000000"s) == -65536);
 
   // Failures
-  REQUIRE(hmr::binary::decode<uint8_t>("11110000 11110000"s) == uint8_t{}); // Too many bits for requested result type
-  REQUIRE(hmr::binary::decode<uint16_t>("11110000"s) == uint16_t{}); // Not enough bits for requested result type
-  REQUIRE(hmr::binary::decode<uint8_t>("1010"s) == uint8_t{}); // Number of characters not a multiple of 8
-  REQUIRE(hmr::binary::decode<int>("11110000 !INVALID!!CHARS! 00001111"s) == int{}); // Invalid input characters
+  REQUIRE_THROWS(hmr::binary::decode<uint8_t>("11110000 11110000"s) == uint8_t{}); // Too many bits for requested result type
+  REQUIRE_THROWS(hmr::binary::decode<uint16_t>("11110000"s) == uint16_t{}); // Not enough bits for requested result type
+  REQUIRE_THROWS(hmr::binary::decode<uint8_t>("1010"s) == uint8_t{}); // Number of characters not a multiple of 8
+  REQUIRE_THROWS(hmr::binary::decode<int>("11110000 !INVALID!!CHARS! 00001111"s) == int{}); // Invalid input characters
 }
 
 // hmr::base64
@@ -172,11 +172,11 @@ TEST_CASE("hmr::base64", "[encoding][base64]")
   REQUIRE(hmr::base64::decode("iglGrgWG0ftJsAL=08++"s, "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+"s) == input);
 
   // Failures
-  REQUIRE(hmr::base64::encode("This won't work"s, "Thisalphabetistoosmall"s) == std::string{}); // Custom alphabet is too short
-  REQUIRE(hmr::base64::decode("This won't work"s, "Thisalphabetistoosmall"s) == std::string{}); // Custom alphabet is too short
-  REQUIRE(hmr::base64::encode("This won't work"s, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123455555+/="s) == std::string{}); // Custom alphabet contains repeat chars ('5')
-  REQUIRE(hmr::base64::decode("This won't work"s, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123455555+/="s) == std::string{}); // Custom alphabet contains repeat chars ('5')
-  REQUIRE(hmr::base64::decode("This won't work"s) == std::string{}); // Invalid base64 chars in input
+  REQUIRE_THROWS(hmr::base64::encode("This won't work"s, "Thisalphabetistoosmall"s) == std::string{}); // Custom alphabet is too short
+  REQUIRE_THROWS(hmr::base64::decode("This won't work"s, "Thisalphabetistoosmall"s) == std::string{}); // Custom alphabet is too short
+  REQUIRE_THROWS(hmr::base64::encode("This won't work"s, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123455555+/="s) == std::string{}); // Custom alphabet contains repeat chars ('5')
+  REQUIRE_THROWS(hmr::base64::decode("This won't work"s, "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123455555+/="s) == std::string{}); // Custom alphabet contains repeat chars ('5')
+  REQUIRE_THROWS(hmr::base64::decode("This won't work"s) == std::string{}); // Invalid base64 chars in input
 }
 
 // hmr::url
@@ -197,11 +197,11 @@ TEST_CASE("hmr::url", "[encoding][url]")
   REQUIRE(hmr::url::decode("%103Uw%99%AA%BB%DD%FF"s, true) == hmr::hex::decode("10 33 55 77 99 AA BB DD FF"s));
 
   // Failures
-  REQUIRE(hmr::url::decode("Invalid percent-encoded hex sequences %ZZ %JJ"s) == std::string{});
-  REQUIRE(hmr::url::decode("Missing data %C2%"s) == std::string{});
-  REQUIRE(hmr::url::decode("Invalid UTF-8 -> ASCII conversion %C4%11"s) == std::string{});
-  REQUIRE(hmr::url::decode("Invalid second half of UTF-8 -> ASCII conversion %C2%ZZ"s) == std::string{});
-  REQUIRE(hmr::url::decode("Unprintable chars mixed in %1\x98"s) == std::string{});
+  REQUIRE_THROWS(hmr::url::decode("Invalid percent-encoded hex sequences %ZZ %JJ"s) == std::string{});
+  REQUIRE_THROWS(hmr::url::decode("Missing data %C2%"s) == std::string{});
+  REQUIRE_THROWS(hmr::url::decode("Invalid UTF-8 -> ASCII conversion %C4%11"s) == std::string{});
+  REQUIRE_THROWS(hmr::url::decode("Invalid second half of UTF-8 -> ASCII conversion %C2%ZZ"s) == std::string{});
+  REQUIRE_THROWS(hmr::url::decode("Unprintable chars mixed in %1\x98"s) == std::string{});
 }
 
 // hmr::prng
@@ -268,7 +268,7 @@ TEST_CASE("hmr::bitwise", "[obfuscation][xor][bitshift][rotate]")
   REQUIRE(hmr::binary::encode(hmr::bitwise::rotate_right(input, 12)) == "10000100 01010110 11000110 11000110 11110110 11000010 00000010 01110101 11110110 00100111 11000110 01000110 00010010"s);
   REQUIRE(hmr::binary::encode(hmr::bitwise::rotate_right(hmr::binary::decode("01100111 11100010 11110000 00001111"s), 4)) == "01110110 00101110 00001111 11110000"s);
 
-  // // Bit rotate with carry through
+  // Bit rotate with carry through
   REQUIRE(hmr::binary::encode(hmr::bitwise::rotate_left(input, 5, hmr::bitwise::carry_through::enabled)) == "00001100 10101101 10001101 10001101 11100101 10000100 00001010 11101101 11101110 01001101 10001100 10000100 00101001"s);
   REQUIRE(hmr::binary::encode(hmr::bitwise::rotate_left(hmr::binary::decode("10000000 00000000 11111111 00000001"s), 20, hmr::bitwise::carry_through::enabled)) == "11110000 00011000 00000000 00001111"s);
   REQUIRE(hmr::binary::encode(hmr::bitwise::rotate_right(input, 2, hmr::bitwise::carry_through::enabled)) == "01010010 00011001 01011011 00011011 00011011 11001011 00001000 00010101 11011011 11011100 10011011 00011001 00001000"s);
@@ -300,7 +300,6 @@ TEST_CASE("hmr::analysis", "[analysis]")
   auto const freqs_4 = hmr::analysis::character_frequency("Some \x99 unprintable \t chars \x8c\x8c\x8c \x10 \x02 11111"s);
   REQUIRE(freqs_4['1'] == 5);
   REQUIRE(freqs_4[0x8c] == 3);
-  hmr::analysis::print_character_frequency(freqs_4);
 
   // English-like text detection
   REQUIRE(hmr::analysis::looks_like_english("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula eu tempor congue, eros est euismod turpis, id tincidunt sapien risus a quam. Maecenas fermentum consequat mi. Donec fermentum. Pellentesque malesuada nulla a mi. Duis sapien sem, aliquet nec, commodo eget, consequat quis, neque. Aliquam faucibus, elit ut dictum aliquet, felis nisl adipiscing sapien, sed malesuada diam lacus eget erat. Cras mollis scelerisque nunc. Nullam arcu. Aliquam consequat. Curabitur augue lorem, dapibus quis, laoreet et, pretium ac, nisi. Aenean magna nisl, mollis quis, molestie eu, feugiat in, orci. In hac habitasse platea dictumst."s));
@@ -363,9 +362,9 @@ TEST_CASE("hmr::kvp", "[serialisation][kvp]")
   REQUIRE(hmr::kvp::deserialise("key1=value1&key2=value2&key3=value3"s) == kvps);
 
   // Failures
-  REQUIRE(hmr::kvp::deserialise("key1=value1=value2") == std::map<std::string_view, std::string_view>{});
-  REQUIRE(hmr::kvp::deserialise("key1=value1&something&key2=value2") == std::map<std::string_view, std::string_view>{});
-  REQUIRE(hmr::kvp::deserialise("key1=value1& &key2=value2") == std::map<std::string_view, std::string_view>{});
+  REQUIRE_THROWS(hmr::kvp::deserialise("key1=value1=value2") == std::map<std::string_view, std::string_view>{});
+  REQUIRE_THROWS(hmr::kvp::deserialise("key1=value1&something&key2=value2") == std::map<std::string_view, std::string_view>{});
+  REQUIRE_THROWS(hmr::kvp::deserialise("key1=value1& &key2=value2") == std::map<std::string_view, std::string_view>{});
 }
 
 // hmr::uuid

@@ -6,19 +6,20 @@
 #include <algorithm>
 #include <numeric>
 #include <bitset>
+#include <sstream>
 
-#include <spdlog/spdlog.h>
+#include "exceptions.hpp"
 
 namespace hmr::binary
 {
 
 ////////////////////////////////////////////////////////////
-std::string encode(std::string_view input, bool delimited = true);
+std::string encode(std::string_view input, bool delimited = true) noexcept;
 
 
 ////////////////////////////////////////////////////////////
 template<typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
-std::string encode(T input, bool delimited = true)
+std::string encode(T input, bool delimited = true) noexcept
 {
   if (delimited)
   {
@@ -158,23 +159,22 @@ T decode(std::string const &input)
   // Input binary string must be divisible by 8
   if (tmp.size() % 8 != 0)
   {
-    spdlog::error("Input length not divisible by 8!");
-    return T{};
+    throw hmr::xcpt::binary::invalid_input("Input length not divisible by 8!");
   }
 
   // Input binary string must contain the correct number of bits to fit into the desired return type
   // TODO: For inputs that are shorter than the desired return type, maybe we could just convert to that type anyway, e.g. an input of "11111111" could be turned into a uint16_t output with the value 0x00FF ??
   if ((tmp.size() / 8) != sizeof(T))
   {
-    spdlog::error("Input binary string does not contain the correct number of bits to fit into a {} byte type!", sizeof(T));
-    return T{};
+    auto ss = std::stringstream{};
+    ss << "Input binary string does not contain the correct number of bits to fit into a " << sizeof(T) << " byte type!";
+    throw hmr::xcpt::binary::invalid_input(ss.str()); // TODO: Create a better exception name for this scenario
   }
 
   // Input binary string must only contain 1s and 0s
   if (tmp.find_first_not_of("10") != std::string::npos)
   {
-    spdlog::error("Invalid binary char in input!");
-    return T{};
+    throw hmr::xcpt::binary::invalid_input("Invalid binary char in input!");
   }
 
   auto const bits = std::bitset<sizeof(T) * 8>(tmp);

@@ -5,7 +5,7 @@ namespace hmr::pkcs7
 {
 
 ////////////////////////////////////////////////////////////
-std::string pad(std::string_view input, std::size_t block_size)
+std::string pad(std::string_view input, std::size_t block_size) noexcept
 {
   uint8_t pad_byte = input.size() % block_size;
 

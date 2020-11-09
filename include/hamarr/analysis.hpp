@@ -7,8 +7,7 @@
 #include <cmath>
 #include <algorithm>
 #include <cassert>
-
-#include <spdlog/spdlog.h>
+#include <iostream>
 
 #include "hex.hpp"
 #include "bitwise.hpp"
@@ -115,7 +114,7 @@ constexpr bool looks_like_english(std::string_view input, bool const debug_flag 
     // Abort condition - there should be no un-printable byte values (apart from space, tab, newline, carriage return, etc.)
     if ((ch < 0x20 && ch != 0x09 && ch != 0x0A && ch != 0x0B && ch != 0x0C && ch != 0x0D) || ch > 0x7E)
     {
-      if (debug_flag) spdlog::info("Found unprintable char: {0:x}", ch);
+      if (debug_flag) std::cout << "Found unprintable char: " << hmr::hex::encode(ch) << '\n';
       return false;
     }
 
@@ -153,28 +152,28 @@ constexpr bool looks_like_english(std::string_view input, bool const debug_flag 
   // There should be more spaces than punctuation
   if (spaces < punctuation)
   {
-    if (debug_flag) spdlog::info("Failed spaces vs punc check: {}", input);
+    if (debug_flag) std::cout << "Failed spaces vs punc check: " << input << '\n';
     return false;
   }
 
   // There should be more alphanumerics than punctuation
   if (numbers + lowercase + uppercase < punctuation)
   {
-    if (debug_flag) spdlog::info("Failed alphanum vs punc check: {}", input);
+    if (debug_flag) std::cout << "Failed alphanum vs punc check: " << input << '\n';
     return false;
   }
 
   // There should be more lowercase letters than uppercase
   if (lowercase < uppercase)
   {
-    if (debug_flag) spdlog::info("Failed lower vs upper check: {}", input);
+    if (debug_flag) std::cout << "Failed lower vs upper check: " << input << '\n';
     return false;
   }
 
   // There should be more letters than numbers
   if (lowercase + uppercase < numbers)
   {
-    if (debug_flag) spdlog::info("Failed letters vs numbers check: {}", input);
+    if (debug_flag) std::cout << "Failed letters vs numbers check: " << input << '\n';
     return false;
   }
 

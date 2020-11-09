@@ -1,11 +1,12 @@
 #include "hamarr/bitwise.hpp"
 
+#include <algorithm>
 
 namespace hmr::bitwise
 {
 
 ////////////////////////////////////////////////////////////
-std::string xor_with_key(std::string_view input, std::string_view key)
+std::string xor_with_key(std::string_view input, std::string_view key) noexcept
 {
   std::string output;
   output.reserve(input.size());
@@ -22,7 +23,7 @@ std::string xor_with_key(std::string_view input, std::string_view key)
 
 
 ////////////////////////////////////////////////////////////
-std::string xor_with_key(std::string_view input, uint8_t key)
+std::string xor_with_key(std::string_view input, uint8_t key) noexcept
 {
   std::string output;
   output.reserve(input.size());
@@ -37,7 +38,7 @@ std::string xor_with_key(std::string_view input, uint8_t key)
 
 
 ////////////////////////////////////////////////////////////
-std::string xor_rolling(std::string_view input, xor_differential differential)
+std::string xor_rolling(std::string_view input, xor_differential differential) noexcept
 {
   std::string output;
   output.reserve(input.size());
@@ -67,7 +68,7 @@ std::string xor_rolling(std::string_view input, xor_differential differential)
 
 
 ////////////////////////////////////////////////////////////
-std::string xor_counter(std::string_view input, uint8_t key, int increment)
+std::string xor_counter(std::string_view input, uint8_t key, int increment) noexcept
 {
   std::string output;
   output.reserve(input.size());
@@ -86,7 +87,7 @@ std::string xor_counter(std::string_view input, uint8_t key, int increment)
 
 
 ////////////////////////////////////////////////////////////
-std::string shift_left(std::string_view input, std::size_t amount)
+std::string shift_left(std::string_view input, std::size_t amount) noexcept
 {
   std::string output;
   output.reserve(input.size());
@@ -106,7 +107,7 @@ std::string shift_left(std::string_view input, std::size_t amount)
 
 
 ////////////////////////////////////////////////////////////
-std::string shift_right(std::string_view input, std::size_t amount)
+std::string shift_right(std::string_view input, std::size_t amount) noexcept
 {
   std::string output;
   output.reserve(input.size());
@@ -126,7 +127,7 @@ std::string shift_right(std::string_view input, std::size_t amount)
 
 
 ////////////////////////////////////////////////////////////
-std::string rotate_left(std::string_view input, std::size_t amount, carry_through carry)
+std::string rotate_left(std::string_view input, std::size_t amount, carry_through carry) noexcept
 {
   auto const len = input.size();
 
@@ -197,7 +198,7 @@ std::string rotate_left(std::string_view input, std::size_t amount, carry_throug
 
 
 ////////////////////////////////////////////////////////////
-std::string rotate_right(std::string_view input, std::size_t amount, carry_through carry)
+std::string rotate_right(std::string_view input, std::size_t amount, carry_through carry) noexcept
 {
   auto const len = input.size();
 

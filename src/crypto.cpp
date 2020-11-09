@@ -1,5 +1,13 @@
 #include "hamarr/crypto.hpp"
 
+#include <algorithm>
+
+#include <openssl/aes.h>
+
+#include "hamarr/pkcs7.hpp"
+#include "hamarr/bitwise.hpp"
+#include "hamarr/exceptions.hpp"
+
 namespace hmr::crypto
 {
 
@@ -9,8 +17,15 @@ std::string aes_ecb_encrypt_block(std::string_view input, std::string_view key)
   std::size_t const len = input.size();
 
   // AES-128 keys and blocks must be 16 bytes long
-  assert(input.size() == 16);
-  assert(key.size() == 16);
+  if (len != 16)
+  {
+    throw hmr::xcpt::crypto::invalid_input("Input block must be 16 bytes long!");
+  }
+
+  if (key.size() != 16)
+  {
+    throw hmr::xcpt::crypto::invalid_key_length("AES-128 keys must be 16 bytes long!");
+  }
 
   auto plaintext_ptr = reinterpret_cast<uint8_t const *>(input.data());
   auto key_ptr = reinterpret_cast<uint8_t const *>(key.data());
@@ -36,8 +51,15 @@ std::string aes_ecb_decrypt_block(std::string_view input, std::string_view key)
   std::size_t const len = input.size();
 
   // AES-128 keys and blocks must be 16 bytes long
-  assert(len == 16);
-  assert(key.size() == 16);
+  if (len != 16)
+  {
+    throw hmr::xcpt::crypto::invalid_input("Input block must be 16 bytes long!");
+  }
+
+  if (key.size() != 16)
+  {
+    throw hmr::xcpt::crypto::invalid_key_length("Key must be 16 bytes long!");
+  }
 
   auto ciphertext_ptr = reinterpret_cast<uint8_t const *>(input.data());
   auto key_ptr = reinterpret_cast<uint8_t const *>(key.data());
@@ -61,7 +83,10 @@ std::string aes_ecb_decrypt_block(std::string_view input, std::string_view key)
 std::string aes_ecb_encrypt(std::string_view input, std::string_view key)
 {
   // AES-128 keys must be 16 bytes long
-  assert(key.size() == 16);
+  if (key.size() != 16)
+  {
+    throw hmr::xcpt::crypto::invalid_key_length("Key must be 16 bytes long!");
+  }
 
   // Will the input need padding? Make sure we account for this when initialising the output vector
   std::size_t const len = input.size();
@@ -97,8 +122,11 @@ std::string aes_ecb_decrypt(std::string_view input, std::string_view key, bool r
 {
   std::size_t const len = input.size();
 
-  // AES encrypted data should a multiple of 16 bytes
-  assert(len % 16 == 0);
+  // AES encrypted data should be a multiple of 16 bytes
+  if (len % 16 != 0)
+  {
+    throw hmr::xcpt::crypto::invalid_input("Ciphertext should be a multiple of 16 bytes in length!");
+  }
 
   auto result = std::string{};
 
@@ -134,8 +162,15 @@ std::string aes_ecb_decrypt(std::string_view input, std::string_view key, bool r
 std::string aes_cbc_encrypt(std::string_view input, std::string_view key, std::string const &iv)
 {
   // AES-128 keys and IVs must be 16 bytes long
-  assert(key.size() == 16);
-  assert(iv.size() == 16);
+  if (key.size() != 16)
+  {
+    throw hmr::xcpt::crypto::invalid_key_length("Key must be 16 bytes long!");
+  }
+  
+  if (iv.size() != 16)
+  {
+    throw hmr::xcpt::crypto::invalid_iv_length("IV must be 16 bytes long!");
+  }
 
   // Will the input need padding? Make sure we account for this when initialising the output string
   std::size_t const len = input.size();
@@ -182,11 +217,21 @@ std::string aes_cbc_decrypt(std::string_view input, std::string_view key, std::s
   std::size_t const len = input.size();
 
   // AES-128 keys and IVs must be 16 bytes long
-  assert(key.size() == 16);
-  assert(iv.size() == 16);
+  if (key.size() != 16)
+  {
+    throw hmr::xcpt::crypto::invalid_key_length("Key must be 16 bytes long!");
+  }
+  
+  if (iv.size() != 16)
+  {
+    throw hmr::xcpt::crypto::invalid_iv_length("IV must be 16 bytes long!");
+  }
 
   // Ciphertext must be a multiple of 16 bytes long
-  assert(len % 16 == 0);
+  if (len % 16 != 0)
+  {
+    throw hmr::xcpt::crypto::invalid_input("Ciphertext should be a multiple of 16 bytes in length!");
+  }
 
   auto result = std::string{};
   result.reserve(len); // If the decrypted data is padded then the actual result will be smaller than len, but it can't hurt to over reserve

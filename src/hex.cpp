@@ -60,23 +60,24 @@ std::string decode(std::string_view input)
     // Abort condition - is there enough data left?
     if (i + 2 > len)
     {
-      spdlog::error("Not enough data left for valid hex pair!");
-      return std::string{};
+      throw hmr::xcpt::hex::need_more_data("Not enough data left for valid hex pair!");
     }
 
     // Get the next pair of nibbles, checking for invalid hex chars and normalising the input char to uppercase
     auto a = hex_alphabet.find(std::toupper(input[i++]));
     if (a == std::string::npos)
     {
-      spdlog::error("Invalid hex char {} at index {} !", input[i - 1], i - 1);
-      return std::string{};
+      auto ss = std::stringstream{};
+      ss << "Invalid hex char " << input[i - 1] << " at index " << i - 1 << "!";
+      throw hmr::xcpt::hex::invalid_input(ss.str());
     }
 
     auto b = hex_alphabet.find(std::toupper(input[i]));
     if (b == std::string::npos)
     {
-      spdlog::error("Invalid hex char {} at index {} !", input[i], i);
-      return std::string{};
+      auto ss = std::stringstream{};
+      ss << "Invalid hex char " << input[i] << " at index " << i << "!";
+      throw hmr::xcpt::hex::invalid_input(ss.str());
     }
 
     // Because the hex alphabet string is in order, for any given hex char the result of hex_alphabet.find() will be its numerical equivalent taken from the index into the alphabet string where the char is found
