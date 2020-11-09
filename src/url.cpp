@@ -1,11 +1,16 @@
 #include "hamarr/url.hpp"
 
+#include <algorithm>
+#include <sstream>
+
+#include "hamarr/hex.hpp"
+#include "hamarr/exceptions.hpp"
 
 namespace hmr::url
 {
 
 ////////////////////////////////////////////////////////////
-std::string encode(std::string_view input, bool lazy)
+std::string encode(std::string_view input, bool lazy) noexcept
 {
   std::string output;
   output.reserve(input.size()); // The output will almost certainly be larger than this, however...
@@ -65,8 +70,7 @@ std::string decode(std::string_view input, bool lazy)
     {
       if (i + 2 >= len) // Need room for at least 2 more chars
       {
-        spdlog::error("Not enough chars remaining to parse escape sequence!");
-        return std::string{};
+        throw hmr::xcpt::url::need_more_data("Not enough chars remaining to parse escape sequence!");
       }
 
       if (lazy == true) // Are we being lazy? If so, just convert back from hex and append
@@ -74,8 +78,9 @@ std::string decode(std::string_view input, bool lazy)
         // Abort condition - expect valid hex chars
         if (!is_valid_hex(input[i + 1]) || !is_valid_hex(input[i + 2]))
         {
-          spdlog::error("Invalid hex escape sequence: {}", input.substr(i, 3));
-          return std::string{};
+          auto ss = std::stringstream{};
+          ss << "Invalid hex escape sequence: " << input.substr(i, 3);
+          throw hmr::xcpt::url::invalid_input(ss.str());
         }
 
         output += hmr::hex::decode(std::string(input.data() + i + 1, 2));
@@ -88,15 +93,15 @@ std::string decode(std::string_view input, bool lazy)
           // Abort condition - need room for 5 more chars
           if (i + 5 >= len)
           {
-            spdlog::error("Not enough chars remaining to parse two-byte UTF-8 escape sequence - expected 5 but only {} left!", (len - i));
-            return std::string{};
+            throw hmr::xcpt::url::need_more_data("Not enough chars remaining to parse two-byte UTF-8 escape sequence - expected 5 but only " + std::to_string(len - i) + " left!");
           }
 
           // Abort condition - of the following 5 chars, the 1st, 2nd, 4th and 5th must be valid hex chars
           if (!is_valid_hex(input[i + 1]) || !is_valid_hex(input[i + 2]) || !is_valid_hex(input[i + 4]) || !is_valid_hex(input[i + 5]))
           {
-            spdlog::error("Invalid two-byte UTF-8 hex escape sequence: {}", input.substr(i, 6));
-            return std::string{};
+            auto ss = std::stringstream{};
+            ss << "Invalid two-byte UTF-8 hex escape sequence: " << input.substr(i, 6);
+            throw hmr::xcpt::url::invalid_input(ss.str());
           }
 
           if (input[i + 2] == '2')
@@ -111,8 +116,9 @@ std::string decode(std::string_view input, bool lazy)
 
           } else
           {
-            spdlog::error("No valid UTF-8 -> ASCII conversion for two-byte hex escape sequences starting: {}", input.substr(i, 3));
-            return std::string{};
+            auto ss = std::stringstream{};
+            ss << "No valid UTF-8 -> ASCII conversion for two-byte hex escape sequences starting: " << input.substr(i, 3);
+            throw hmr::xcpt::url::invalid_input(ss.str());
           }
 
           i += 5;
@@ -121,8 +127,9 @@ std::string decode(std::string_view input, bool lazy)
           // Abort condition - expect valid hex chars
           if (!is_valid_hex(input[i + 1]) || !is_valid_hex(input[i + 2]))
           {
-            spdlog::error("Invalid hex escape sequence: {}", input.substr(i, 3));
-            return std::string{};
+            auto ss = std::stringstream{};
+            ss << "Invalid hex escape sequence: " << input.substr(i, 3);
+            throw hmr::xcpt::url::invalid_input(ss.str());
           }
 
           output += hmr::hex::decode(std::string(input.data() + i + 1, 2));

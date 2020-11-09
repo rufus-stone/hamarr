@@ -1,3 +1,6 @@
+#include <string>
+#include <chrono>
+
 #include <hamarr/format.hpp>
 #include <hamarr/hex.hpp>
 #include <hamarr/binary.hpp>
@@ -192,29 +195,43 @@ int main()
 
 
   spdlog::info("\n\n---[ Code Profiling ]---\n");
-  profile::benchmark([&test]()
+  auto nanoseconds_taken = profile::benchmark([&test]()
   {
     for (int i = 0; i < 1000; ++i)
     {
       hex::encode(test);
     }
-  }, true);
+  });
+  
+  auto milliseconds_taken = std::chrono::duration<double, std::milli>(nanoseconds_taken).count();
+  auto seconds_taken = std::chrono::duration<double>(nanoseconds_taken).count();
+  spdlog::info("Execution took {} ns ({} ms / {} s)", nanoseconds_taken.count(), milliseconds_taken, seconds_taken);
 
-  profile::benchmark([]()
+
+  nanoseconds_taken = profile::benchmark([]()
   {
     for (int i = 0; i < 1000; ++i)
     {
       hex::decode("48 65 6c 6c 6f 2c 20 57 6f 72 6c 64 21");
     }
-  }, true);
+  });
 
-  profile::benchmark([]()
+  milliseconds_taken = std::chrono::duration<double, std::milli>(nanoseconds_taken).count();
+  seconds_taken = std::chrono::duration<double>(nanoseconds_taken).count();
+  spdlog::info("Execution took {} ns ({} ms / {} s)", nanoseconds_taken.count(), milliseconds_taken, seconds_taken);
+
+
+  nanoseconds_taken = profile::benchmark([]()
   {
     for (int i = 0; i < 1000; ++i)
     {
       hex::encode(prng::number<uint32_t>());
     }
-  }, true);
+  });
+
+  milliseconds_taken = std::chrono::duration<double, std::milli>(nanoseconds_taken).count();
+  seconds_taken = std::chrono::duration<double>(nanoseconds_taken).count();
+  spdlog::info("Execution took {} ns ({} ms / {} s)", nanoseconds_taken.count(), milliseconds_taken, seconds_taken);
 
 
   spdlog::info("\n\n---[ PKCS7 Padding ]---\n");

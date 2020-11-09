@@ -1,5 +1,10 @@
 #include "hamarr/serialisation.hpp"
 
+#include <algorithm>
+#include <vector>
+
+#include "hamarr/format.hpp"
+#include "hamarr/exceptions.hpp"
 
 namespace hmr::kvp
 {
@@ -37,8 +42,7 @@ kvps deserialise(std::string_view input, char kv_delimiter, char kvp_delimiter)
 
     if (key_value_pair.size() != 2)
     {
-      spdlog::error("Failed to split into a single key-value pair!");
-      return kvps{};
+      throw hmr::xcpt::kvp::parse_error("Failed to split into a single key-value pair!");
     }
 
     output[key_value_pair[0]] = key_value_pair[1];

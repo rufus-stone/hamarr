@@ -6,8 +6,9 @@
 #include <iomanip>
 #include <type_traits>
 #include <algorithm>
+#include <sstream>
 
-#include <spdlog/spdlog.h>
+#include "exceptions.hpp"
 
 namespace hmr::hex
 {
@@ -124,16 +125,16 @@ T decode(std::string_view input)
   // Abort condition - must be even length
   if (len & 1)
   {
-    spdlog::error("Hex strings must be even in length!");
-    return T{};
+    throw hmr::xcpt::hex::invalid_input("Hex strings must be even in length!");
   }
 
   // Abort condition - must contain valid hex chars
   auto e = tmp.find_first_not_of(hex_alphabet);
   if (e != std::string::npos)
   {
-    spdlog::error("Invalid hex char {} at index {} !", tmp[e], e);
-    return T{};
+    auto ss = std::stringstream{};
+    ss << "Invalid hex char " << tmp[e] << " at index " << e << "!";
+    throw hmr::xcpt::hex::invalid_input(ss.str());
   }
 
   T output = 0;
@@ -141,8 +142,9 @@ T decode(std::string_view input)
   // Abort condition - the input can be shorter than the number of bytes taken up by the output, but it cannot be longer
   if (tmp.size() / 2 > sizeof(T))
   {
-    spdlog::error("Input hex string contains too much data to fit into a {} byte type!", sizeof(T));
-    return T{};
+    auto ss = std::stringstream{};
+    ss << "Input hex string contains too much data to fit into a " << sizeof(T) << " byte type!";
+    throw hmr::xcpt::hex::invalid_input(ss.str());
   }
 
   // Step through the input two chars at a time

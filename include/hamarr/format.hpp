@@ -2,11 +2,8 @@
 
 #include <string>
 #include <string_view>
-#include <algorithm>
+#include <vector>
 
-#include <spdlog/spdlog.h>
-
-#include "hex.hpp"
 
 namespace hmr::format
 {

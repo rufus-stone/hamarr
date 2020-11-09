@@ -1,5 +1,10 @@
 #include "hamarr/format.hpp"
 
+#include <algorithm>
+
+#include "hamarr/hex.hpp"
+#include "hamarr/exceptions.hpp"
+
 
 namespace hmr::format
 {
@@ -77,8 +82,7 @@ std::string unescape(std::string_view input)
       // Is there at least one char remaining?
       if (pos + 1 >= std::end(input))
       {
-        spdlog::error("Ran out of data for escape sequence!");
-        return std::string{};
+        throw hmr::xcpt::format::need_more_data("Need at least 1 more byte for escape sequence!");
       }
 
       // What kind of escape sequence is it?
@@ -112,8 +116,7 @@ std::string unescape(std::string_view input)
           // Are there at least two chars remaining?
           if (pos + 2 >= std::end(input))
           {
-            spdlog::error("Ran out of data for hex escape sequence!");
-            return std::string{};
+            throw hmr::xcpt::format::need_more_data("Ran out of data for hex escape sequence!");
           }
 
           output += hmr::hex::decode({++pos, 2});

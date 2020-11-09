@@ -1,10 +1,8 @@
 #pragma once
 
+#include <array>
 #include <string>
 #include <string_view>
-#include <algorithm>
-
-#include <spdlog/spdlog.h>
 
 namespace hmr::base64
 {
@@ -14,7 +12,7 @@ using namespace std::string_view_literals;
 constexpr auto base64_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="sv;
 
 ////////////////////////////////////////////////////////////
-constexpr auto is_invalid_alphabet = [](std::string_view input)
+constexpr auto is_invalid_alphabet = [](std::string_view input) noexcept
 {
   auto counts = std::array<std::size_t, 265>{};
 

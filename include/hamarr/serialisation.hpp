@@ -1,14 +1,9 @@
 #pragma once
 
+#include <map>
 #include <string>
 #include <string_view>
-#include <vector>
-#include <map>
-#include <algorithm>
 
-#include <spdlog/spdlog.h>
-
-#include "format.hpp"
 
 namespace hmr::kvp
 {

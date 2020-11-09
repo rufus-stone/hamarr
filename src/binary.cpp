@@ -5,7 +5,7 @@ namespace hmr::binary
 {
 
 ////////////////////////////////////////////////////////////
-std::string encode(std::string_view input, bool delimited)
+std::string encode(std::string_view input, bool delimited) noexcept
 {
   std::vector<std::string> out_vec;
 
@@ -45,8 +45,9 @@ std::string decode(std::string const &input)
     // Abort condition - is there enough data left?
     if (i + 8 > len)
     {
-      spdlog::error("Not enough data left! i+8 == {} but len == {}", (i + 8), len);
-      return std::string{};
+      auto ss = std::stringstream{};
+      ss << "Not enough data left! i+8 == " << (i + 8) << " but len == " << len;
+      throw hmr::xcpt::binary::need_more_data(ss.str());
     }
 
     auto const bits = std::bitset<8>(input.substr(i, 8));
