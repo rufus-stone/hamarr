@@ -381,13 +381,21 @@ TEST_CASE("hmr::crypto", "[crypto][aes]")
 {
   auto const input = "Hello, World!"s;
 
-  REQUIRE(hmr::base64::encode(hmr::crypto::aes_ecb_encrypt(input, "YELLOW SUBMARINE")) == "401gyzJgpJNkouYaQRZZRg==");
-  REQUIRE(hmr::crypto::aes_ecb_decrypt(hmr::base64::decode("401gyzJgpJNkouYaQRZZRg=="), "YELLOW SUBMARINE") == input);
+  REQUIRE(hmr::base64::encode(hmr::crypto::aes_ecb_encrypt(input, "YELLOW SUBMARINE"s)) == "401gyzJgpJNkouYaQRZZRg=="s);
+  REQUIRE(hmr::crypto::aes_ecb_decrypt(hmr::base64::decode("401gyzJgpJNkouYaQRZZRg=="s), "YELLOW SUBMARINE"s) == input);
 
-  REQUIRE(hmr::crypto::aes_ecb_decrypt(hmr::base64::decode("401gyzJgpJNkouYaQRZZRg=="), "YELLOW SUBMARINE", false) == "Hello, World!\x03\x03\x03");
-  REQUIRE(hmr::pkcs7::padded(hmr::crypto::aes_ecb_decrypt(hmr::base64::decode("401gyzJgpJNkouYaQRZZRg=="), "YELLOW SUBMARINE", false)));
+  REQUIRE(hmr::crypto::aes_ecb_decrypt(hmr::base64::decode("401gyzJgpJNkouYaQRZZRg=="s), "YELLOW SUBMARINE"s, false) == "Hello, World!\x03\x03\x03"s);
+  REQUIRE(hmr::pkcs7::padded(hmr::crypto::aes_ecb_decrypt(hmr::base64::decode("401gyzJgpJNkouYaQRZZRg=="s), "YELLOW SUBMARINE"s, false)));
 
   auto const longer_plaintext = "Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal"s;
-  REQUIRE(hmr::base64::encode(hmr::crypto::aes_cbc_encrypt(longer_plaintext, "ORANGE SUBMARINE", "ORANGE SUBMARINE")) == "rnPbRj30TGD+MRXM2O14b/xSA9oAv8Al/um7hObPUi5wP82Idy3FvXxNYghiPMeB+YLHDpzQDPm4FsNeSARVda55uN8ePdMZhoPkaiNbQcA=");
-  REQUIRE(hmr::crypto::aes_cbc_decrypt(hmr::base64::decode("rnPbRj30TGD+MRXM2O14b/xSA9oAv8Al/um7hObPUi5wP82Idy3FvXxNYghiPMeB+YLHDpzQDPm4FsNeSARVda55uN8ePdMZhoPkaiNbQcA="), "ORANGE SUBMARINE", "ORANGE SUBMARINE") == longer_plaintext);
+  REQUIRE(hmr::base64::encode(hmr::crypto::aes_cbc_encrypt(longer_plaintext, "ORANGE SUBMARINE"s, "ORANGE SUBMARINE"s)) == "rnPbRj30TGD+MRXM2O14b/xSA9oAv8Al/um7hObPUi5wP82Idy3FvXxNYghiPMeB+YLHDpzQDPm4FsNeSARVda55uN8ePdMZhoPkaiNbQcA="s);
+  REQUIRE(hmr::crypto::aes_cbc_decrypt(hmr::base64::decode("rnPbRj30TGD+MRXM2O14b/xSA9oAv8Al/um7hObPUi5wP82Idy3FvXxNYghiPMeB+YLHDpzQDPm4FsNeSARVda55uN8ePdMZhoPkaiNbQcA="s), "ORANGE SUBMARINE"s, "ORANGE SUBMARINE"s) == longer_plaintext);
+
+  // Hashing
+  REQUIRE(hmr::crypto::md5(input) == "65a8e27d8879283831b664bd8b7f0ad4"s);
+  REQUIRE(hmr::crypto::md5_raw(input) == "\x65\xa8\xe2\x7d\x88\x79\x28\x38\x31\xb6\x64\xbd\x8b\x7f\x0a\xd4"s);
+  REQUIRE(hmr::crypto::sha1(input) == "0a0a9f2a6772942557ab5355d76af442f8f65e01"s);
+  REQUIRE(hmr::crypto::sha1_raw(input) == "\x0a\x0a\x9f\x2a\x67\x72\x94\x25\x57\xab\x53\x55\xd7\x6a\xf4\x42\xf8\xf6\x5e\x01"s);
+  REQUIRE(hmr::crypto::sha256(input) == "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"s);
+  REQUIRE(hmr::crypto::sha256_raw(input) == "\xdf\xfd\x60\x21\xbb\x2b\xd5\xb0\xaf\x67\x62\x90\x80\x9e\xc3\xa5\x31\x91\xdd\x81\xc7\xf7\x0a\x4b\x28\x68\x8a\x36\x21\x82\x98\x6f"s);
 }

@@ -3,13 +3,22 @@
 #include <algorithm>
 
 #include <openssl/aes.h>
+#include <openssl/evp.h>
 
+#include "hamarr/format.hpp"
+#include "hamarr/hex.hpp"
 #include "hamarr/pkcs7.hpp"
 #include "hamarr/bitwise.hpp"
 #include "hamarr/exceptions.hpp"
 
+#include <iostream>
+
 namespace hmr::crypto
 {
+
+constexpr std::size_t md5_len = 16;
+constexpr std::size_t sha1_len = 20;
+constexpr std::size_t sha256_len = 32;
 
 ////////////////////////////////////////////////////////////////
 std::string aes_ecb_encrypt_block(std::string_view input, std::string_view key)
@@ -45,6 +54,7 @@ std::string aes_ecb_encrypt_block(std::string_view input, std::string_view key)
   return result;
 }
 
+
 ////////////////////////////////////////////////////////////////
 std::string aes_ecb_decrypt_block(std::string_view input, std::string_view key)
 {
@@ -78,6 +88,7 @@ std::string aes_ecb_decrypt_block(std::string_view input, std::string_view key)
 
   return result;
 }
+
 
 ////////////////////////////////////////////////////////////////
 std::string aes_ecb_encrypt(std::string_view input, std::string_view key)
@@ -116,6 +127,7 @@ std::string aes_ecb_encrypt(std::string_view input, std::string_view key)
 
   return result;
 }
+
 
 ////////////////////////////////////////////////////////////////
 std::string aes_ecb_decrypt(std::string_view input, std::string_view key, bool remove_padding)
@@ -157,6 +169,7 @@ std::string aes_ecb_decrypt(std::string_view input, std::string_view key, bool r
 
   return result;
 }
+
 
 ////////////////////////////////////////////////////////////////
 std::string aes_cbc_encrypt(std::string_view input, std::string_view key, std::string const &iv)
@@ -210,6 +223,7 @@ std::string aes_cbc_encrypt(std::string_view input, std::string_view key, std::s
 
   return result;
 }
+
 
 ////////////////////////////////////////////////////////////////
 std::string aes_cbc_decrypt(std::string_view input, std::string_view key, std::string const &iv, bool remove_padding)
@@ -271,6 +285,108 @@ std::string aes_cbc_decrypt(std::string_view input, std::string_view key, std::s
   }
 
   return result;
+}
+
+
+////////////////////////////////////////////////////////////////
+std::string md5_raw(std::string_view input)
+{
+  auto input_ptr = reinterpret_cast<uint8_t const *>(input.data());
+  std::size_t const input_len = input.size();
+
+  EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+  EVP_MD const *md5 = EVP_md5();
+
+  auto hash = std::array<uint8_t, md5_len>{};
+  unsigned int hash_len;
+
+  EVP_DigestInit_ex(ctx, md5, NULL);
+
+  EVP_DigestUpdate(ctx, input_ptr, input_len);
+  EVP_DigestFinal_ex(ctx, hash.data(), &hash_len);
+  EVP_MD_CTX_free(ctx);
+
+  auto result = std::string{};
+  result.reserve(hash.size());
+
+  std::copy(std::begin(hash), std::end(hash), std::back_inserter(result));
+
+  return result;
+}
+
+
+////////////////////////////////////////////////////////////////
+std::string md5(std::string_view input)
+{
+  return hmr::format::to_lower(hmr::hex::encode(md5_raw(input), false));
+}
+
+
+////////////////////////////////////////////////////////////////
+std::string sha1_raw(std::string_view input)
+{
+  auto input_ptr = reinterpret_cast<uint8_t const *>(input.data());
+  std::size_t const input_len = input.size();
+
+  EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+  EVP_MD const *sha1 = EVP_sha1();
+
+  auto hash = std::array<uint8_t, sha1_len>{};
+  unsigned int hash_len;
+
+  EVP_DigestInit_ex(ctx, sha1, NULL);
+
+  EVP_DigestUpdate(ctx, input_ptr, input_len);
+  EVP_DigestFinal_ex(ctx, hash.data(), &hash_len);
+  EVP_MD_CTX_free(ctx);
+
+  auto result = std::string{};
+  result.reserve(hash.size());
+
+  std::copy(std::begin(hash), std::end(hash), std::back_inserter(result));
+
+  return result;
+}
+
+
+////////////////////////////////////////////////////////////////
+std::string sha1(std::string_view input)
+{
+  return hmr::format::to_lower(hmr::hex::encode(sha1_raw(input), false));
+}
+
+
+////////////////////////////////////////////////////////////////
+std::string sha256_raw(std::string_view input)
+{
+  auto input_ptr = reinterpret_cast<uint8_t const *>(input.data());
+  std::size_t const input_len = input.size();
+
+  EVP_MD_CTX *ctx = EVP_MD_CTX_new();
+  EVP_MD const *sha256 = EVP_sha256();
+
+  auto hash = std::array<uint8_t, sha256_len>{};
+  unsigned int hash_len;
+
+  EVP_DigestInit_ex(ctx, sha256, NULL);
+
+  EVP_DigestUpdate(ctx, input_ptr, input_len);
+  EVP_DigestFinal_ex(ctx, hash.data(), &hash_len);
+  EVP_MD_CTX_free(ctx);
+
+  auto result = std::string{};
+  result.reserve(hash.size());
+
+  std::copy(std::begin(hash), std::end(hash), std::back_inserter(result));
+
+  return result;
+}
+
+
+////////////////////////////////////////////////////////////////
+std::string sha256(std::string_view input)
+{
+  return hmr::format::to_lower(hmr::hex::encode(sha256_raw(input), false));
 }
 
 } // namespace hmr::crypto

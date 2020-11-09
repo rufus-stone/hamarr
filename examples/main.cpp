@@ -274,5 +274,11 @@ int main()
   auto longer_plaintext = std::string{"Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal"};
   spdlog::info(hmr::base64::encode(hmr::crypto::aes_cbc_encrypt(longer_plaintext, "ORANGE SUBMARINE", "ORANGE SUBMARINE")));
 
+
+  spdlog::info("\n\n---[ Crypto - Hashes ]---\n");
+  spdlog::info(hmr::crypto::md5(test));
+  spdlog::info(hmr::crypto::sha1(test));
+  spdlog::info(hmr::crypto::sha256(test));
+
   return 0;
 }
