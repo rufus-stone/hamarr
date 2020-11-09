@@ -8,7 +8,7 @@ Project Setup
 
 project(
   hamarr
-  VERSION 1.2.0
+  VERSION 1.2.1
   DESCRIPTION "A C++ toolbox for data manipulation."
   HOMEPAGE_URL "https://github.com/rufus-stone/hamarr"
   LANGUAGES CXX)
@@ -57,6 +57,8 @@ src/crypto.cpp
 include/hamarr/crypto.hpp
 
 include/hamarr/profiling.hpp
+
+include/hamarr/exceptions.hpp
 )
 
 # Add the library alias
@@ -79,22 +81,7 @@ Dependencies
 
 find_package(OpenSSL REQUIRED) # TODO: Make this optional
 
-# Using spdlog for logging
-find_package(spdlog QUIET)
-if(NOT spdlog_FOUND)
-  message("Failed to find spdlog! Fetching it instead...")
-
-  include(FetchContent)
-
-  FetchContent_Declare(
-    spdlog
-    GIT_REPOSITORY https://github.com/gabime/spdlog.git
-    GIT_TAG v1.8.1)
-
-  FetchContent_MakeAvailable(spdlog)
-endif()
-
-target_link_libraries(${PROJECT_NAME} PUBLIC OpenSSL::SSL spdlog::spdlog)
+target_link_libraries(${PROJECT_NAME} PUBLIC OpenSSL::SSL)
 
 #[[
 ------------------

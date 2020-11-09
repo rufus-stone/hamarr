@@ -5,7 +5,7 @@ namespace hmr::prng
 {
 
 ////////////////////////////////////////////////////////////
-std::string bytes(std::size_t quantity)
+std::string bytes(std::size_t quantity) noexcept
 {
   std::string output;
   output.reserve(quantity);

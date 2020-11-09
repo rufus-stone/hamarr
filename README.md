@@ -10,15 +10,15 @@ This began life as things I found useful when playing around with the first few 
 ## Requirements
 
 - C++17
-- OpenSSL
-- [spdlog](https://github.com/gabime/spdlog)
 - CMake 3.15 or higher (currently tested up to 3.18)
+- OpenSSL
+
 
 ## Installation
 
 ### CMake Library Installation
 
-You can install Hamarr to the default system location using CMake (or to a location of your choosing by providing a CMAKE_INSTALL_PREFIX). This requires you to have the OpenSSL headers and [spdlog](https://github.com/gabime/spdlog) library already installed on your system. For example:
+You can install Hamarr to the default system location using CMake (or to a location of your choosing by providing a CMAKE_INSTALL_PREFIX). For example:
 
 ```shell
 git clone git@github.com:rufus-stone/hamarr.git
@@ -54,7 +54,7 @@ You can then `#include <hamarr/base64.hpp>` or whichever parts of Hamarr you req
 
 ### CMake FetchContent
 
-Another simple method is to use CMake's FetchContent module. This will also take care of fetching the spdlog dependency for you, so it does not matter if you have [spdlog](https://github.com/gabime/spdlog) installed on your system or not (although currently you still need the OpenSSL headers to already be installed). For example:
+Another simple method is to use CMake's FetchContent module. For example:
 
 ```cmake
 cmake_minimum_required(VERSION 3.15)
@@ -83,7 +83,9 @@ You can then `#include <hamarr/base64.hpp>` or whichever parts of Hamarr you req
 
 ## Test and Example Build
 
-Hamarr includes a suite of tests using Catch2, and an example program that demonstrates most usage scenarios. These are both enabled by default if Hamarr is the top level CMake project, and disabled by default if Hamarr is being used within another project. To override this and force the tests and/or examples to be built, enable the `BUILD_HAMARR_TESTS` and `BUILD_HAMARR_EXAMPLES` CMake options respectively, which will cause the `hamarr_tests` and `hamarr_examples` targets to be built. For example:
+Hamarr includes a suite of tests using Catch2, and an example program that demonstrates most usage scenarios. The example program uses [spdlog](https://github.com/gabime/spdlog) for output, but CMake will fetch this for you if it is not already installed on your system.
+
+Building of the tests and the example program is enabled by default if Hamarr is the top level CMake project, and disabled by default if Hamarr is being used within another project. To override this and force the tests and/or examples to be built, enable the `BUILD_HAMARR_TESTS` and `BUILD_HAMARR_EXAMPLES` CMake options respectively, which will cause the `hamarr_tests` and `hamarr_examples` targets to be built. For example:
 
 ```shell
 git clone git@github.com:rufus-stone/hamarr.git
@@ -124,14 +126,14 @@ To escape/unescape a string that contains unprintable characters, newlines, etc.
 
 `hmr::format::unescape()`
 
-These both take a `std::string_view` input, and return a `std::string` output. If `hmr::format::unescape()` encounters any incomplete escape sequences, and empty string is returned. For example:
+These both take a `std::string_view` input, and return a `std::string` output. If `hmr::format::unescape()` encounters any incomplete escape sequences, an exception is thrown. For example:
 
 ```cpp
 auto escaped = hmr::format::escape("This \\ has newlines \n and carriage returns \r and unprintable \x7F hex chars"); // escaped contains the string "This \\ has newlines \n and carriage returns \r and unprintable \x7F hex chars"
 
 auto unescaped = hmr::format::unescape("Backslash \\ hex 1234 \x31\x32\x33\x34"); // unescaped contains the string "Backslash \ hex 1234 1234"
 
-auto broken = hmr::format::unescape("\\x"); // broken is an empty string, as the hex escape sequence is incomplete
+auto broken = hmr::format::unescape("\\x"); // the hex escape sequence is incomplete, so an exception of type hmr::xcpt::format::need_more_data is thrown
 ```
 
 
@@ -186,10 +188,10 @@ auto decoded_4 = hmr::hex::decode<int16_t>("FF 00"); // decoded_4 is a int16_t w
 
 auto decoded_5 = hmr::hex::decode<uint16_t>("FF"); // decoded_5 is a uint16_t with the value 255 (0x00FF) - although the input contained only a single byte worth of hex chars, a valid uint16_t can be built
 
-auto decoded_6 = hmr::hex::decode<uint8_t>("FF FF FF FF"); // The input contains more bytes worth of hex chars than can fit in a uint8_t, so a default/uninitialized uint8_t is returned - Todo: would a std::optional be better??
+auto decoded_6 = hmr::hex::decode<uint8_t>("FF FF FF FF"); // The input contains more bytes worth of hex chars than can fit in a uint8_t, so an exception of type hmr::xcpt::hex::invalid_input is thrown
 ```
 
-If the input to `hmr::hex::decode()` contains invalid hex characters, or is uneven in length (not counting any whitespace), an empty string is returned (or in the case of the templated variant, a default value is returned).
+If the input to `hmr::hex::decode()` contains invalid hex characters, or is uneven in length (not counting any whitespace), an exception is thrown.
 
 - Todo: Should the return type of the templated variant (or indeed, of all these functions?) be a `std::optional`? Would that make handling incorrect inputs easier?
 
@@ -230,7 +232,7 @@ auto decoded_2 = hmr::binary::decode<uint32_t>("11111111 00000000 11111111 00000
 auto decoded_3 = hmr::binary::decode<int16_t>("11111111 00000000"); // decoded_3 is a int16_t with the value -256 (0xFF00)
 ```
 
-If the input to `hmr::binary::decode()` contains anything other than 1s and 0s (and whitespace), or its length is not divisible by 8 (not counting any whitespace), an empty string is returned (or in the case of the templated variant, a default value is returned).
+If the input to `hmr::binary::decode()` contains anything other than 1s and 0s (and whitespace), or its length is not divisible by 8 (not counting any whitespace), an exception is thrown.
 
 - Todo: Allow the templated variant to work even if the input does not exactly match the size of the return type, e.g. allow an input of "11111111" to produce a `uint16_t` with the value 255 (0x00FF)
 - Todo: Should the return type of the templated variant (or indeed, of all these functions?) be a `std::optional`? Would that make handling incorrect inputs easier?
@@ -261,7 +263,7 @@ auto encoded = hmr::base64::encode("Hello, World!", "abcdefgh0123456789ijklmnopq
 
 auto decoded = hmr::base64::decode("iglGrgWG0ftJsAL=08++", "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+"); // decoded contains the string "Hello, World!"
 
-auto broken = hmr::base64::encode("This won't work", "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWZZZZ"); // broken is an empty string, as the custom alphabet contains multiple instances of the same character ('Z') which is invalid
+auto broken = hmr::base64::encode("This won't work", "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWZZZZ"); // The alphabet contains multiple instances of the same character ('Z'), so an exception of type hmr::xcpt::base64::invalid_alphabet is thrown
 ```
 
 - Todo: Allow the user to toggle on/off the insertion of padding characters
@@ -302,7 +304,7 @@ auto decoded = hmr::url::decode("3DUfw%C2%88%C2%99%C2%AA%C2%BB"); // UTF-8 conve
 decoded = hmr::url::decode("3DUfw%C2%88%C2%99%C2%AA%C2%BB", true); // Lazy mode is on, so decoded contains the hex value: 33 44 55 66 77 C2 88 C2 99 C2 AA C2 BB
 ```
 
-When decoding, if the input string ends prematurely, or an invalid UTF-8 sequence is found, an empty string is returned.
+When decoding, if the input string ends prematurely, or an invalid UTF-8 sequence is found, an exception is thrown.
 
 - Todo: Add support for user-defined lists of reserved/unreserved characters
 
@@ -501,7 +503,7 @@ To measure the execution time for a given bit of code, there is the following fu
 
 `hmr::profile::benchmark()`
 
-This function takes any invocable as its input, and returns a `std::size_t` populated with the number of nanoseconds that the invocable took to run. For example:
+This function takes any invocable as its input, and returns a `std::chrono::nanoseconds` set to the number of nanoseconds that the invocable took to run. For example:
 
 ```cpp
 void do_stuff()
@@ -527,8 +529,6 @@ auto nanoseconds_taken = hmr::profile::benchmark([]()
   }
 });
 ```
-
-- Todo: Allow the user to give names to benchmark tests?
 
 
 ### PKCS7 padding

@@ -45,11 +45,11 @@ void print_character_frequency(std::vector<std::size_t> freqs, bool const show_z
     {
       if (i >= 0x20 && i <= 0x7E)
       {
-        spdlog::info("'{}' occurs {} times", static_cast<char>(i), static_cast<int>(freqs[i]));
+        std::cout << "'" << static_cast<char>(i) << "' occurs " << static_cast<int>(freqs[i]) << " times\n";
 
       } else
       {
-        spdlog::info("'{}' occurs {} times", hmr::hex::encode(static_cast<uint8_t>(i)), static_cast<int>(freqs[i]));
+        std::cout << "'" << hmr::hex::encode(static_cast<uint8_t>(i)) << "' occurs " << static_cast<int>(freqs[i]) << " times\n";
       }
 
     } else
@@ -58,11 +58,11 @@ void print_character_frequency(std::vector<std::size_t> freqs, bool const show_z
       {
         if (i >= 0x20 && i <= 0x7E)
         {
-          spdlog::info("'{}' occurs {} times", static_cast<char>(i), static_cast<int>(freqs[i]));
+          std::cout << "'" << static_cast<char>(i) << "' occurs " << static_cast<int>(freqs[i]) << " times\n";
 
         } else
         {
-          spdlog::info("'{}' occurs {} times", hmr::hex::encode(static_cast<uint8_t>(i)), static_cast<int>(freqs[i]));
+          std::cout << "'" << hmr::hex::encode(static_cast<uint8_t>(i)) << "' occurs " << static_cast<int>(freqs[i]) << " times\n";
         }
       }
     }
@@ -112,7 +112,7 @@ auto find_candidate_keysize(std::string_view input, std::size_t const min, std::
 
   // Pick the key_size with the lowest average hamming distance - this is the best candidate for the actual key size
   auto best_candidate = std::min_element(std::begin(average_hams), std::end(average_hams), [](auto const &lhs, auto const &rhs) { return lhs.second < rhs.second; });
-  if (debug_flag) spdlog::info("Best candidate key size: {} (average Hamming distance: {})", best_candidate->first, best_candidate->second);
+  if (debug_flag) std::cout << "Best candidate key size: " << best_candidate->first << " (average Hamming distance: " << best_candidate->second << ")\n";
 
   return *best_candidate;
 }
@@ -139,8 +139,8 @@ auto solve_single_byte_xor(std::string_view input, bool const debug_flag) -> std
 
   if (possible_keys.empty() && debug_flag)
   {
-    spdlog::warn("Failed to find any possible keys!");
-    spdlog::warn("Input was: {}", input);
+    std::cout << "Failed to find any possible keys!\n";
+    std::cout << "Input was: " <<  input << '\n';
   }
 
   return possible_keys;

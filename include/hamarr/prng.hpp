@@ -10,7 +10,7 @@ static std::mt19937 random_engine{std::random_device{}()};
 
 ////////////////////////////////////////////////////////////
 template<typename T, typename = std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>>>
-static T number()
+static T number() noexcept
 {
   // Is it an integer type? Use std::uniform_int_distribution if so
   if constexpr (std::is_integral_v<T>)
@@ -28,7 +28,7 @@ static T number()
 
 ////////////////////////////////////////////////////////////
 template<typename T, typename = std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>>>
-static T number_between(T min, T max)
+static T number_between(T min, T max) noexcept
 {
   // Is it an integer type? Use std::uniform_int_distribution if so
   if constexpr (std::is_integral_v<T>)
@@ -46,6 +46,6 @@ static T number_between(T min, T max)
 
 
 ////////////////////////////////////////////////////////////
-std::string bytes(std::size_t quantity);
+std::string bytes(std::size_t quantity) noexcept;
 
 } // namespace hmr::prng

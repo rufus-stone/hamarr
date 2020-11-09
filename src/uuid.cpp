@@ -1,14 +1,15 @@
 #include "hamarr/uuid.hpp"
 
+#include "hamarr/prng.hpp"
+#include "hamarr/hex.hpp"
 
 namespace hmr::uuid
 {
 
 ////////////////////////////////////////////////////////////
-std::string generate()
+std::string generate() noexcept
 {
   auto uuid = hmr::hex::encode(hmr::prng::bytes(16), false);
-  assert(uuid.size() == 32);
 
   uuid.insert(8, 1, '-');
   uuid.insert(13, 1, '-');

@@ -1,15 +1,12 @@
 #pragma once
 
 #include <string>
-#include <cassert>
 
-#include "prng.hpp"
-#include "hex.hpp"
 
 namespace hmr::uuid
 {
 
 ////////////////////////////////////////////////////////////
-std::string generate();
+std::string generate() noexcept;
 
 } // namespace hmr::uuid
