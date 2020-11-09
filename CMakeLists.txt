@@ -8,7 +8,7 @@ Project Setup
 
 project(
   hamarr
-  VERSION 1.2.1
+  VERSION 1.2.2
   DESCRIPTION "A C++ toolbox for data manipulation."
   HOMEPAGE_URL "https://github.com/rufus-stone/hamarr"
   LANGUAGES CXX)
@@ -18,48 +18,34 @@ include(cmake/PreventInSourceBuilds.cmake) # No in-source builds
 include(GNUInstallDirs) # Provides default install locations
 
 # Add the library and source files
-add_library(hamarr
-
-src/format.cpp
-include/hamarr/format.hpp
-
-src/hex.cpp
-include/hamarr/hex.hpp
-
-src/binary.cpp
-include/hamarr/binary.hpp
-
-src/base64.cpp
-include/hamarr/base64.hpp
-
-src/url.cpp
-include/hamarr/url.hpp
-
-src/prng.cpp
-include/hamarr/prng.hpp
-
-src/bitwise.cpp
-include/hamarr/bitwise.hpp
-
-src/analysis.cpp
-include/hamarr/analysis.hpp
-
-src/pkcs7.cpp
-include/hamarr/pkcs7.hpp
-
-src/serialisation.cpp
-include/hamarr/serialisation.hpp
-
-src/uuid.cpp
-include/hamarr/uuid.hpp
-
-src/crypto.cpp
-include/hamarr/crypto.hpp
-
-include/hamarr/profiling.hpp
-
-include/hamarr/exceptions.hpp
-)
+add_library(
+  hamarr
+  src/format.cpp
+  include/hamarr/format.hpp
+  src/hex.cpp
+  include/hamarr/hex.hpp
+  src/binary.cpp
+  include/hamarr/binary.hpp
+  src/base64.cpp
+  include/hamarr/base64.hpp
+  src/url.cpp
+  include/hamarr/url.hpp
+  src/prng.cpp
+  include/hamarr/prng.hpp
+  src/bitwise.cpp
+  include/hamarr/bitwise.hpp
+  src/analysis.cpp
+  include/hamarr/analysis.hpp
+  src/pkcs7.cpp
+  include/hamarr/pkcs7.hpp
+  src/serialisation.cpp
+  include/hamarr/serialisation.hpp
+  src/uuid.cpp
+  include/hamarr/uuid.hpp
+  src/crypto.cpp
+  include/hamarr/crypto.hpp
+  include/hamarr/profiling.hpp
+  include/hamarr/exceptions.hpp)
 
 # Add the library alias
 add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
@@ -67,11 +53,10 @@ add_library(${PROJECT_NAME}::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 # We require C++17
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 
-
 target_include_directories(
   ${PROJECT_NAME}
-  PUBLIC  $<BUILD_INTERFACE:${${PROJECT_NAME}_SOURCE_DIR}/include>
-          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
+  PUBLIC $<BUILD_INTERFACE:${${PROJECT_NAME}_SOURCE_DIR}/include>
+         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
 #[[
 ------------
@@ -165,6 +150,3 @@ if(INSTALL_HAMARR)
   # include(CPack)
 
 endif()
-
-
-message("CMAKE_INSTALL_INCLUDEDIR: ${CMAKE_INSTALL_INCLUDEDIR}")
