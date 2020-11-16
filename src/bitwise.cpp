@@ -142,7 +142,8 @@ std::string rotate_left(std::string_view input, std::size_t amount, carry_throug
 
     output.reserve(len);
 
-    std::transform(std::begin(input), std::end(input), std::back_inserter(output), [&amount](uint8_t const ch) {
+    std::transform(std::begin(input), std::end(input), std::back_inserter(output), [&amount](uint8_t const ch)
+    {
       auto tmp = ch;
 
       for (std::size_t n = 0; n < amount; ++n)
@@ -213,7 +214,8 @@ std::string rotate_right(std::string_view input, std::size_t amount, carry_throu
 
     output.reserve(len);
 
-    std::transform(std::begin(input), std::end(input), std::back_inserter(output), [&amount](uint8_t const ch) {
+    std::transform(std::begin(input), std::end(input), std::back_inserter(output), [&amount](uint8_t const ch)
+    {
       auto tmp = ch;
 
       for (std::size_t n = 0; n < amount; ++n)

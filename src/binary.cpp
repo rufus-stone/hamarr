@@ -9,12 +9,14 @@ std::string encode(std::string_view input, bool delimited) noexcept
 {
   std::vector<std::string> out_vec;
 
-  std::transform(input.begin(), input.end(), std::back_inserter(out_vec), [](uint8_t const c) -> std::string {
+  std::transform(input.begin(), input.end(), std::back_inserter(out_vec), [](uint8_t const c) -> std::string
+  {
     auto const bits = std::bitset<8>(c);
     return bits.to_string();
   });
 
-  return std::accumulate(out_vec.begin(), out_vec.end(), std::string(), [&delimited](auto lhs, auto rhs) -> std::string {
+  return std::accumulate(out_vec.begin(), out_vec.end(), std::string(), [&delimited](auto lhs, auto rhs) -> std::string
+  {
     if (lhs.empty())
     {
       return rhs; // This avoids inserting a blank space before the very first byte
