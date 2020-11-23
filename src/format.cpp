@@ -142,7 +142,7 @@ std::string unescape(std::string_view input)
 
 
 ////////////////////////////////////////////////////////////
-auto split(std::string_view input, char delimiter) -> std::vector<std::string_view>
+auto split(std::string_view input, char delimiter) -> std::vector<std::string>
 {
   auto len = input.size();
   auto first = input.data();
@@ -150,7 +150,7 @@ auto split(std::string_view input, char delimiter) -> std::vector<std::string_vi
   auto last = first + len;
 
   // Divide the input up into segments by splitting around the delimiter
-  auto segments = std::vector<std::string_view>{};
+  auto segments = std::vector<std::string>{};
 
   while (second < last && first < last)
   {

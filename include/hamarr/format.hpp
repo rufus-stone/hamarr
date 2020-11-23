@@ -25,6 +25,6 @@ std::string unescape(std::string_view input);
 
 
 ////////////////////////////////////////////////////////////
-auto split(std::string_view input, char delimiter) -> std::vector<std::string_view>;
+auto split(std::string_view input, char delimiter) -> std::vector<std::string>;
 
 } // namespace hmr::format
