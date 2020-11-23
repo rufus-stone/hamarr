@@ -259,7 +259,7 @@ int main()
 
 
   spdlog::info("\n\n---[ Data Serialisation ]---\n");
-  auto kvps = std::map<std::string_view, std::string_view>{{"key1", "value1"}, {"key2", "value2"}, {"key3", "value3"}};
+  auto kvps = std::map<std::string, std::string>{{"key1", "value1"}, {"key2", "value2"}, {"key3", "value3"}};
   spdlog::info(hmr::kvp::serialise(kvps));
 
 

@@ -8,7 +8,7 @@
 namespace hmr::kvp
 {
 
-using kvps = std::map<std::string_view, std::string_view>;
+using kvps = std::map<std::string, std::string>;
 
 ////////////////////////////////////////////////////////////
 std::string serialise(kvps input, char kv_delimiter = '=', char kvp_delimiter = '&');
