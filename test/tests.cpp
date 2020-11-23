@@ -31,7 +31,7 @@ TEST_CASE("hmr::format", "[formatting]")
   REQUIRE(hmr::format::escape(input) == "Hello,\\nWorld!"s);
   REQUIRE(hmr::format::unescape("Hello,\\nWorld!"s) == input);
 
-  REQUIRE(hmr::format::split(input, '\n') == std::vector<std::string_view>{"Hello,", "World!"});
+  REQUIRE(hmr::format::split(input, '\n') == std::vector<std::string>{"Hello,", "World!"});
 }
 
 // hmr::hex
@@ -356,15 +356,15 @@ TEST_CASE("hmr::pkcs7", "[pkcs7]")
 // hmr::kvp
 TEST_CASE("hmr::kvp", "[serialisation][kvp]")
 {
-  auto const kvps = std::map<std::string_view, std::string_view>{{"key1", "value1"}, {"key2", "value2"}, {"key3", "value3"}};
+  auto const kvps = std::map<std::string, std::string>{{"key1", "value1"}, {"key2", "value2"}, {"key3", "value3"}};
 
   REQUIRE(hmr::kvp::serialise(kvps) == "key1=value1&key2=value2&key3=value3"s);
   REQUIRE(hmr::kvp::deserialise("key1=value1&key2=value2&key3=value3"s) == kvps);
 
   // Failures
-  REQUIRE_THROWS(hmr::kvp::deserialise("key1=value1=value2") == std::map<std::string_view, std::string_view>{});
-  REQUIRE_THROWS(hmr::kvp::deserialise("key1=value1&something&key2=value2") == std::map<std::string_view, std::string_view>{});
-  REQUIRE_THROWS(hmr::kvp::deserialise("key1=value1& &key2=value2") == std::map<std::string_view, std::string_view>{});
+  REQUIRE_THROWS(hmr::kvp::deserialise("key1=value1=value2") == std::map<std::string, std::string>{});
+  REQUIRE_THROWS(hmr::kvp::deserialise("key1=value1&something&key2=value2") == std::map<std::string, std::string>{});
+  REQUIRE_THROWS(hmr::kvp::deserialise("key1=value1& &key2=value2") == std::map<std::string, std::string>{});
 }
 
 // hmr::uuid

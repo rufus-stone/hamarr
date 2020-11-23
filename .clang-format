@@ -27,6 +27,7 @@ BraceWrapping:
   AfterStruct: true
   AfterUnion: false
   BeforeCatch: false
+  BeforeLambdaBody: true
   BeforeElse: false
   IndentBraces: false
   SplitEmptyFunction: false

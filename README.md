@@ -135,6 +135,17 @@ auto unescaped = hmr::format::unescape("Backslash \\ hex 1234 \x31\x32\x33\x34")
 
 auto broken = hmr::format::unescape("\\x"); // the hex escape sequence is incomplete, so an exception of type hmr::xcpt::format::need_more_data is thrown
 ```
+To split a string around a delimiter, there is the following function:
+
+`hmr::format::split()`
+
+This takes two inputs - a `std::string_view` for the data you wish to split, and a `char` to specify the delimter. For example:
+
+```cpp
+auto split_up = hmr::format::split("This is split around spaces", ' '); // split_up[0] == "This", split_up[1] == "is", etc.
+```
+
+- TODO: Allow splitting around strings instead of just single chars
 
 
 ### Hex
@@ -574,10 +585,10 @@ To serialise data into an ampersand-delimited set of key=value pairs (e.g. key1=
 
 `hmr::kvp::deserialise()`
 
-The `hmr::kvp::serialise()` function takes a `std::map<std::string_view, std::string_view>` input, and returns a `std::string` output. The `hmr::kvp::deserialise()` functions takes a `std::string_view` input, and returns a `std::map<std::string_view, std::string_view>`. For example:
+The `hmr::kvp::serialise()` function takes a `std::map<std::string, std::string>` input, and returns a `std::string` output. The `hmr::kvp::deserialise()` functions takes a `std::string_view` input, and returns a `std::map<std::string, std::string>`. For example:
 
 ```cpp
-auto kvps = std::map<std::string_view, std::string_view>{{"key1", "value1"}, {"key2", "value2"}, {"key3", "value3"}};
+auto kvps = std::map<std::string, std::string>{{"key1", "value1"}, {"key2", "value2"}, {"key3", "value3"}};
 
 auto serialised = hmr::kvp::serialise(kvps); // serialised contains the string "key1=value1&key2=value2&key3=value3"
 auto deserialised = hmr::kvp::deserialise("key1=value1&key2=value2&key3=value3"); // deserialised == kvps
