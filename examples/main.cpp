@@ -93,10 +93,10 @@ int main()
 
   spdlog::info(base64::encode(hex::decode("30 31 32 33 34 35 36 37 38 39 3a 3b 3c 3d 3e 3f f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd")));
   spdlog::info(hex::encode(base64::decode("MDEyMzQ1Njc4OTo7PD0+P/Dx8vP09fb3+Pn6+/z9"), true));
-  
+
   spdlog::info(base64::encode(hex::decode("30 31 32 33 34 35 36 37 38 39 3a 3b 3c 3d 3e 3f f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe")));
   spdlog::info(hex::encode(base64::decode("MDEyMzQ1Njc4OTo7PD0+P/Dx8vP09fb3+Pn6+/z9/g=="), true));
-  
+
   spdlog::info(base64::encode(hex::decode("30 31 32 33 34 35 36 37 38 39 3a 3b 3c 3d 3e 3f f0 f1 f2 f3 f4 f5 f6 f7 f8 f9 fa fb fc fd fe ff")));
   spdlog::info(hex::encode(base64::decode("MDEyMzQ1Njc4OTo7PD0+P/Dx8vP09fb3+Pn6+/z9/v8="), true));
 
@@ -196,25 +196,25 @@ int main()
 
   spdlog::info("\n\n---[ Code Profiling ]---\n");
   auto nanoseconds_taken = profile::benchmark([&test]()
-  {
-    for (int i = 0; i < 1000; ++i)
     {
-      hex::encode(test);
-    }
-  });
-  
+      for (int i = 0; i < 1000; ++i)
+      {
+        hex::encode(test);
+      }
+    });
+
   auto milliseconds_taken = std::chrono::duration<double, std::milli>(nanoseconds_taken).count();
   auto seconds_taken = std::chrono::duration<double>(nanoseconds_taken).count();
   spdlog::info("Execution took {} ns ({} ms / {} s)", nanoseconds_taken.count(), milliseconds_taken, seconds_taken);
 
 
   nanoseconds_taken = profile::benchmark([]()
-  {
-    for (int i = 0; i < 1000; ++i)
     {
-      hex::decode("48 65 6c 6c 6f 2c 20 57 6f 72 6c 64 21");
-    }
-  });
+      for (int i = 0; i < 1000; ++i)
+      {
+        hex::decode("48 65 6c 6c 6f 2c 20 57 6f 72 6c 64 21");
+      }
+    });
 
   milliseconds_taken = std::chrono::duration<double, std::milli>(nanoseconds_taken).count();
   seconds_taken = std::chrono::duration<double>(nanoseconds_taken).count();
@@ -222,12 +222,12 @@ int main()
 
 
   nanoseconds_taken = profile::benchmark([]()
-  {
-    for (int i = 0; i < 1000; ++i)
     {
-      hex::encode(prng::number<uint32_t>());
-    }
-  });
+      for (int i = 0; i < 1000; ++i)
+      {
+        hex::encode(prng::number<uint32_t>());
+      }
+    });
 
   milliseconds_taken = std::chrono::duration<double, std::milli>(nanoseconds_taken).count();
   seconds_taken = std::chrono::duration<double>(nanoseconds_taken).count();
