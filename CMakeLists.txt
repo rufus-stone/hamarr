@@ -8,7 +8,7 @@ Project Setup
 
 project(
   hamarr
-  VERSION 1.2.4
+  VERSION 1.2.5
   DESCRIPTION "A C++ toolbox for data manipulation."
   HOMEPAGE_URL "https://github.com/rufus-stone/hamarr"
   LANGUAGES CXX)

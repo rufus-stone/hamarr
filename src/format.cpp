@@ -5,8 +5,7 @@
 #include "hamarr/hex.hpp"
 #include "hamarr/exceptions.hpp"
 
-
-namespace hmr::format
+namespace hmr::fmt
 {
 
 ////////////////////////////////////////////////////////////
@@ -15,7 +14,8 @@ std::string to_upper(std::string_view input)
   std::string output;
   output.reserve(input.size());
 
-  std::transform(input.begin(), input.end(), std::back_inserter(output), [](unsigned char const ch) { return std::toupper(ch); });
+  std::transform(input.begin(), input.end(), std::back_inserter(output), [](unsigned char const ch)
+    { return std::toupper(ch); });
   return output;
 }
 
@@ -26,7 +26,8 @@ std::string to_lower(std::string_view input)
   std::string output;
   output.reserve(input.size());
 
-  std::transform(input.begin(), input.end(), std::back_inserter(output), [](unsigned char const ch) { return std::tolower(ch); });
+  std::transform(input.begin(), input.end(), std::back_inserter(output), [](unsigned char const ch)
+    { return std::tolower(ch); });
   return output;
 }
 
@@ -142,29 +143,123 @@ std::string unescape(std::string_view input)
 
 
 ////////////////////////////////////////////////////////////
-auto split(std::string_view input, char delimiter) -> std::vector<std::string>
+auto split(std::string_view input, char delimiter, bool collapse_adjacent_delimiters, bool ignore_leading_delimiter) -> std::vector<std::string>
 {
-  auto len = input.size();
-  auto first = input.data();
-  auto second = input.data();
-  auto last = first + len;
-
   // Divide the input up into segments by splitting around the delimiter
   auto segments = std::vector<std::string>{};
 
-  while (second < last && first < last)
-  {
-    second = std::find(first, last, delimiter);
+  auto start = std::begin(input);
+  auto pos = std::begin(input);
+  auto previous_pos = pos;
 
-    if (first != second)
+  while (pos != std::end(input))
+  {
+    pos = std::find(start, std::end(input), delimiter);
+
+    // If the very first char was a delimiter, are we ignoring leading delimiters?
+    if (pos == std::begin(input) && ignore_leading_delimiter)
     {
-      segments.emplace_back(first, second - first);
+      // Update the start position and move onto the next iteration of the loop
+      previous_pos = pos;
+      start = pos + 1;
+      continue;
     }
 
-    first = second + 1;
+    // Does this delimiter directly follow the previous delimiter?
+    if (pos == previous_pos + 1)
+    {
+      if (!collapse_adjacent_delimiters)
+      {
+        segments.emplace_back(start, pos);
+      }
+
+    } else
+    {
+      segments.emplace_back(start, pos);
+    }
+
+    previous_pos = pos;
+    start = pos + 1;
   }
 
   return segments;
 }
 
-} // namespace hmr::format
+
+auto split(std::string_view input, std::string_view delimiters, bool collapse_adjacent_delimiters, bool ignore_leading_delimiter) -> std::vector<std::string>
+{
+  // Divide the input up into segments by splitting around any of the specified delimiters
+  auto segments = std::vector<std::string>{};
+
+  auto start = std::begin(input);
+  auto pos = std::begin(input);
+  auto previous_pos = pos;
+
+  while (pos != std::end(input))
+  {
+    pos = std::find_first_of(start, std::end(input), std::begin(delimiters), std::end(delimiters));
+
+    // If the very first char was a delimiter, are we ignoring leading delimiters?
+    if (pos == std::begin(input) && ignore_leading_delimiter)
+    {
+      // Update the start position and move onto the next iteration of the loop
+      previous_pos = pos;
+      start = pos + 1;
+      continue;
+    }
+
+    // Does this delimiter follow the previous delimiter?
+    if (pos == previous_pos + 1)
+    {
+      if (!collapse_adjacent_delimiters)
+      {
+        segments.emplace_back(start, pos);
+      }
+
+    } else
+    {
+      segments.emplace_back(start, pos);
+    }
+
+    previous_pos = pos;
+    start = pos + 1;
+  }
+
+  return segments;
+}
+
+
+////////////////////////////////////////////////////////////
+auto lstrip(std::string_view input, std::string_view any_of_these) -> std::string_view
+{
+  std::size_t const pos = input.find_first_not_of(any_of_these);
+  if (pos == std::string_view::npos)
+  {
+    return input;
+  } else
+  {
+    return input.substr(pos);
+  }
+}
+
+
+////////////////////////////////////////////////////////////
+auto rstrip(std::string_view input, std::string_view any_of_these) -> std::string_view
+{
+  std::size_t const pos = input.find_last_not_of(any_of_these);
+  if (pos == std::string_view::npos)
+  {
+    return input;
+  } else
+  {
+    return input.substr(0, pos + 1);
+  }
+}
+
+////////////////////////////////////////////////////////////
+auto strip(std::string_view input, std::string_view any_of_these) -> std::string_view
+{
+  return rstrip(lstrip(input, any_of_these), any_of_these);
+}
+
+} // namespace hmr::fmt
