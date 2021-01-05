@@ -43,6 +43,16 @@ TEST_CASE("hmr::fmt", "[formatting]")
   REQUIRE(hmr::fmt::split(split_test, "AF") == std::vector<std::string>{"BBCCDD\nEE", "GG!"});
   REQUIRE(hmr::fmt::split(split_test, "AF", true, false) == std::vector<std::string>{"", "BBCCDD\nEE", "GG!"});
   REQUIRE(hmr::fmt::split(split_test, "AF", false, false) == std::vector<std::string>{"", "", "BBCCDD\nEE", "", "GG!"});
+
+  auto const strip_test_1 = "  \nThis is a test! "s;
+  REQUIRE(hmr::fmt::lstrip(strip_test_1) == "This is a test! "s);
+  REQUIRE(hmr::fmt::rstrip(strip_test_1) == "  \nThis is a test!"s);
+  REQUIRE(hmr::fmt::strip(strip_test_1) == "This is a test!"s);
+
+  auto const strip_test_2 = "ABCThis is a test!CBA"s;
+  REQUIRE(hmr::fmt::lstrip(strip_test_2, "ABC") == "This is a test!CBA"s);
+  REQUIRE(hmr::fmt::rstrip(strip_test_2, "ABC") == "ABCThis is a test!"s);
+  REQUIRE(hmr::fmt::strip(strip_test_2, "ABC") == "This is a test!"s);
 }
 
 // hmr::hex

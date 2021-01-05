@@ -230,42 +230,34 @@ auto split(std::string_view input, std::string_view delimiters, bool collapse_ad
 
 
 ////////////////////////////////////////////////////////////
-auto lstrip(std::string_view input, std::string_view any_of_these) -> std::string
+auto lstrip(std::string_view input, std::string_view any_of_these) -> std::string_view
 {
-  std::string output;
-  output.reserve(input.size());
-
   std::size_t const pos = input.find_first_not_of(any_of_these);
   if (pos == std::string_view::npos)
   {
-    return std::string{input.data(), input.size()};
+    return input;
   } else
   {
-    auto tmp = input.substr(pos);
-    return std::string{tmp.data(), tmp.size()};
+    return input.substr(pos);
   }
 }
 
 
 ////////////////////////////////////////////////////////////
-auto rstrip(std::string_view input, std::string_view any_of_these) -> std::string
+auto rstrip(std::string_view input, std::string_view any_of_these) -> std::string_view
 {
-  std::string output;
-  output.reserve(input.size());
-
   std::size_t const pos = input.find_last_not_of(any_of_these);
   if (pos == std::string_view::npos)
   {
-    return std::string{input.data(), input.size()};
+    return input;
   } else
   {
-    auto tmp = input.substr(0, pos + 1);
-    return std::string{tmp.data(), tmp.size()};
+    return input.substr(0, pos + 1);
   }
 }
 
 ////////////////////////////////////////////////////////////
-auto strip(std::string_view input, std::string_view any_of_these) -> std::string
+auto strip(std::string_view input, std::string_view any_of_these) -> std::string_view
 {
   return rstrip(lstrip(input, any_of_these), any_of_these);
 }

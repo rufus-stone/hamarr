@@ -153,7 +153,23 @@ auto split_1 = hmr::fmt::split("AABBCCDD", 'B');                // split_1[0] ==
 auto split_2 = hmr::fmt::split("AABBCCDD", 'B', false);         // split_2[0] == "AA", split_2[1] == "", split_2[2] == "CCDD" <--- passing false disables delimiter collapsing, so both B chars are treated independently
 auto split_3 = hmr::fmt::split("AABBCCDD", 'A', true, false);   // split_3[0] == "", split_3[1] == "BBCCDD" <-- the leading delimiters are still included, hence the empty string at the start of the output vector
 auto split_4 = hmr::fmt::split("AABBCCDD", 'A', false, false);  // split_4[0] == "", split_4[1] == "", split_4[2] == "BBCCDD"
+```
 
+To strip leading or trailing characters from a string, there are the following functions:
+
+`hmr::fmt::lstrip()`
+
+`hmr::fmt::rstrip()`
+
+`hmr::fmt::strip()`
+
+These all take a `std::string_view` input and optionally a `std::string_view` to specify the set of characters to strip (this defaults to whitespace, new lines, etc.) from the left, right, and both sides respectively, and return a `std::string_view` output. For example:
+
+```cpp
+auto left   = hmr::fmt::lstrip("       This is a test    ");  // stripped == std::string_view{"This is a test    "}
+auto right  = hmr::fmt::rstrip("       This is a test    ");  // stripped == std::string_view{"       This is a test"}
+auto both   = hmr::fmt::strip("       This is a test    ");   // stripped == std::string_view{"This is a test"}
+auto custom = hmr::fmt::strip("+-!This is a test+-!", "+-!"); // custom == std::string_view{"This is a test"}
 ```
 
 
