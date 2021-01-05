@@ -33,12 +33,12 @@ kvps deserialise(std::string_view input, char kv_delimiter, char kvp_delimiter)
   auto output = kvps{};
 
   // First divide the input up into groups of pairs by splitting around the kvp_delimiter
-  auto const pairs = hmr::format::split(input, kvp_delimiter);
+  auto const pairs = hmr::fmt::split(input, kvp_delimiter);
 
   // Now divide each group into a key-value pair and add to the output map
   for (auto const pair : pairs)
   {
-    auto key_value_pair = hmr::format::split(pair, kv_delimiter);
+    auto key_value_pair = hmr::fmt::split(pair, kv_delimiter);
 
     if (key_value_pair.size() != 2)
     {

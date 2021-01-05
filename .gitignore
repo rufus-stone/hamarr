@@ -38,3 +38,6 @@ Makefile
 
 # Build directory
 /build/
+
+# Cache
+.cache/

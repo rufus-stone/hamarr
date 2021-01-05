@@ -11,8 +11,6 @@
 #include "hamarr/bitwise.hpp"
 #include "hamarr/exceptions.hpp"
 
-#include <iostream>
-
 namespace hmr::crypto
 {
 
@@ -179,7 +177,7 @@ std::string aes_cbc_encrypt(std::string_view input, std::string_view key, std::s
   {
     throw hmr::xcpt::crypto::invalid_key_length("Key must be 16 bytes long!");
   }
-  
+
   if (iv.size() != 16)
   {
     throw hmr::xcpt::crypto::invalid_iv_length("IV must be 16 bytes long!");
@@ -235,7 +233,7 @@ std::string aes_cbc_decrypt(std::string_view input, std::string_view key, std::s
   {
     throw hmr::xcpt::crypto::invalid_key_length("Key must be 16 bytes long!");
   }
-  
+
   if (iv.size() != 16)
   {
     throw hmr::xcpt::crypto::invalid_iv_length("IV must be 16 bytes long!");
@@ -318,7 +316,7 @@ std::string md5_raw(std::string_view input)
 ////////////////////////////////////////////////////////////////
 std::string md5(std::string_view input)
 {
-  return hmr::format::to_lower(hmr::hex::encode(md5_raw(input), false));
+  return hmr::fmt::to_lower(hmr::hex::encode(md5_raw(input), false));
 }
 
 
@@ -352,7 +350,7 @@ std::string sha1_raw(std::string_view input)
 ////////////////////////////////////////////////////////////////
 std::string sha1(std::string_view input)
 {
-  return hmr::format::to_lower(hmr::hex::encode(sha1_raw(input), false));
+  return hmr::fmt::to_lower(hmr::hex::encode(sha1_raw(input), false));
 }
 
 
@@ -386,7 +384,7 @@ std::string sha256_raw(std::string_view input)
 ////////////////////////////////////////////////////////////////
 std::string sha256(std::string_view input)
 {
-  return hmr::format::to_lower(hmr::hex::encode(sha256_raw(input), false));
+  return hmr::fmt::to_lower(hmr::hex::encode(sha256_raw(input), false));
 }
 
 } // namespace hmr::crypto

@@ -114,38 +114,47 @@ Defined in header `hamarr/format.hpp`
 
 To convert a string to uppercase/lowercase, there are two functions:
 
-`hmr::format::to_upper()`
+`hmr::fmt::to_upper()`
 
-`hmr::format::to_lower()`
+`hmr::fmt::to_lower()`
 
 These both take a `std::string_view` input, and return a `std::string` output. They are just convenience functions that call `std::toupper()` or `std::tolower()` on each character of the string.
 
 To escape/unescape a string that contains unprintable characters, newlines, etc., there are the following functions:
 
-`hmr::format::escape()`
+`hmr::fmt::escape()`
 
-`hmr::format::unescape()`
+`hmr::fmt::unescape()`
 
-These both take a `std::string_view` input, and return a `std::string` output. If `hmr::format::unescape()` encounters any incomplete escape sequences, an exception is thrown. For example:
-
-```cpp
-auto escaped = hmr::format::escape("This \\ has newlines \n and carriage returns \r and unprintable \x7F hex chars"); // escaped contains the string "This \\ has newlines \n and carriage returns \r and unprintable \x7F hex chars"
-
-auto unescaped = hmr::format::unescape("Backslash \\ hex 1234 \x31\x32\x33\x34"); // unescaped contains the string "Backslash \ hex 1234 1234"
-
-auto broken = hmr::format::unescape("\\x"); // the hex escape sequence is incomplete, so an exception of type hmr::xcpt::format::need_more_data is thrown
-```
-To split a string around a delimiter, there is the following function:
-
-`hmr::format::split()`
-
-This takes two inputs - a `std::string_view` for the data you wish to split, and a `char` to specify the delimter. For example:
+These both take a `std::string_view` input, and return a `std::string` output. If `hmr::fmt::unescape()` encounters any incomplete escape sequences, an exception is thrown. For example:
 
 ```cpp
-auto split_up = hmr::format::split("This is split around spaces", ' '); // split_up[0] == "This", split_up[1] == "is", etc.
+auto escaped = hmr::fmt::escape("This \\ has newlines \n and carriage returns \r and unprintable \x7F hex chars"); // escaped contains the string "This \\ has newlines \n and carriage returns \r and unprintable \x7F hex chars"
+
+auto unescaped = hmr::fmt::unescape("Backslash \\ hex 1234 \x31\x32\x33\x34"); // unescaped contains the string "Backslash \ hex 1234 1234"
+
+auto broken = hmr::fmt::unescape("\\x"); // the hex escape sequence is incomplete, so an exception of type hmr::xcpt::format::need_more_data is thrown
+```
+To split a string around a delimiter, there are two overloads of the following function:
+
+`hmr::fmt::split()`
+
+This takes two inputs - a `std::string_view` for the data you wish to split, and a either a `char` to specify the delimter or a `std::string_view` to specify a multiple delimiters. For example:
+
+```cpp
+auto split_1 = hmr::fmt::split("This is split around spaces", ' '); // split_1[0] == "This", split_1[1] == "is"
+auto split_2 = hmr::fmt::split("Split on A or B etc", "AB");        // split_2[0] == "Split on ", split_2[1] == " or ", split_2[2] == " etc"
 ```
 
-- TODO: Allow splitting around strings instead of just single chars
+By default, the split functions collapse multiple adjacent delimiters together treating them as a single delimiter, and they also ignore any leading delimiters, but both of these behaviours can be disabled. For example:
+
+```cpp
+auto split_1 = hmr::fmt::split("AABBCCDD", 'B');                // split_1[0] == "AA", split_1[1] == "CCDD" <-- as both B chars are adjacent, they are treated as a single delimiter by default
+auto split_2 = hmr::fmt::split("AABBCCDD", 'B', false);         // split_2[0] == "AA", split_2[1] == "", split_2[2] == "CCDD" <--- passing false disables delimiter collapsing, so both B chars are treated independently
+auto split_3 = hmr::fmt::split("AABBCCDD", 'A', true, false);   // split_3[0] == "", split_3[1] == "BBCCDD" <-- the leading delimiters are still included, hence the empty string at the start of the output vector
+auto split_4 = hmr::fmt::split("AABBCCDD", 'A', false, false);  // split_4[0] == "", split_4[1] == "", split_4[2] == "BBCCDD"
+
+```
 
 
 ### Hex
