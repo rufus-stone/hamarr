@@ -16,19 +16,20 @@
 namespace hmr::analysis
 {
 
-enum class case_sensitivity { enabled, disabled };
+enum class case_sensitivity { enabled,
+  disabled };
 
-////////////////////////////////////////////////////////////
-constexpr std::size_t hamming_distance(std::string_view lhs, std::string_view rhs) noexcept
+////////////////////////////////////////////////////////////////
+constexpr auto hamming_distance(std::string_view lhs, std::string_view rhs) noexcept -> std::size_t
 {
-  auto lhs_bytes = lhs.data(); //const uint8_t *lhs_bytes = reinterpret_cast<const uint8_t*>(lhs.data());
-  auto rhs_bytes = rhs.data(); //const uint8_t *rhs_bytes = reinterpret_cast<const uint8_t*>(rhs.data());
+  char const *lhs_bytes = lhs.data(); //const uint8_t *lhs_bytes = reinterpret_cast<const uint8_t*>(lhs.data());
+  char const *rhs_bytes = rhs.data(); //const uint8_t *rhs_bytes = reinterpret_cast<const uint8_t*>(rhs.data());
 
-  std::size_t lhs_len = lhs.size();
-  std::size_t rhs_len = rhs.size();
+  std::size_t const lhs_len = lhs.size();
+  std::size_t const rhs_len = rhs.size();
 
   // Hamming distance calculation expects inputs of equal length. If the inputs are NOT of equal length, ignore any excess data.
-  std::size_t len = std::min(lhs_len, rhs_len);
+  std::size_t const len = std::min(lhs_len, rhs_len);
 
   std::size_t ham = 0;
   uint8_t xord = 0;
@@ -50,12 +51,13 @@ constexpr std::size_t hamming_distance(std::string_view lhs, std::string_view rh
   return ham;
 }
 
-////////////////////////////////////////////////////////////
-constexpr double entropy(std::string_view input)
+////////////////////////////////////////////////////////////////
+constexpr auto entropy(std::string_view input) -> double
 {
-  auto const len = input.size();
+  std::size_t const len = input.size();
 
   // I'm not sure if std::array default initalizes ints to 0, so doing that here just in case
+  // clang-format off
   auto char_freqs = std::array<std::size_t, 256>{
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -73,6 +75,7 @@ constexpr double entropy(std::string_view input)
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
       0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  // clang-format on
 
   for (auto const &ch : input)
   {
@@ -93,14 +96,14 @@ constexpr double entropy(std::string_view input)
   return entropy;
 }
 
-////////////////////////////////////////////////////////////
-std::vector<std::size_t> character_frequency(std::string_view input, analysis::case_sensitivity sensitivity = analysis::case_sensitivity::enabled);
+////////////////////////////////////////////////////////////////
+auto character_frequency(std::string_view input, analysis::case_sensitivity sensitivity = analysis::case_sensitivity::enabled) -> std::vector<std::size_t>;
 
-////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 void print_character_frequency(std::vector<std::size_t> freqs, bool const show_zeros = false);
 
-////////////////////////////////////////////////////////////
-constexpr bool looks_like_english(std::string_view input, bool const debug_flag = false)
+////////////////////////////////////////////////////////////////
+constexpr auto looks_like_english(std::string_view input, bool const debug_flag = false) -> bool
 {
   std::size_t spaces = 0;
   std::size_t punctuation = 0;
@@ -181,14 +184,14 @@ constexpr bool looks_like_english(std::string_view input, bool const debug_flag 
   return true;
 }
 
-////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 auto find_candidate_keysize(std::string_view input, std::size_t const min = 2, std::size_t const max = 40, bool const debug_flag = false) -> std::pair<std::size_t, double>;
 
-////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 auto solve_single_byte_xor(std::string_view input, bool const debug_flag = false) -> std::vector<uint8_t>;
 
-////////////////////////////////////////////////////////////
-constexpr bool repeated_blocks(std::string_view input, std::size_t const block_size = 16)
+////////////////////////////////////////////////////////////////
+constexpr auto repeated_blocks(std::string_view input, std::size_t const block_size = 16) -> bool
 {
   auto len = input.size();
   assert(len % block_size == 0);
@@ -209,5 +212,8 @@ constexpr bool repeated_blocks(std::string_view input, std::size_t const block_s
 
   return false;
 }
+
+////////////////////////////////////////////////////////////////
+auto repeats(std::string_view input, std::size_t const min_len = 4, std::size_t max_len = 16) -> std::vector<std::string_view>;
 
 } // namespace hmr::analysis

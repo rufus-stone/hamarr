@@ -10,21 +10,21 @@ namespace hmr::crypto
 
 using namespace std::string_literals;
 
-std::string aes_ecb_encrypt_block(std::string_view input, std::string_view key);
-std::string aes_ecb_decrypt_block(std::string_view input, std::string_view key);
+auto aes_ecb_encrypt_block(std::string_view input, std::string_view key) -> std::string;
+auto aes_ecb_decrypt_block(std::string_view input, std::string_view key) -> std::string;
 
-std::string aes_ecb_encrypt(std::string_view input, std::string_view key);
-std::string aes_ecb_decrypt(std::string_view input, std::string_view key, bool remove_padding = true);
+auto aes_ecb_encrypt(std::string_view input, std::string_view key) -> std::string;
+auto aes_ecb_decrypt(std::string_view input, std::string_view key, bool remove_padding = true) -> std::string;
 
-std::string aes_cbc_encrypt(std::string_view input, std::string_view key, std::string const &iv = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"s);
-std::string aes_cbc_decrypt(std::string_view input, std::string_view key, std::string const &iv = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"s, bool remove_padding = true);
+auto aes_cbc_encrypt(std::string_view input, std::string_view key, std::string const &iv = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"s) -> std::string;
+auto aes_cbc_decrypt(std::string_view input, std::string_view key, std::string const &iv = "\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00"s, bool remove_padding = true) -> std::string;
 
 // Hashing
-std::string md5_raw(std::string_view input);
-std::string md5(std::string_view input);
-std::string sha1_raw(std::string_view input);
-std::string sha1(std::string_view input);
-std::string sha256_raw(std::string_view input);
-std::string sha256(std::string_view input);
+auto md5_raw(std::string_view input) -> std::string;
+auto md5(std::string_view input) -> std::string;
+auto sha1_raw(std::string_view input) -> std::string;
+auto sha1(std::string_view input) -> std::string;
+auto sha256_raw(std::string_view input) -> std::string;
+auto sha256(std::string_view input) -> std::string;
 
 } // namespace hmr::crypto

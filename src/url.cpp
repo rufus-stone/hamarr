@@ -10,12 +10,12 @@ namespace hmr::url
 {
 
 ////////////////////////////////////////////////////////////
-std::string encode(std::string_view input, bool lazy) noexcept
+auto encode(std::string_view input, bool lazy) noexcept -> std::string
 {
-  std::string output;
+  auto output = std::string{};
   output.reserve(input.size()); // The output will almost certainly be larger than this, however...
 
-  for (auto &c : input)
+  for (auto const &c : input)
   {
     // Is it an unreserved char? If so, append unchanged
     if (unreserved_chars.find(c) != std::string_view::npos)
@@ -25,7 +25,7 @@ std::string encode(std::string_view input, bool lazy) noexcept
     }
 
     // If we get to here, then it must be a reserved char
-    if (lazy == true) // If we're being lazy, just convert to hex and append
+    if (lazy) // If we're being lazy, just convert to hex and append
     {
       output += ("%" + hmr::hex::encode(c));
 
@@ -53,15 +53,17 @@ std::string encode(std::string_view input, bool lazy) noexcept
   return output;
 }
 
+
 ////////////////////////////////////////////////////////////
-std::string decode(std::string_view input, bool lazy)
+auto decode(std::string_view input, bool lazy) -> std::string
 {
   auto const len = input.size();
 
-  std::string output;
+  auto output = std::string{};
   output.reserve(len); // If there are any percent-encoded elements then we'll actually need less space, but over-reserving probably hurts less than under-reserving
 
-  auto is_valid_hex = [](uint8_t c) { return std::isxdigit(c); };
+  auto is_valid_hex = [](uint8_t c) -> bool
+  { return std::isxdigit(c) != 0; };
 
   for (std::size_t i = 0; i < len; ++i)
   {
@@ -73,7 +75,7 @@ std::string decode(std::string_view input, bool lazy)
         throw hmr::xcpt::url::need_more_data("Not enough chars remaining to parse escape sequence!");
       }
 
-      if (lazy == true) // Are we being lazy? If so, just convert back from hex and append
+      if (lazy) // Are we being lazy? If so, just convert back from hex and append
       {
         // Abort condition - expect valid hex chars
         if (!is_valid_hex(input[i + 1]) || !is_valid_hex(input[i + 2]))

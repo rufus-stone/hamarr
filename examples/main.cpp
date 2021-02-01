@@ -22,7 +22,7 @@ using namespace std::string_literals;
 
 int main()
 {
-  auto test = std::string("Hello, World!");
+  auto const test = std::string("Hello, World!");
 
   spdlog::info("\n\n---[ Formatting ]---\n");
   spdlog::info(hmr::fmt::to_upper(test));
@@ -53,6 +53,10 @@ int main()
   spdlog::info(hmr::hex::encode(uint16_t{4660}, false));
   spdlog::info(hmr::hex::encode(uint32_t{305419896}, false));
   spdlog::info(hmr::hex::encode(uint64_t{1311768467463790320}, false));
+
+
+  spdlog::info("\n\n---[ Hexdump ]---\n");
+  spdlog::info("\n\n{}\n", hmr::hex::dump("Some data with\na mix of printable and \xAB unprintable \x01 stuff"s));
 
 
   spdlog::info("\n\n---[ Binary Strings ]---\n");
@@ -175,16 +179,16 @@ int main()
 
 
   spdlog::info("\n\n---[ Character Frequency Analysis ]---\n");
-  auto freqs_1 = hmr::analysis::character_frequency(test);
+  auto const freqs_1 = hmr::analysis::character_frequency(test);
   hmr::analysis::print_character_frequency(freqs_1);
 
-  auto freqs_2 = hmr::analysis::character_frequency("Mix OF upPer AND LOWER", hmr::analysis::case_sensitivity::disabled);
+  auto const freqs_2 = hmr::analysis::character_frequency("Mix OF upPer AND LOWER", hmr::analysis::case_sensitivity::disabled);
   hmr::analysis::print_character_frequency(freqs_2);
 
-  auto freqs_3 = hmr::analysis::character_frequency("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula eu tempor congue, eros est euismod turpis, id tincidunt sapien risus a quam. Maecenas fermentum consequat mi. Donec fermentum. Pellentesque malesuada nulla a mi. Duis sapien sem, aliquet nec, commodo eget, consequat quis, neque. Aliquam faucibus, elit ut dictum aliquet, felis nisl adipiscing sapien, sed malesuada diam lacus eget erat. Cras mollis scelerisque nunc. Nullam arcu. Aliquam consequat. Curabitur augue lorem, dapibus quis, laoreet et, pretium ac, nisi. Aenean magna nisl, mollis quis, molestie eu, feugiat in, orci. In hac habitasse platea dictumst.");
+  auto const freqs_3 = hmr::analysis::character_frequency("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Curabitur pretium tincidunt lacus. Nulla gravida orci a odio. Nullam varius, turpis et commodo pharetra, est eros bibendum elit, nec luctus magna felis sollicitudin mauris. Integer in mauris eu nibh euismod gravida. Duis ac tellus et risus vulputate vehicula. Donec lobortis risus a elit. Etiam tempor. Ut ullamcorper, ligula eu tempor congue, eros est euismod turpis, id tincidunt sapien risus a quam. Maecenas fermentum consequat mi. Donec fermentum. Pellentesque malesuada nulla a mi. Duis sapien sem, aliquet nec, commodo eget, consequat quis, neque. Aliquam faucibus, elit ut dictum aliquet, felis nisl adipiscing sapien, sed malesuada diam lacus eget erat. Cras mollis scelerisque nunc. Nullam arcu. Aliquam consequat. Curabitur augue lorem, dapibus quis, laoreet et, pretium ac, nisi. Aenean magna nisl, mollis quis, molestie eu, feugiat in, orci. In hac habitasse platea dictumst.");
   hmr::analysis::print_character_frequency(freqs_3);
 
-  auto freqs_4 = hmr::analysis::character_frequency(hmr::prng::bytes(16));
+  auto const freqs_4 = hmr::analysis::character_frequency(hmr::prng::bytes(16));
   hmr::analysis::print_character_frequency(freqs_4);
 
 
@@ -246,8 +250,8 @@ int main()
 
 
   spdlog::info("\n\n---[ Solve Single Byte XOR ]---\n");
-  auto xord = hmr::hex::decode("01 3d 3c 26 75 3c 26 75 34 75 27 30 34 39 39 2c 75 32 27 30 34 21 75 30 2d 34 38 25 39 30 75 3a 33 75 34 75 38 30 31 3c 20 38 75 26 3c 2f 30 31 75 10 3b 32 39 3c 26 3d 75 26 21 27 3c 3b 32 79 75 22 3c 21 3d 75 34 75 32 3a 3a 31 75 38 3c 2d 75 3a 33 75 00 05 05 10 07 16 14 06 10 75 34 3b 31 75 39 3a 22 30 27 36 34 26 30 75 39 30 21 21 30 27 26 79 75 25 20 3b 36 21 20 34 21 3c 3a 3b 79 75 30 21 36 7b 74");
-  auto possible_keys = hmr::analysis::solve_single_byte_xor(xord);
+  auto const xord = hmr::hex::decode("01 3d 3c 26 75 3c 26 75 34 75 27 30 34 39 39 2c 75 32 27 30 34 21 75 30 2d 34 38 25 39 30 75 3a 33 75 34 75 38 30 31 3c 20 38 75 26 3c 2f 30 31 75 10 3b 32 39 3c 26 3d 75 26 21 27 3c 3b 32 79 75 22 3c 21 3d 75 34 75 32 3a 3a 31 75 38 3c 2d 75 3a 33 75 00 05 05 10 07 16 14 06 10 75 34 3b 31 75 39 3a 22 30 27 36 34 26 30 75 39 30 21 21 30 27 26 79 75 25 20 3b 36 21 20 34 21 3c 3a 3b 79 75 30 21 36 7b 74");
+  auto const possible_keys = hmr::analysis::solve_single_byte_xor(xord);
   spdlog::info("XOR key == {}", hmr::hex::encode(possible_keys[0]));
   spdlog::info("Output  == {}", hmr::bitwise::xor_with_key(xord, possible_keys[0]));
 
@@ -255,10 +259,11 @@ int main()
   spdlog::info("\n\n---[ Repeated Block Detection ]---\n");
   spdlog::info(hmr::analysis::repeated_blocks("12345678ABCDEFGH12345678ZYXWVUTS", 8));
   spdlog::info(hmr::analysis::repeated_blocks("11111111111111112222222222222222"));
+  hmr::analysis::repeats("12345678ABCDEFGH12345678ZYXWVUTS");
 
 
   spdlog::info("\n\n---[ Data Serialisation ]---\n");
-  auto kvps = std::map<std::string, std::string>{{"key1", "value1"}, {"key2", "value2"}, {"key3", "value3"}};
+  auto const kvps = std::map<std::string, std::string>{{"key1", "value1"}, {"key2", "value2"}, {"key3", "value3"}};
   spdlog::info(hmr::kvp::serialise(kvps));
 
 
@@ -270,7 +275,7 @@ int main()
   spdlog::info(hmr::base64::encode(hmr::crypto::aes_ecb_encrypt(test, "YELLOW SUBMARINE")));
   spdlog::info(hmr::fmt::escape(hmr::crypto::aes_ecb_decrypt(hmr::base64::decode("401gyzJgpJNkouYaQRZZRg=="), "YELLOW SUBMARINE", false)));
 
-  auto longer_plaintext = std::string{"Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal"};
+  auto const longer_plaintext = std::string{"Burning 'em, if you ain't quick and nimble\nI go crazy when I hear a cymbal"};
   spdlog::info(hmr::base64::encode(hmr::crypto::aes_cbc_encrypt(longer_plaintext, "ORANGE SUBMARINE", "ORANGE SUBMARINE")));
 
 

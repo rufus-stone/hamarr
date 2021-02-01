@@ -15,7 +15,7 @@ auto benchmark(lambda f) -> std::chrono::nanoseconds
 
   auto const finish = std::chrono::high_resolution_clock::now();
 
-  auto nanoseconds_taken = (finish - start); //.count();
+  auto nanoseconds_taken = (finish - start);
 
   return nanoseconds_taken;
 }

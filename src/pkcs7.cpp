@@ -5,7 +5,7 @@ namespace hmr::pkcs7
 {
 
 ////////////////////////////////////////////////////////////
-std::string pad(std::string_view input, std::size_t block_size) noexcept
+auto pad(std::string_view input, std::size_t block_size) noexcept -> std::string
 {
   uint8_t pad_byte = input.size() % block_size;
 
@@ -16,7 +16,7 @@ std::string pad(std::string_view input, std::size_t block_size) noexcept
 
   pad_byte = block_size - pad_byte;
 
-  std::string output;
+  auto output = std::string{};
   output.reserve(input.size() + pad_byte);
 
   output = input;
@@ -30,7 +30,7 @@ std::string pad(std::string_view input, std::size_t block_size) noexcept
 }
 
 ////////////////////////////////////////////////////////////
-std::string unpad(std::string_view input, std::size_t block_size)
+auto unpad(std::string_view input, std::size_t block_size) -> std::string
 {
   // Is the input not actually pkcs7 padded?
   if (!pkcs7::padded(input, block_size))
@@ -38,9 +38,9 @@ std::string unpad(std::string_view input, std::size_t block_size)
     return std::string{input.data()};
   }
 
-  uint8_t pad_byte = static_cast<uint8_t>(input[input.size() - 1]);
+  auto const pad_byte = static_cast<uint8_t>(input[input.size() - 1]);
 
-  std::string output;
+  auto output = std::string{};
   output.reserve(input.size() - pad_byte);
 
   output = input.substr(0, input.size() - pad_byte);

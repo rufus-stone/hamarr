@@ -4,15 +4,16 @@
 namespace hmr::analysis
 {
 
-////////////////////////////////////////////////////////////
-std::vector<std::size_t> character_frequency(std::string_view input, analysis::case_sensitivity sensitivity)
+static constexpr std::size_t possible_byte_values = 256;
+
+////////////////////////////////////////////////////////////////
+auto character_frequency(std::string_view input, analysis::case_sensitivity sensitivity) -> std::vector<std::size_t>
 {
-  auto freqs = std::vector<std::size_t>(256, 0); // Create a vector of 256 entries (one for each possible byte value), and set all to 0
+  auto freqs = std::vector<std::size_t>(possible_byte_values, 0); // Create a vector of 256 entries (one for each possible byte value), and set all to 0
 
   switch (sensitivity)
   {
-    case analysis::case_sensitivity::enabled:
-    {
+    case analysis::case_sensitivity::enabled: {
       // Increment the value at the index of the current char by one
       for (auto const &ch : input)
       {
@@ -21,8 +22,7 @@ std::vector<std::size_t> character_frequency(std::string_view input, analysis::c
     }
     break;
 
-    case analysis::case_sensitivity::disabled:
-    {
+    case analysis::case_sensitivity::disabled: {
       // Increment the value at the index of the current char by one - normalise to lower case first
       for (auto const &ch : input)
       {
@@ -36,7 +36,7 @@ std::vector<std::size_t> character_frequency(std::string_view input, analysis::c
 }
 
 
-////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 void print_character_frequency(std::vector<std::size_t> freqs, bool const show_zeros)
 {
   for (std::size_t i = 0; i < freqs.size(); ++i)
@@ -70,7 +70,7 @@ void print_character_frequency(std::vector<std::size_t> freqs, bool const show_z
 }
 
 
-////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 auto find_candidate_keysize(std::string_view input, std::size_t const min, std::size_t const max, bool const debug_flag) -> std::pair<std::size_t, double>
 {
   auto const len = input.size();
@@ -111,13 +111,18 @@ auto find_candidate_keysize(std::string_view input, std::size_t const min, std::
   }
 
   // Pick the key_size with the lowest average hamming distance - this is the best candidate for the actual key size
-  auto best_candidate = std::min_element(std::begin(average_hams), std::end(average_hams), [](auto const &lhs, auto const &rhs) { return lhs.second < rhs.second; });
-  if (debug_flag) std::cout << "Best candidate key size: " << best_candidate->first << " (average Hamming distance: " << best_candidate->second << ")\n";
+  auto best_candidate = std::min_element(std::begin(average_hams), std::end(average_hams), [](auto const &lhs, auto const &rhs)
+    { return lhs.second < rhs.second; });
+
+  if (debug_flag)
+  {
+    std::cout << "Best candidate key size: " << best_candidate->first << " (average Hamming distance: " << best_candidate->second << ")\n";
+  }
 
   return *best_candidate;
 }
 
-////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////
 auto solve_single_byte_xor(std::string_view input, bool const debug_flag) -> std::vector<uint8_t>
 {
   uint8_t key = 0x00;
@@ -140,10 +145,40 @@ auto solve_single_byte_xor(std::string_view input, bool const debug_flag) -> std
   if (possible_keys.empty() && debug_flag)
   {
     std::cout << "Failed to find any possible keys!\n";
-    std::cout << "Input was: " <<  input << '\n';
+    std::cout << "Input was: " << input << '\n';
   }
 
   return possible_keys;
+}
+
+////////////////////////////////////////////////////////////////
+auto repeats(std::string_view input, std::size_t const min_len, std::size_t max_len) -> std::vector<std::string_view>
+{
+  auto output = std::vector<std::string_view>{};
+
+  std::size_t const data_len = input.size();
+
+  // Is the input at least big enough to fit 2 * min_len?
+  if (data_len < min_len * 2)
+  {
+    std::cout << "Input too short to look for sequences of " << min_len << " bytes!\n";
+    return output;
+  }
+
+  // Chunk the input into windows of all possible sizes between min_len and max_len (or input.size() if max_len is bigger)
+  max_len = std::min(max_len, input.size()) / 2;
+
+  for (std::size_t win_len = min_len; win_len < max_len; ++win_len)
+  {
+    // Slide the window along
+    for (std::size_t offset = 0; offset < data_len / 2; ++offset)
+    {
+      auto window = input.substr(offset, win_len);
+      std::cout << "Window [" << offset << ":" << win_len << "] == " << window << '\n';
+    }
+  }
+
+  return output;
 }
 
 } // namespace hmr::analysis

@@ -11,9 +11,9 @@ namespace hmr::kvp
 using kvps = std::map<std::string, std::string>;
 
 ////////////////////////////////////////////////////////////
-std::string serialise(kvps input, char kv_delimiter = '=', char kvp_delimiter = '&');
+auto serialise(kvps const &input, char kv_delimiter = '=', char kvp_delimiter = '&') -> std::string;
 
 ////////////////////////////////////////////////////////////
-kvps deserialise(std::string_view input, char kv_delimiter = '=', char kvp_delimiter = '&');
+auto deserialise(std::string_view input, char kv_delimiter = '=', char kvp_delimiter = '&') -> kvps;
 
 } // namespace hmr::kvp

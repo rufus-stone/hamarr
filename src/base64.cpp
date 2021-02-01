@@ -8,11 +8,13 @@
 namespace hmr::base64
 {
 
+static constexpr std::size_t base64_alphabet_len = 65; // 64 alphabet chars + 1 padding char
+
 ////////////////////////////////////////////////////////////
-std::string encode(std::string_view input, std::string_view alphabet)
+auto encode(std::string_view input, std::string_view alphabet) -> std::string
 {
   // Abort condition - is the alphabet exactly 65 chars (64 alphabet chars + 1 padding char)?
-  if (alphabet.size() != 65)
+  if (alphabet.size() != base64_alphabet_len)
   {
     throw hmr::xcpt::base64::invalid_alphabet("Base64 alphabet is only " + std::to_string(alphabet.size()) + " characters long! Must be exactly 65 (64 alphabet chars + 1 padding char)!");
   }
@@ -27,11 +29,11 @@ std::string encode(std::string_view input, std::string_view alphabet)
 
   std::size_t len = input.size();
 
-  std::string output;
+  auto output = std::string{};
   output.reserve(len * (4 / 3)); // Base64 encoding turns 3 bytes into 4, so the resulting data is 1 1/3 times the size of the input
 
   // Get a uint8_t pointer to the data
-  auto data = reinterpret_cast<uint8_t const *>(input.data());
+  auto const *data = reinterpret_cast<uint8_t const *>(input.data());
 
   // Loop through the input 3 bytes at a time
   for (std::size_t i = 0; i < len; i += 3)
@@ -54,9 +56,9 @@ std::string encode(std::string_view input, std::string_view alphabet)
 
     // Then the 24 bit number is split into 4 x 8 bit numbers
     uint8_t a = ((n >> 18) & 63);
-    uint8_t b = static_cast<uint8_t>((n >> 12) & 63);
-    uint8_t c = static_cast<uint8_t>((n >> 6) & 63);
-    uint8_t d = static_cast<uint8_t>(n & 63);
+    auto b = static_cast<uint8_t>((n >> 12) & 63);
+    auto c = static_cast<uint8_t>((n >> 6) & 63);
+    auto d = static_cast<uint8_t>(n & 63);
 
     // Finally, use these 4 numbers to look up the corresponding base64 character
     output.push_back(alphabet[a]);
@@ -74,7 +76,7 @@ std::string encode(std::string_view input, std::string_view alphabet)
   }
 
   // Input length should be a multiple of 3 - if not, pad with 1 or 2 padding chars
-  int pad = len % 3;
+  std::size_t pad = len % 3;
   switch (pad)
   {
     case 1:
@@ -90,10 +92,10 @@ std::string encode(std::string_view input, std::string_view alphabet)
 
 
 ////////////////////////////////////////////////////////////
-std::string decode(std::string_view input, std::string_view alphabet)
+auto decode(std::string_view input, std::string_view alphabet) -> std::string
 {
   // Abort condition - is the alphabet exactly 65 chars (64 alphabet chars + 1 padding char)?
-  if (alphabet.size() != 65)
+  if (alphabet.size() != base64_alphabet_len)
   {
     throw hmr::xcpt::base64::invalid_alphabet("Base64 alphabet is only " + std::to_string(alphabet.size()) + " characters long! Must be exactly 65 (64 alphabet chars + 1 padding char)!");
   }
@@ -124,9 +126,9 @@ std::string decode(std::string_view input, std::string_view alphabet)
   }
 
   // We want to ignore any padding, so check if it's present. If it is, we'll stop our base64 decoding loop at that point, otherwise we'll go until the end
-  auto end = std::find(std::begin(input), std::end(input), alphabet[alphabet.size() - 1]);
+  auto const *end = std::find(std::begin(input), std::end(input), alphabet[alphabet.size() - 1]);
 
-  std::string output;
+  auto output = std::string{};
   output.reserve(len * (3 / 4)); // Base64 decoding turns 4 bytes into 3, so the resulting data is 3/4 times the size of the input
 
   // Lambda to perform conversion from a given base64 character to the index within the chosen base64 alphabet for that character
@@ -146,7 +148,7 @@ std::string decode(std::string_view input, std::string_view alphabet)
   };
 
   // We'll iterate through the input grabbing 4 bytes at a time, unless only 3 or 2 bytes remain at the end in which case we handle those slightly differently
-  auto iter = input.begin();
+  auto const *iter = input.begin();
 
   while (iter < end)
   {
@@ -160,8 +162,7 @@ std::string decode(std::string_view input, std::string_view alphabet)
     auto remaining = (end - iter > 4) ? 4 : end - iter;
     switch (remaining)
     {
-      case 4:
-      {
+      case 4: {
         // Take the current block of 4 x base64 chars and look up their positions in the base64 alphabet
         uint8_t a = b64_to_uint8_t(*iter++);
         uint8_t b = b64_to_uint8_t(*iter++);
@@ -183,8 +184,7 @@ std::string decode(std::string_view input, std::string_view alphabet)
 
         break;
       }
-      case 3:
-      {
+      case 3: {
         // Take the current block of 3 x base64 chars and look up their positions in the base64 alphabet
         uint8_t a = b64_to_uint8_t(*iter++);
         uint8_t b = b64_to_uint8_t(*iter++);
@@ -203,8 +203,7 @@ std::string decode(std::string_view input, std::string_view alphabet)
 
         break;
       }
-      case 2:
-      {
+      case 2: {
         // Take the current block of 2 x base64 chars and look up their positions in the base64 alphabet
         uint8_t a = b64_to_uint8_t(*iter++);
         uint8_t b = b64_to_uint8_t(*iter++);
@@ -212,7 +211,7 @@ std::string decode(std::string_view input, std::string_view alphabet)
         // Take the 3 x 8 bit numbers from the base64 alphabet index and turn back into 1 x 24 bit number
         uint32_t n = static_cast<uint32_t>(a) << 18 | static_cast<uint32_t>(b) << 12;
 
-        // Then split the 24 bit number back into 2 bytes
+        // Then turn the 24 bit number back into 1 byte
         auto d1 = static_cast<char>(n >> 16);
 
         // Finally, add this 1 byte of decoded data to the output
