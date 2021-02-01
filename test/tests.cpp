@@ -21,17 +21,38 @@
 
 using namespace std::string_literals;
 
-// hmr::format
-TEST_CASE("hmr::format", "[formatting]")
+// hmr::fmt
+TEST_CASE("hmr::fmt", "[formatting]")
 {
   auto const input = "Hello,\nWorld!"s;
-  REQUIRE(hmr::format::to_upper(input) == "HELLO,\nWORLD!"s);
-  REQUIRE(hmr::format::to_lower(input) == "hello,\nworld!"s);
+  REQUIRE(hmr::fmt::to_upper(input) == "HELLO,\nWORLD!"s);
+  REQUIRE(hmr::fmt::to_lower(input) == "hello,\nworld!"s);
 
-  REQUIRE(hmr::format::escape(input) == "Hello,\\nWorld!"s);
-  REQUIRE(hmr::format::unescape("Hello,\\nWorld!"s) == input);
+  REQUIRE(hmr::fmt::escape(input) == "Hello,\\nWorld!"s);
+  REQUIRE(hmr::fmt::unescape("Hello,\\nWorld!"s) == input);
 
-  REQUIRE(hmr::format::split(input, '\n') == std::vector<std::string>{"Hello,", "World!"});
+  auto const split_test = "AABBCCDD\nEEFFGG!"s;
+  REQUIRE(hmr::fmt::split(split_test, '\n') == std::vector<std::string>{"AABBCCDD", "EEFFGG!"});
+  REQUIRE(hmr::fmt::split(split_test, 'D') == std::vector<std::string>{"AABBCC", "\nEEFFGG!"});
+  REQUIRE(hmr::fmt::split(split_test, 'D', false) == std::vector<std::string>{"AABBCC", "", "\nEEFFGG!"});
+  REQUIRE(hmr::fmt::split(split_test, 'A', true, false) == std::vector<std::string>{"", "BBCCDD\nEEFFGG!"});
+  REQUIRE(hmr::fmt::split(split_test, 'A', false, false) == std::vector<std::string>{"", "", "BBCCDD\nEEFFGG!"});
+
+  REQUIRE(hmr::fmt::split(split_test, "\nF") == std::vector<std::string>{"AABBCCDD", "EE", "GG!"});
+  REQUIRE(hmr::fmt::split(split_test, "\nF", false) == std::vector<std::string>{"AABBCCDD", "EE", "", "GG!"});
+  REQUIRE(hmr::fmt::split(split_test, "AF") == std::vector<std::string>{"BBCCDD\nEE", "GG!"});
+  REQUIRE(hmr::fmt::split(split_test, "AF", true, false) == std::vector<std::string>{"", "BBCCDD\nEE", "GG!"});
+  REQUIRE(hmr::fmt::split(split_test, "AF", false, false) == std::vector<std::string>{"", "", "BBCCDD\nEE", "", "GG!"});
+
+  auto const strip_test_1 = "  \nThis is a test! "s;
+  REQUIRE(hmr::fmt::lstrip(strip_test_1) == "This is a test! "s);
+  REQUIRE(hmr::fmt::rstrip(strip_test_1) == "  \nThis is a test!"s);
+  REQUIRE(hmr::fmt::strip(strip_test_1) == "This is a test!"s);
+
+  auto const strip_test_2 = "ABCThis is a test!CBA"s;
+  REQUIRE(hmr::fmt::lstrip(strip_test_2, "ABC") == "This is a test!CBA"s);
+  REQUIRE(hmr::fmt::rstrip(strip_test_2, "ABC") == "ABCThis is a test!"s);
+  REQUIRE(hmr::fmt::strip(strip_test_2, "ABC") == "This is a test!"s);
 }
 
 // hmr::hex

@@ -7,7 +7,7 @@ namespace hmr::pkcs7
 {
 
 ////////////////////////////////////////////////////////////
-constexpr bool padded(std::string_view input, std::size_t block_size = 16) noexcept
+constexpr auto padded(std::string_view input, std::size_t block_size = 16) noexcept -> bool
 {
   uint8_t pad_byte = static_cast<uint8_t>(input[input.size() - 1]);
 
@@ -42,9 +42,9 @@ constexpr bool padded(std::string_view input, std::size_t block_size = 16) noexc
 }
 
 ////////////////////////////////////////////////////////////
-std::string pad(std::string_view input, std::size_t block_size = 16) noexcept;
+auto pad(std::string_view input, std::size_t block_size = 16) noexcept -> std::string;
 
 ////////////////////////////////////////////////////////////
-std::string unpad(std::string_view input, std::size_t block_size = 16);
+auto unpad(std::string_view input, std::size_t block_size = 16) -> std::string;
 
 } // namespace hmr::pkcs7

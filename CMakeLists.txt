@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.15...3.18)
+cmake_minimum_required(VERSION 3.15...3.19)
 
 #[[
 -------------
@@ -8,7 +8,7 @@ Project Setup
 
 project(
   hamarr
-  VERSION 1.2.3
+  VERSION 1.3.0
   DESCRIPTION "A C++ toolbox for data manipulation."
   HOMEPAGE_URL "https://github.com/rufus-stone/hamarr"
   LANGUAGES CXX)
@@ -58,6 +58,29 @@ target_include_directories(
   PUBLIC $<BUILD_INTERFACE:${${PROJECT_NAME}_SOURCE_DIR}/include>
          $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>)
 
+
+# Check if Hamarr is being used as the main project vs. via sub_directory() or
+# similar. We'll use this to enable or disable tests, installation, etc.
+if(NOT DEFINED HAMARR_MAIN_PROJECT)
+  if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
+    set(HAMARR_MAIN_PROJECT ON)
+  else()
+    set(HAMARR_MAIN_PROJECT OFF)
+  endif()
+endif()
+
+#[[
+option(ENABLE_CLANG_TIDY "Enable clang-tidy" ${HAMARR_MAIN_PROJECT})
+if(ENABLE_CLANG_TIDY)
+  find_program(CLANGTIDY clang-tidy)
+  if(CLANGTIDY)
+    set_target_properties(${PROJECT_NAME} PROPERTIES CXX_CLANG_TIDY "${CLANGTIDY};--extra-arg-before=-std=c++17 -extra-arg=-Wno-unknown-warning-option")
+  else()
+    message(SEND_ERROR "clang-tidy requested but executable not found")
+  endif()
+endif()
+]]
+
 #[[
 ------------
 Dependencies
@@ -73,16 +96,6 @@ target_link_libraries(${PROJECT_NAME} PUBLIC OpenSSL::SSL)
 Tests and Examples
 ------------------
 ]]
-
-# Check if Hamarr is being used as the main project vs. via sub_directory() or
-# similar. We'll use this to enable or disable tests, installation, etc.
-if(NOT DEFINED HAMARR_MAIN_PROJECT)
-  if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
-    set(HAMARR_MAIN_PROJECT ON)
-  else()
-    set(HAMARR_MAIN_PROJECT OFF)
-  endif()
-endif()
 
 option(BUILD_HAMARR_TESTS "Build Hamarr tests" ${HAMARR_MAIN_PROJECT})
 

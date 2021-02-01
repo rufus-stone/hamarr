@@ -2,50 +2,54 @@
 
 #include <random>
 #include <type_traits>
+#include <string>
+#include <vector>
 
 namespace hmr::prng
 {
-// We can reuse the random engine, so declare once statically here
-static std::mt19937 random_engine{std::random_device{}()};
 
 ////////////////////////////////////////////////////////////
 template<typename T, typename = std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>>>
-static T number() noexcept
+auto number() noexcept -> T
 {
+  std::mt19937 random_engine{std::random_device{}()};
+
   // Is it an integer type? Use std::uniform_int_distribution if so
   if constexpr (std::is_integral_v<T>)
   {
-    static std::uniform_int_distribution<T> distribution(std::numeric_limits<T>::min(), std::numeric_limits<T>::max());
+    std::uniform_int_distribution<T> distribution(std::numeric_limits<T>::min(), std::numeric_limits<T>::max());
     return distribution(random_engine);
 
     // ...or is it a floating point type? Use std::uniform_real_distribution if so
   } else if constexpr (std::is_floating_point_v<T>)
   {
-    static std::uniform_real_distribution<T> distribution(std::numeric_limits<T>::min(), std::numeric_limits<T>::max());
+    std::uniform_real_distribution<T> distribution(std::numeric_limits<T>::min(), std::numeric_limits<T>::max());
     return distribution(random_engine);
   }
 }
 
 ////////////////////////////////////////////////////////////
 template<typename T, typename = std::enable_if_t<std::is_integral_v<T> || std::is_floating_point_v<T>>>
-static T number_between(T min, T max) noexcept
+auto number_between(T min, T max) noexcept -> T
 {
+  std::mt19937 random_engine{std::random_device{}()};
+
   // Is it an integer type? Use std::uniform_int_distribution if so
   if constexpr (std::is_integral_v<T>)
   {
-    static std::uniform_int_distribution<T> distribution(min, max);
+    std::uniform_int_distribution<T> distribution(min, max);
     return distribution(random_engine);
 
     // ...or is it a floating point type? Use std::uniform_real_distribution if so
   } else if constexpr (std::is_floating_point_v<T>)
   {
-    static std::uniform_real_distribution<T> distribution(min, max);
+    std::uniform_real_distribution<T> distribution(min, max);
     return distribution(random_engine);
   }
 }
 
 
 ////////////////////////////////////////////////////////////
-std::string bytes(std::size_t quantity) noexcept;
+auto bytes(std::size_t const quantity) -> std::string;
 
 } // namespace hmr::prng
