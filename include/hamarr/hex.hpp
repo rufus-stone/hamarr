@@ -18,19 +18,19 @@ using namespace std::string_view_literals;
 constexpr auto hex_alphabet = "0123456789ABCDEF"sv;
 
 ////////////////////////////////////////////////////////////
-std::string encode(std::string_view input, bool delimited = true) noexcept;
+auto encode(std::string_view input, bool delimited = true) noexcept -> std::string;
 
 ////////////////////////////////////////////////////////////
-std::string encode(char const *input, bool delimited = true) noexcept;
+auto encode(char const *input, bool delimited = true) noexcept -> std::string;
 
 ////////////////////////////////////////////////////////////
 template<typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
-std::string encode(T input, bool delimited = true)
+auto encode(T input, bool delimited = true) -> std::string
 {
   // How many bytes is the integral value?
   std::size_t const s = sizeof(input);
 
-  std::string output;
+  auto output = std::string{};
   output.reserve(s);
 
   // There's probably a smarter way to do this, but for now just manually code in options for 1, 2, 4 and 8 byte integrals
@@ -98,12 +98,12 @@ std::string encode(T input, bool delimited = true)
 
 
 ////////////////////////////////////////////////////////////
-std::string decode(std::string_view input);
+auto decode(std::string_view input) -> std::string;
 
 
 ////////////////////////////////////////////////////////////
 template<typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
-T decode(std::string_view input)
+auto decode(std::string_view input) -> T
 {
   // Normalize the string by converting to uppercase
   auto to_upper = [](std::string_view input_)
@@ -111,7 +111,8 @@ T decode(std::string_view input)
     std::string output_;
     output_.reserve(input_.size());
 
-    std::transform(input_.begin(), input_.end(), std::back_inserter(output_), [](unsigned char const ch) { return std::toupper(ch); });
+    std::transform(input_.begin(), input_.end(), std::back_inserter(output_), [](unsigned char const ch)
+      { return std::toupper(ch); });
     return output_;
   };
 
@@ -164,5 +165,9 @@ T decode(std::string_view input)
 
   return output;
 }
+
+
+////////////////////////////////////////////////////////////
+auto dump(std::string_view input) -> std::string;
 
 } // namespace hmr::hex

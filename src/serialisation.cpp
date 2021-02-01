@@ -10,7 +10,7 @@ namespace hmr::kvp
 {
 
 ////////////////////////////////////////////////////////////
-std::string serialise(kvps input, char kv_delimiter, char kvp_delimiter)
+auto serialise(kvps const &input, char kv_delimiter, char kvp_delimiter) -> std::string
 {
   auto output = std::string{};
 
@@ -28,7 +28,7 @@ std::string serialise(kvps input, char kv_delimiter, char kvp_delimiter)
 
 
 ////////////////////////////////////////////////////////////
-kvps deserialise(std::string_view input, char kv_delimiter, char kvp_delimiter)
+auto deserialise(std::string_view input, char kv_delimiter, char kvp_delimiter) -> kvps
 {
   auto output = kvps{};
 
@@ -36,7 +36,7 @@ kvps deserialise(std::string_view input, char kv_delimiter, char kvp_delimiter)
   auto const pairs = hmr::fmt::split(input, kvp_delimiter);
 
   // Now divide each group into a key-value pair and add to the output map
-  for (auto const pair : pairs)
+  for (auto const &pair : pairs)
   {
     auto key_value_pair = hmr::fmt::split(pair, kv_delimiter);
 

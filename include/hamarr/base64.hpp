@@ -12,7 +12,7 @@ using namespace std::string_view_literals;
 constexpr auto base64_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/="sv;
 
 ////////////////////////////////////////////////////////////
-constexpr auto is_invalid_alphabet = [](std::string_view input) noexcept
+constexpr auto is_invalid_alphabet = [](std::string_view input) noexcept -> bool
 {
   auto counts = std::array<std::size_t, 265>{};
 
@@ -30,9 +30,9 @@ constexpr auto is_invalid_alphabet = [](std::string_view input) noexcept
 };
 
 ////////////////////////////////////////////////////////////
-std::string encode(std::string_view input, std::string_view alphabet = base64_alphabet);
+auto encode(std::string_view input, std::string_view alphabet = base64_alphabet) -> std::string;
 
 ////////////////////////////////////////////////////////////
-std::string decode(std::string_view input, std::string_view alphabet = base64_alphabet);
+auto decode(std::string_view input, std::string_view alphabet = base64_alphabet) -> std::string;
 
 } // namespace hmr::base64

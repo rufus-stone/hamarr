@@ -12,9 +12,9 @@ using namespace std::string_view_literals;
 constexpr auto unreserved_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_.~"sv;
 
 ////////////////////////////////////////////////////////////
-std::string encode(std::string_view input, bool lazy = false) noexcept;
+auto encode(std::string_view input, bool lazy = false) noexcept -> std::string;
 
 ////////////////////////////////////////////////////////////
-std::string decode(std::string_view input, bool lazy = false);
+auto decode(std::string_view input, bool lazy = false) -> std::string;
 
 } // namespace hmr::url

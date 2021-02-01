@@ -4,13 +4,13 @@
 
 A collection of C++ utilities for performing various kinds of encoding/decoding and other data manipulation operations.
 
-This began life as things I found useful when playing around with the first few [cryptopals challenges](https://cryptopals.com), but has grown to include other kinds of data manipulation operations, functions for generating psuedo-random numbers, very basic benchmarking, encryption/decryption, etc. Basically it's a bunch of stuff that I wish was already available as easy-to-use functions.
+This began life as things I found useful when playing around with the first few [cryptopals challenges](https://cryptopals.com), but has grown to include other kinds of data manipulation operations, functions for generating psuedo-random numbers, very basic benchmarking, encryption/decryption, etc. Basically it's a bunch of stuff that I wish was already available as easy-to-use functions. I also don't know what I'm doing, so it's probably horribly broken in places and very poorly written, but it continues to be a fun excuse to practice some C++
 
 
 ## Requirements
 
 - C++17
-- CMake 3.15 or higher (currently tested up to 3.18)
+- CMake 3.15 or higher (currently tested up to 3.19)
 - OpenSSL
 
 
@@ -129,21 +129,21 @@ To escape/unescape a string that contains unprintable characters, newlines, etc.
 These both take a `std::string_view` input, and return a `std::string` output. If `hmr::fmt::unescape()` encounters any incomplete escape sequences, an exception is thrown. For example:
 
 ```cpp
-auto escaped = hmr::fmt::escape("This \\ has newlines \n and carriage returns \r and unprintable \x7F hex chars"); // escaped contains the string "This \\ has newlines \n and carriage returns \r and unprintable \x7F hex chars"
+std::string escaped   = hmr::fmt::escape("This \\ has newlines \n and carriage returns \r and unprintable \x7F hex chars"); // escaped contains the string "This \\ has newlines \n and carriage returns \r and unprintable \x7F hex chars"
 
-auto unescaped = hmr::fmt::unescape("Backslash \\ hex 1234 \x31\x32\x33\x34"); // unescaped contains the string "Backslash \ hex 1234 1234"
+std::string unescaped = hmr::fmt::unescape("Backslash \\ hex 1234 \x31\x32\x33\x34"); // unescaped contains the string "Backslash \ hex 1234 1234"
 
-auto broken = hmr::fmt::unescape("\\x"); // the hex escape sequence is incomplete, so an exception of type hmr::xcpt::format::need_more_data is thrown
+std::string broken    = hmr::fmt::unescape("\\x"); // the hex escape sequence is incomplete, so an exception of type hmr::xcpt::format::need_more_data is thrown
 ```
 To split a string around a delimiter, there are two overloads of the following function:
 
 `hmr::fmt::split()`
 
-This takes two inputs - a `std::string_view` for the data you wish to split, and a either a `char` to specify the delimter or a `std::string_view` to specify a multiple delimiters. For example:
+This takes two inputs - a `std::string_view` for the data you wish to split, and a either a `char` to specify the delimter or a `std::string_view` to specify a multiple delimiters. It returns a `std::vector<std::string>`. For example:
 
 ```cpp
-auto split_1 = hmr::fmt::split("This is split around spaces", ' '); // split_1[0] == "This", split_1[1] == "is"
-auto split_2 = hmr::fmt::split("Split on A or B etc", "AB");        // split_2[0] == "Split on ", split_2[1] == " or ", split_2[2] == " etc"
+std::vector<std::string> split_1 = hmr::fmt::split("This is split around spaces", ' '); // split_1[0] == "This", split_1[1] == "is"
+std::vector<std::string> split_2 = hmr::fmt::split("Split on A or B etc", "AB");        // split_2[0] == "Split on ", split_2[1] == " or ", split_2[2] == " etc"
 ```
 
 By default, the split functions collapse multiple adjacent delimiters together treating them as a single delimiter, and they also ignore any leading delimiters, but both of these behaviours can be disabled. For example:
@@ -166,10 +166,10 @@ To strip leading or trailing characters from a string, there are the following f
 These all take a `std::string_view` input and optionally a `std::string_view` to specify the set of characters to strip (this defaults to whitespace, new lines, etc.) from the left, right, and both sides respectively, and return a `std::string_view` output. For example:
 
 ```cpp
-auto left   = hmr::fmt::lstrip("       This is a test    ");  // stripped == std::string_view{"This is a test    "}
-auto right  = hmr::fmt::rstrip("       This is a test    ");  // stripped == std::string_view{"       This is a test"}
-auto both   = hmr::fmt::strip("       This is a test    ");   // stripped == std::string_view{"This is a test"}
-auto custom = hmr::fmt::strip("+-!This is a test+-!", "+-!"); // custom == std::string_view{"This is a test"}
+std::string_view left   = hmr::fmt::lstrip("       This is a test    ");  // stripped == std::string_view{"This is a test    "}
+std::string_view right  = hmr::fmt::rstrip("       This is a test    ");  // stripped == std::string_view{"       This is a test"}
+std::string_view both   = hmr::fmt::strip("       This is a test    ");   // stripped == std::string_view{"This is a test"}
+std::string_view custom = hmr::fmt::strip("+-!This is a test+-!", "+-!"); // custom == std::string_view{"This is a test"}
 ```
 
 
@@ -186,7 +186,7 @@ To convert to/from hexadecimal string representations of data, there are various
 The `hmr::hex::encode()` function can take a `std::string_view`, a `const char*`, or any kind of integral value as its input, and will return a `std::string` containing the hex representation of the input. For example:
 
 ```cpp
-auto encoded = hmr::hex::encode("Hello, World!"); // encoded contains the string "48 65 6C 6C 6F 2C 20 57 6F 72 6C 64 21"
+std::string encoded = hmr::hex::encode("Hello, World!"); // encoded contains the string "48 65 6C 6C 6F 2C 20 57 6F 72 6C 64 21"
 
 encoded = hmr::hex::encode(27); // encoded contains the string "00 00 00 1B" (as an int is normally 4 bytes)
 
@@ -196,7 +196,7 @@ encoded = hmr::hex::encode(uint8_t{27}); // encoded contains the string "1B"
 You can disable the insertion of spaces after each hex pair by adding the argument `false` to the function parameters. This is set to `true` by default. For example:
 
 ```cpp
-auto encoded = hmr::hex::encode("Hello, World!", false); // encoded contains the string "48656C6C6F2C20576F726C6421"
+std::string encoded = hmr::hex::encode("Hello, World!", false); // encoded contains the string "48656C6C6F2C20576F726C6421"
 
 encoded = hmr::hex::encode(uint16_t{4660}, false); // encoded contains the string "1234"
 ```
@@ -204,7 +204,7 @@ encoded = hmr::hex::encode(uint16_t{4660}, false); // encoded contains the strin
 The `hmr::hex::decode()` function has two variants. The un-templated variant takes a `std::string_view` as its input and returns a `std::string` containing the decoded bytes. It ignores any whitespace, so it doesn't matter if you feed it a hex string with spaces between the hex pairs or not, and is case insensitive. For example:
 
 ```cpp
-auto decoded = hmr::hex::decode("48 65 6C 6C 6F 2C 20 57 6F 72 6C 64 21"); // decoded contains the string "Hello, World!"
+std::string decoded = hmr::hex::decode("48 65 6C 6C 6F 2C 20 57 6F 72 6C 64 21"); // decoded contains the string "Hello, World!"
 
 decoded = hmr::hex::decode("48656C6C6F2C20576F726C6421"); // decoded still contains the string "Hello, World!"
 
@@ -229,7 +229,29 @@ auto decoded_6 = hmr::hex::decode<uint8_t>("FF FF FF FF"); // The input contains
 
 If the input to `hmr::hex::decode()` contains invalid hex characters, or is uneven in length (not counting any whitespace), an exception is thrown.
 
-- Todo: Should the return type of the templated variant (or indeed, of all these functions?) be a `std::optional`? Would that make handling incorrect inputs easier?
+
+To generate a hexdump of some data, there is the following function:
+
+`hmr::hex::dump()`
+
+This takes a `std::string_view` input and returns a `std::string` with a hexdump representation of the data. For example:
+
+```cpp
+
+std::cout << hmr::hex::dump("Some data with\na mix of printable and \xAB unprintable \x01 stuff"s);
+
+/* Prints:
+
+00000000  53 6F 6D 65 20 64 61 74  61 20 77 69 74 68 0A 61  |Some data with.a|
+00000010  20 6D 69 78 20 6F 66 20  70 72 69 6E 74 61 62 6C  | mix of printabl|
+00000020  65 20 61 6E 64 20 AB 20  75 6E 70 72 69 6E 74 61  |e and . unprinta|
+00000030  62 6C 65 20 01 20 73 74  75 66 66                 |ble . stuff|
+0000003B
+
+*/
+```
+
+- Todo: Allow the user to specify how many bytes to display per line
 
 
 ### Binary
@@ -245,7 +267,7 @@ To convert to/from binary string representations of data, there are two function
 The `hmr::binary::encode()` function can take a `std::string_view` or any kind of integral value as its input, and will return a `std::string` containing the binary representation of the Input. Similar to `hmr::hex::encode()`, you can optionally disable the insertion of spaces after each byte's worth of bits. This functionality is enabled by default, so to disable it add the argument `false` to the function. For example:
 
 ```cpp
-auto encoded = hmr::binary::encode("Hello, World!"); // encoded contains the string "01001000 01100101 01101100 01101100 01101111 00101100 00100000 01010111 01101111 01110010 01101100 01100100 00100001"
+std::string encoded = hmr::binary::encode("Hello, World!"); // encoded contains the string "01001000 01100101 01101100 01101100 01101111 00101100 00100000 01010111 01101111 01110010 01101100 01100100 00100001"
 
 encoded = hmr::binary::encode("Hello, World!", false); // encoded contains the string "01001000011001010110110001101100011011110010110000100000010101110110111101110010011011000110010000100001"
 
@@ -255,7 +277,7 @@ encoded = hmr::binary::encode(uint16_t{4660}); // encoded contains the string "0
 Decoding from binary is similarly straightforward (it also ignores any whitespace), although there are two variants. The un-templated variant takes a `std::string` as its input and returns a `std::string` made from the decoded binary. For example:
 
 ```cpp
-auto decoded = hmr::binary::decode("01001000 01100101 01101100 01101100 01101111 00101100 00100000 01010111 01101111 01110010 01101100 01100100 00100001"); // decoded contains the string "Hello, World!"
+std::string decoded = hmr::binary::decode("01001000 01100101 01101100 01101100 01101111 00101100 00100000 01010111 01101111 01110010 01101100 01100100 00100001"); // decoded contains the string "Hello, World!"
 ```
 
 The templated variant takes a `std::string` as its input but returns an integral value of the type specified. The number of bytes worth of bits in the input must exactly match the size of the return type. For example:
@@ -271,7 +293,6 @@ auto decoded_3 = hmr::binary::decode<int16_t>("11111111 00000000"); // decoded_3
 If the input to `hmr::binary::decode()` contains anything other than 1s and 0s (and whitespace), or its length is not divisible by 8 (not counting any whitespace), an exception is thrown.
 
 - Todo: Allow the templated variant to work even if the input does not exactly match the size of the return type, e.g. allow an input of "11111111" to produce a `uint16_t` with the value 255 (0x00FF)
-- Todo: Should the return type of the templated variant (or indeed, of all these functions?) be a `std::optional`? Would that make handling incorrect inputs easier?
 
 
 ### Base64
@@ -287,19 +308,19 @@ To convert to/from base64 string representations of data, there are two function
 These both take a `std::string_view` input, and return a `std::string` output. They use the standard base64 alphabet of A-Za-z0-9+/ with = as the padding character. For example:
 
 ```cpp
-auto encoded = hmr::base64::encode("Hello, World!"); // encoded contains the string "SGVsbG8sIFdvcmxkIQ=="
+std::string encoded = hmr::base64::encode("Hello, World!"); // encoded contains the string "SGVsbG8sIFdvcmxkIQ=="
 
-auto decoded = hmr::base64::decode("SGVsbG8sIFdvcmxkIQ=="); // decoded contains the string "Hello, World!"
+std::string decoded = hmr::base64::decode("SGVsbG8sIFdvcmxkIQ=="); // decoded contains the string "Hello, World!"
 ```
 
 For both functions, you can optionally specify a custom base64 alphabet by passing this as the second argument to the relevant function. This alphabet must contain exactly 64 characters, the final character of which will be used as the padding character, and must not contain any duplicate characters. For example:
 
 ```cpp
-auto encoded = hmr::base64::encode("Hello, World!", "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+"); // encoded contains the string "iglGrgWG0ftJsAL=08++"
+std::string encoded = hmr::base64::encode("Hello, World!", "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+"); // encoded contains the string "iglGrgWG0ftJsAL=08++"
 
-auto decoded = hmr::base64::decode("iglGrgWG0ftJsAL=08++", "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+"); // decoded contains the string "Hello, World!"
+std::string decoded = hmr::base64::decode("iglGrgWG0ftJsAL=08++", "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWXYZ+"); // decoded contains the string "Hello, World!"
 
-auto broken = hmr::base64::encode("This won't work", "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWZZZZ"); // The alphabet contains multiple instances of the same character ('Z'), so an exception of type hmr::xcpt::base64::invalid_alphabet is thrown
+std::string broken  = hmr::base64::encode("This won't work", "abcdefgh0123456789ijklmnopqrstuvwxyz=/ABCDEFGHIJKLMNOPQRSTUVWZZZZ"); // The alphabet contains multiple instances of the same character ('Z'), so an exception of type hmr::xcpt::base64::invalid_alphabet is thrown
 ```
 
 - Todo: Allow the user to toggle on/off the insertion of padding characters
@@ -319,15 +340,15 @@ To convert to/from URL encoded string representations of data, there are two fun
 These both take a `std::string_view` input, and return a `std::string` output. Any characters that fall outside the list of unreserved characters (as defined in RFC 3986, i.e. the alphanumeric chars, plus '-', '.', '\_', and '~') are percent-encoded. For example:
 
 ```cpp
-auto encoded = hmr::url::encode("Hello, World!"); // encoded contains the string "Hello%2C%20World%21"
+std::string encoded = hmr::url::encode("Hello, World!"); // encoded contains the string "Hello%2C%20World%21"
 
-auto decoded = hmr::url::decode("Hello%2C%20World%21"); // decoded contains the string "Hello, World!"
+std::string decoded = hmr::url::decode("Hello%2C%20World%21"); // decoded contains the string "Hello, World!"
 ```
 
 According to RFC 3986, URL encoding routines should convert non-ASCII characters to their UTF-8 byte sequence before percent-encoding. For single bytes, this means any value between \x80-\xFF gets turned into the appropriate two-byte UTF-8 sequence. This is the default behaviour for `hmr::url::encode()` (and for `hmr::url::decode()` in reverse), but you can toggle lazy mode by adding the argument `true` to the function, which will prevent any conversions to/from UTF-8. For example:
 
 ```cpp
-auto encoded = hmr::url::encode(hex::decode("33 44 55 66 77 88 99 AA BB")); // encoded contains the string "3DUfw%C2%88%C2%99%C2%AA%C2%BB" - hex values above \x7F have been converted into two-byte UTF-8 sequences
+std::string encoded = hmr::url::encode(hex::decode("33 44 55 66 77 88 99 AA BB")); // encoded contains the string "3DUfw%C2%88%C2%99%C2%AA%C2%BB" - hex values above \x7F have been converted into two-byte UTF-8 sequences
 
 encoded = hmr::url::encode(hex::decode("33 44 55 66 77 88 99 AA BB"), true); // encoded contains the string "3DUfw%88%99%AA%BB" - with lazy encoding enable, no conversion to UTF-8 takes place
 ```
@@ -335,7 +356,7 @@ encoded = hmr::url::encode(hex::decode("33 44 55 66 77 88 99 AA BB"), true); // 
 When decoding, make sure to enable or disable lazy mode as appropriate, otherwise your data will be corrupted. For example:
 
 ```cpp
-auto decoded = hmr::url::decode("3DUfw%C2%88%C2%99%C2%AA%C2%BB"); // UTF-8 conversion is on by default, so decoded contains the hex value: 33 44 55 66 77 88 99 AA BB
+std::string decoded = hmr::url::decode("3DUfw%C2%88%C2%99%C2%AA%C2%BB"); // UTF-8 conversion is on by default, so decoded contains the hex value: 33 44 55 66 77 88 99 AA BB
 
 decoded = hmr::url::decode("3DUfw%C2%88%C2%99%C2%AA%C2%BB", true); // Lazy mode is on, so decoded contains the hex value: 33 44 55 66 77 C2 88 C2 99 C2 AA C2 BB
 ```
@@ -378,7 +399,7 @@ To generate a string of random bytes, there is the following function:
 This takes a `std::size_t` as its input, and returns a `std::string` populated with the specified number of randomly generated bytes. For example:
 
 ```cpp
-auto random_string = hmr::prng::bytes(16); // random_string will be a std::string of length 16 populated with randomly selected byte values
+std::string random_string = hmr::prng::bytes(16); // random_string will be a std::string of length 16 populated with randomly selected byte values
 ```
 
 - Todo: Add a templated variant to support returning a different kind of container filled with random data, e.g. a `std::vector<uint8_t>`
@@ -401,7 +422,7 @@ To apply various kinds of XOR, there are various overloads of three functions:
 The function `hmr::bitwise::xor_with_key()` takes two inputs - a `std::string_view` for the data, and either a `std::string_view` or `uint8_t` for the key. It performs an XOR across the data using the key, and returns the result as a `std::string`. For example:
 
 ```cpp
-auto xord = hmr::bitwise::xor_with_key("Example data", hmr::hex::decode("01 2A 8C")); // XORs "Example data" with the 3-byte key \x01\x2A\x8C -> xord is a std::string containing "\x44\x52\xED\x6C\x5A\xE0\x64\x0A\xE8\x60\x5E\xED"
+std::string xord = hmr::bitwise::xor_with_key("Example data", hmr::hex::decode("01 2A 8C")); // XORs "Example data" with the 3-byte key \x01\x2A\x8C -> xord is a std::string containing "\x44\x52\xED\x6C\x5A\xE0\x64\x0A\xE8\x60\x5E\xED"
 
 xord = hmr::bitwise::xor_with_key("Example data", 0x42); // XORs "Example data" with the single byte key \x42
 ```
@@ -409,7 +430,7 @@ xord = hmr::bitwise::xor_with_key("Example data", 0x42); // XORs "Example data" 
 The function `hmr::bitwise::xor_rolling()` takes a `std::string_view` input and returns a `std::string` output. It performs a rolling XOR where each byte of the input is XORed against the previous byte (the very first byte is un-changed). By default, this uses input differential mode, where each byte of the input is XORed against the original pre-XOR value of the previous byte. To enable output differential mode, where each byte is XORed with the resulting post-XOR value of the previous byte, add the argument `hmr::bitwise::xor_differential::output` to the function. For example:
 
 ```cpp
-auto xord = hmr::bitwise::xor_rolling("Hello!"); // Input differential mode is used by default, so xord contains the hex value: 48 2D 09 00 03 4E
+std::string xord = hmr::bitwise::xor_rolling("Hello!"); // Input differential mode is used by default, so xord contains the hex value: 48 2D 09 00 03 4E
 
 xord = hmr::bitwise::xor_rolling("Hello!", hmr::bitwise::xor_differential::output); // The scoped enum hmr::bitwise::xor_differential::output enables output differential mode, so xord contains the hex value: 48 2D 41 2D 42 63
 ```
@@ -417,7 +438,7 @@ xord = hmr::bitwise::xor_rolling("Hello!", hmr::bitwise::xor_differential::outpu
 The function `hmr::bitwise::xor_counter()` takes a `std::string_view` input and returns a `std::string` output. It implements a counter-based XOR where the value of the key counts up or down by the specified incrementation amount after each byte of the input has been processed. The starting value for the key defaults to \x00, and the incrementation defaults to +1, but both of these can be changed. The initial key value is specified by passing a `uint8_t` as the second argument to the function, and the incrementation value is specified by passing a signed `int` as the third argument. If the incremention would cause the key value to increase above \xFF, or decrease below \x00, then the key value wraps back around. For example:
 
 ```cpp
-auto xord = hmr::bitwise::xor_counter("Hello, World!"); // Defaults to initial key value \x00 and incremention value +1, resulting in key stream: 00 01 02 03 04 05...etc., meaning xord contains the hex value: 48 64 6E 6F 6B 29 26 50 67 7B 66 6F 2D
+std::string xord = hmr::bitwise::xor_counter("Hello, World!"); // Defaults to initial key value \x00 and incremention value +1, resulting in key stream: 00 01 02 03 04 05...etc., meaning xord contains the hex value: 48 64 6E 6F 6B 29 26 50 67 7B 66 6F 2D
 
 xord = hmr::bitwise::xor_counter("Hello, World!", '\xAA'); // Initial key value \xAA and default incremention value +1, resulting in key stream: AA AB AC AD AE AF...etc., meaning xord contains the hex value: E2 CE C0 C1 C1 83 90 E6 DD C1 D8 D1 97
 
@@ -439,10 +460,10 @@ To perform left/right bit shifts, there are two functions:
 There are two variants of each function. The un-templated variant takes a `std::string_view` input and a `std::size_t` specifying the shift amount (this defaults to 1 if omitted), and returns a `std:string` output which contains the result of shifting each byte of the input by the specified amount. For example:
 
 ```cpp
-auto shifted_left = hmr::bitwise::shift_left(hmr::binary::decode("00110011 00000001")); // shifted_left is a string containing bytes with the binary value: 01100110 00000010
+std::string shifted_left = hmr::bitwise::shift_left(hmr::binary::decode("00110011 00000001")); // shifted_left is a string containing bytes with the binary value: 01100110 00000010
 shifted_left = hmr::bitwise::shift_left(hmr::binary::decode("11110000 00001111"), 4); // shifted_left is a string containing bytes with the binary value: 00000000 11110000
 
-auto shifted_right = hmr::bitwise::shift_right(hmr::binary::decode("11110000"), 3); // shifted_right is a string containing bytes with the binary value: 00011110
+std::string shifted_right = hmr::bitwise::shift_right(hmr::binary::decode("11110000"), 3); // shifted_right is a string containing bytes with the binary value: 00011110
 ```
 
 The templated variant takes an integral value as its input and a `std::size_t` specifying the shift amount, and returns an integral value of the same type. For example:
@@ -462,11 +483,11 @@ To perform left/right bit rotation, there are two function:
 These both take a `std::string_view` input and a `std::size_t` specifying the rotation amount (this defaults to 1 if omitted), and return a `std::string` output containing the result of rotating each byte in the input by the specified amount. By default, these functions perform a bitwise rotation on each byte of the input in isolation (without carry through). To enable carry through, where bits from one byte can be carried through to the next byte, add the argument `hmr::bitwise::carry_through::enabled` to the function. For example:
 
 ```cpp
-auto rotate_left = hmr::bitwise::rotate_left(hmr::binary::decode("11110000 00111100", 4)); // rotate_left is a string containing bytes with the binary value: 00001111 11000011
+std::string rotate_left = hmr::bitwise::rotate_left(hmr::binary::decode("11110000 00111100", 4)); // rotate_left is a string containing bytes with the binary value: 00001111 11000011
 
 rotate_left = hmr::bitwise::rotate_left(hmr::binary::decode("11110000 00111100", 4), hmr::bitwise::carry_through::enabled); // rotate_left is a string containing bytes with the binary value: 00000011 11001111
 
-auto rotate_right = hmr::bitwise::rotate_left(hmr::binary::decode("11110000 00111100", 2)); // rotate_right is a string containing bytes with the binary value: 11000011 11110000
+std::string rotate_right = hmr::bitwise::rotate_left(hmr::binary::decode("11110000 00111100", 2)); // rotate_right is a string containing bytes with the binary value: 11000011 11110000
 
 rotate_right = hmr::bitwise::rotate_left(hmr::binary::decode("11110000 00111100", 2), hmr::bitwise::carry_through::enabled); // rotate_rotate_rightleft is a string containing bytes with the binary value: 11000000 11110011
 ```
@@ -485,13 +506,13 @@ The Hamming distance between two equal-length inputs is the number of bits that 
 This takes two `std::string_view` inputs, and return a `std::size_t` output set to the number of bits that differ between each input. For example:
 
 ```cpp
-auto diff = hmr::analysis::hamming_distance("this is a test", "wokka wokka!!!"); // diff is set to 37
+std::size_t diff = hmr::analysis::hamming_distance("this is a test", "wokka wokka!!!"); // diff is set to 37
 ```
 
 If the inputs are not of equal length, only the shorter length input's worth of bits will be compared. For example:
 
 ```cpp
-auto diff = hmr::analysis::hamming_distance("this is a testEXTRASTUFF", "wokka wokka!!!"); // diff is still set to 37, as EXTRASTUFF is ignored
+std::size_t diff = hmr::analysis::hamming_distance("this is a testEXTRASTUFF", "wokka wokka!!!"); // diff is still set to 37, as EXTRASTUFF is ignored
 ```
 
 - Todo: Add support for non-string/string_view inputs
@@ -505,7 +526,7 @@ To calculate the Shannon entropy of a given input, there is the following functi
 This takes a `std::string_view` input and returns a `double` with the calculated entropy. Given 256 possible values for a given byte, the maximum possible entropy value for a string is log2(256) which is 8 (representing complete randomness). The minimum possible value is 0 (indicating that all the bytes of the input are identical). For example:
 
 ```cpp
-auto entropy = hmr::analysis::entropy("Hello, World!"); // entropy is a double set to 3.18083
+double entropy = hmr::analysis::entropy("Hello, World!"); // entropy is a double set to 3.18083
 ```
 
 #### Character frequency
@@ -513,7 +534,7 @@ auto entropy = hmr::analysis::entropy("Hello, World!"); // entropy is a double s
 The function `hmr::analysis::character_frequency()` can be used to count the number of times each character occurs in a given string. This takes a `std::string_view` input, and returns a `std::vector<std::size_t>` containing a count for each byte. The index into the `std::vector` is the byte value, and the value at that index is the count. By default this is case sensitive, but to make it case insensitive add the argument `hmr::analysis::case_sensitivity::disabled` to the function. For example:
 
 ```cpp
-auto freqs = hmr::analysis::character_frequency("Mix OF upPer AND LOWER"); // freqs['p'] == 1, freqs['P'] == 1, freqs['e'] == 1
+std::vector<std::size_t> freqs = hmr::analysis::character_frequency("Mix OF upPer AND LOWER"); // freqs['p'] == 1, freqs['P'] == 1, freqs['e'] == 1
 
 freqs = hmr::analysis::character_frequency("Mix OF upPer AND LOWER", hmr::analysis::case_sensitivity::disabled); // freqs['p'] == 2, freqs['e'] == 2
 ```
@@ -523,7 +544,7 @@ freqs = hmr::analysis::character_frequency("Mix OF upPer AND LOWER", hmr::analys
 The function `hmr::analysis::looks_like_english()` can be used to assess whether a given string appears to be English text (or at least, printable English-like ASCII). This takes a `std::string_view` input, and returns a `bool` indicating whether it passed or failed the various tests that it applies. These include checks for the presence of un-printable characters, the presence of more punctuation characters than alphanumeric characters, more uppercase than lowercase letters, etc. Short input strings are prone to false negatives. In theory, this should correctly identify English-like text, even if fed a random selection of characters taken from a genuine English text. For example:
 
 ```cpp
-auto result = hmr::analysis::looks_like_english("Hello, World!"); // result is: false <- this is an example of a false negative, given the short input string
+bool result = hmr::analysis::looks_like_english("Hello, World!"); // result is: false <- this is an example of a false negative, given the short input string
 
 result = hmr::analysis::looks_like_english("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."); // result is: true
 
@@ -588,7 +609,7 @@ This takes a `std::string_view` input and a `std::size_t` specifying the block s
 For example:
 
 ```cpp
-auto result = hmr::pkcs7::pad("Hello, World!"); // result is a string containing bytes with the hex value: "48 65 6C 6C 6F 2C 20 57 6F 72 6C 64 21 03 03 03". This is because the input is 13 bytes long, and the default block size is 16 bytes, so 3 padding bytes with the hex value \x03 are appended.
+std::string result = hmr::pkcs7::pad("Hello, World!"); // result is a string containing bytes with the hex value: "48 65 6C 6C 6F 2C 20 57 6F 72 6C 64 21 03 03 03". This is because the input is 13 bytes long, and the default block size is 16 bytes, so 3 padding bytes with the hex value \x03 are appended.
 
 bool has_padding = hmr::pkcs7::padded(result); // has_padding is true
 
@@ -615,7 +636,7 @@ The `hmr::kvp::serialise()` function takes a `std::map<std::string, std::string>
 ```cpp
 auto kvps = std::map<std::string, std::string>{{"key1", "value1"}, {"key2", "value2"}, {"key3", "value3"}};
 
-auto serialised = hmr::kvp::serialise(kvps); // serialised contains the string "key1=value1&key2=value2&key3=value3"
+std::string serialised = hmr::kvp::serialise(kvps); // serialised contains the string "key1=value1&key2=value2&key3=value3"
 auto deserialised = hmr::kvp::deserialise("key1=value1&key2=value2&key3=value3"); // deserialised == kvps
 ```
 
@@ -631,7 +652,7 @@ To generate a random UUID, there is the following function:
 This takes no inputs, and returns a `std::string` output containing a randomly generated UUID. This does NOT currently conform to the UUID specification as outlined in RFC 4122 - it is just a randomly generated string in a UUID-style 8-4-4-4-12 format, in uppercase. For example:
 
 ```cpp
-auto uuid = hmr::uuid::generate(); // uuid is a string containing a randomly generated uppercase UUID such as "1A631FB6-AC62-03F1-34F1-570AD5AE026D"
+std::string uuid = hmr::uuid::generate(); // uuid is a string containing a randomly generated uppercase UUID such as "1A631FB6-AC62-03F1-34F1-570AD5AE026D"
 ```
 
 - Todo: Implement a proper RFC 4122-compliant UUID generator
@@ -658,17 +679,17 @@ These are just convenience functions that use the OpenSSL AES 128 encryption/dec
 The ECB functions both take two `std::string_view` inputs, one for the plaintext/ciphertext, and one for the key (this must be exactly 16 byes). The `hmr::crypto::aes_ecb_decrypt()` function also takes an optional `bool` indicating whether padding should be remove or not (this defaults to `true`). For example:
 
 ```cpp
-auto ciphertext = hmr::crypto::aes_ecb_encrypt("Hello, World!", "YELLOW SUBMARINE"); // ciphertext is a string containing the result of AES encrypting "Hello, World!" with the key "YELLOW SUBMARINE" in ECB mode
-auto plaintext = hmr::crypto::aes_ecb_decrypt(ciphertext, "YELLOW SUBMARINE"); // plaintext is the string "Hello, World!"
-auto still_padded = hmr::crypto::aes_ecb_decrypt(ciphertext, "YELLOW SUBMARINE", false); // Padding removal has been disabled, so plaintext is the string "Hello, World!\x03\x03\x03" with the 3 bytes of PKCS7 padding still there
+std::string ciphertext   = hmr::crypto::aes_ecb_encrypt("Hello, World!", "YELLOW SUBMARINE"); // ciphertext is a string containing the result of AES encrypting "Hello, World!" with the key "YELLOW SUBMARINE" in ECB mode
+std::string plaintext    = hmr::crypto::aes_ecb_decrypt(ciphertext, "YELLOW SUBMARINE"); // plaintext is the string "Hello, World!"
+std::string still_padded = hmr::crypto::aes_ecb_decrypt(ciphertext, "YELLOW SUBMARINE", false); // Padding removal has been disabled, so plaintext is the string "Hello, World!\x03\x03\x03" with the 3 bytes of PKCS7 padding still there
 ```
 
 Similar to the ECB functions, the CBC mode functions both take two `std::string_view` inputs, one for the plaintext/ciphertext, one for the key (this must be exactly 16 byes), and optionally a `std::string` for the IV (this must also be exactly 16 bytes, and defaults to all nulls if omitted). The `hmr::crypto::aes_cbc_decrypt()` function also takes an optional `bool` indicating whether padding should be remove or not (this defaults to `true`). For example:
 
 ```cpp
-auto ciphertext = hmr::crypto::aes_cbc_encrypt("Hello, World!", "ORANGE SUBMARINE", "ORANGE SUBMARINE"); // ciphertext is a string containing the result of AES encrypting "Hello, World!" with the key and IV "ORANGE SUBMARINE" in CBC mode
-auto plaintext = hmr::crypto::aes_cbc_decrypt(ciphertext, "ORANGE SUBMARINE", "ORANGE SUBMARINE"); // plaintext is the string "Hello, World!"
-auto still_padded = hmr::crypto::aes_cbc_decrypt(ciphertext, "ORANGE SUBMARINE", "ORANGE SUBMARINE", false); // Padding removal has been disabled, so plaintext is the string "Hello, World!\x03\x03\x03" with the 3 bytes of PKCS7 padding still there
+std::string ciphertext   = hmr::crypto::aes_cbc_encrypt("Hello, World!", "ORANGE SUBMARINE", "ORANGE SUBMARINE"); // ciphertext is a string containing the result of AES encrypting "Hello, World!" with the key and IV "ORANGE SUBMARINE" in CBC mode
+std::string plaintext    = hmr::crypto::aes_cbc_decrypt(ciphertext, "ORANGE SUBMARINE", "ORANGE SUBMARINE"); // plaintext is the string "Hello, World!"
+std::string still_padded = hmr::crypto::aes_cbc_decrypt(ciphertext, "ORANGE SUBMARINE", "ORANGE SUBMARINE", false); // Padding removal has been disabled, so plaintext is the string "Hello, World!\x03\x03\x03" with the 3 bytes of PKCS7 padding still there
 ```
 
 - Todo: Implement convenience functions for other common encryption algorithms, e.g. DES, Triple DES, etc.
@@ -694,9 +715,9 @@ These are just convenience functions that use the OpenSSL EVP message digest fun
 All functions take a `std::string_view` input, and return a `std::string` output. The `_raw` variants return a `std::string` containing the raw bytes generated by the hashing function, whereas the regular variants return a lowercase hex representation of the hash. For example:
 
 ```cpp
-auto md5_hash = hmr::crypto::md5("Hello, World!"); // md5_hash is the 32-byte string "65a8e27d8879283831b664bd8b7f0ad4"
+std::string md5_hash = hmr::crypto::md5("Hello, World!"); // md5_hash is the 32-byte string "65a8e27d8879283831b664bd8b7f0ad4"
 
-auto md5_raw_hash = hmr::crypto::md5_raw("Hello, World!"); // md5_raw_hash is the 16-byte string "\x65\xa8\xe2\x7d\x88\x79\x28\x38\x31\xb6\x64\xbd\x8b\x7f\x0a\xd4"
+std::string md5_raw_hash = hmr::crypto::md5_raw("Hello, World!"); // md5_raw_hash is the 16-byte string "\x65\xa8\xe2\x7d\x88\x79\x28\x38\x31\xb6\x64\xbd\x8b\x7f\x0a\xd4"
 ```
 
 - Todo: Implement more hash varieties.

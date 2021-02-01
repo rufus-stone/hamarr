@@ -14,31 +14,29 @@ namespace hmr::binary
 {
 
 ////////////////////////////////////////////////////////////
-std::string encode(std::string_view input, bool delimited = true) noexcept;
+auto encode(std::string_view input, bool delimited = true) noexcept -> std::string;
 
 
 ////////////////////////////////////////////////////////////
 template<typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
-std::string encode(T input, bool delimited = true) noexcept
+auto encode(T input, bool delimited = true) noexcept -> std::string
 {
   if (delimited)
   {
     // How many bytes is the integral value?
     std::size_t const s = sizeof(input);
 
-    std::string output;
+    auto output = std::string{};
     output.reserve(s + (s - 1));
 
     // There's probably a smarter way to do this, but for now just manually code in options for 1, 2, 4 and 8 byte integrals
     switch (s)
     {
-      case 1:
-      {
+      case 1: {
         auto bits = std::bitset<8>(input);
         return bits.to_string();
       }
-      case 2:
-      {
+      case 2: {
         uint8_t a = (input & 0xFF00) >> 8;
         uint8_t b = (input & 0x00FF);
 
@@ -51,8 +49,7 @@ std::string encode(T input, bool delimited = true) noexcept
         output += bits.to_string();
         return output;
       }
-      case 4:
-      {
+      case 4: {
         uint8_t a = (input & 0xFF000000) >> 24;
         uint8_t b = (input & 0x00FF0000) >> 16;
         uint8_t c = (input & 0x0000FF00) >> 8;
@@ -78,8 +75,7 @@ std::string encode(T input, bool delimited = true) noexcept
 
         return output;
       }
-      case 8:
-      {
+      case 8: {
         uint8_t a = (input & 0xFF00000000000000) >> 56;
         uint8_t b = (input & 0x00FF000000000000) >> 48;
         uint8_t c = (input & 0x0000FF0000000000) >> 40;
@@ -129,8 +125,7 @@ std::string encode(T input, bool delimited = true) noexcept
 
         return output;
       }
-      default:
-      {
+      default: {
         return std::string{};
       }
     }
@@ -145,12 +140,12 @@ std::string encode(T input, bool delimited = true) noexcept
 
 
 ////////////////////////////////////////////////////////////
-std::string decode(std::string const &input);
+auto decode(std::string const &input) -> std::string;
 
 
 ////////////////////////////////////////////////////////////
 template<typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
-T decode(std::string const &input)
+auto decode(std::string const &input) -> T
 {
   // Strip any spaces
   std::string tmp = input;

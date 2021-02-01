@@ -7,6 +7,6 @@ namespace hmr::uuid
 {
 
 ////////////////////////////////////////////////////////////
-std::string generate() noexcept;
+auto generate() noexcept -> std::string;
 
 } // namespace hmr::uuid

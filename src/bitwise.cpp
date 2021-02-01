@@ -5,17 +5,19 @@
 namespace hmr::bitwise
 {
 
+static constexpr std::size_t bits_per_byte = 8;
+
 ////////////////////////////////////////////////////////////
-std::string xor_with_key(std::string_view input, std::string_view key) noexcept
+auto xor_with_key(std::string_view input, std::string_view key) noexcept -> std::string
 {
-  std::string output;
+  auto output = std::string{};
   output.reserve(input.size());
 
   auto const len = input.size();
 
   for (std::size_t i = 0; i < len; ++i)
   {
-    output.push_back(input[i] ^ key[i % key.size()]);
+    output.push_back(static_cast<uint8_t>(input[i]) ^ static_cast<uint8_t>(key[i % key.size()]));
   }
 
   return output;
@@ -23,24 +25,22 @@ std::string xor_with_key(std::string_view input, std::string_view key) noexcept
 
 
 ////////////////////////////////////////////////////////////
-std::string xor_with_key(std::string_view input, uint8_t key) noexcept
+auto xor_with_key(std::string_view input, uint8_t key) noexcept -> std::string
 {
-  std::string output;
+  auto output = std::string{};
   output.reserve(input.size());
 
   std::transform(std::begin(input), std::end(input), std::back_inserter(output), [&key](uint8_t const &ch)
-  {
-    return (ch ^ key);
-  });
+    { return (ch ^ key); });
 
   return output;
 }
 
 
 ////////////////////////////////////////////////////////////
-std::string xor_rolling(std::string_view input, xor_differential differential) noexcept
+auto xor_rolling(std::string_view input, xor_differential differential) noexcept -> std::string
 {
-  std::string output;
+  auto output = std::string{};
   output.reserve(input.size());
 
   auto const len = input.size();
@@ -54,12 +54,12 @@ std::string xor_rolling(std::string_view input, xor_differential differential) n
     // In input differential mode, XOR each byte with the original pre-XOR value of the previous byte
     if (differential == xor_differential::input)
     {
-      output.push_back(input[i] ^ input[i - 1]);
+      output.push_back(static_cast<uint8_t>(input[i]) ^ static_cast<uint8_t>(input[i - 1]));
 
       // In output differential mode, XOR each byte with the resulting post-XOR value of the previous byte
     } else if (differential == xor_differential::output)
     {
-      output.push_back(input[i] ^ output[i - 1]);
+      output.push_back(static_cast<uint8_t>(input[i]) ^ static_cast<uint8_t>(output[i - 1]));
     }
   }
 
@@ -68,18 +68,20 @@ std::string xor_rolling(std::string_view input, xor_differential differential) n
 
 
 ////////////////////////////////////////////////////////////
-std::string xor_counter(std::string_view input, uint8_t key, int increment) noexcept
+auto xor_counter(std::string_view input, uint8_t key, int increment) noexcept -> std::string
 {
-  std::string output;
+  static constexpr std::size_t max_key_val = 256;
+
+  auto output = std::string{};
   output.reserve(input.size());
 
   for (auto const &ch : input)
   {
-    uint8_t a = static_cast<uint8_t>(ch ^ key);
+    uint8_t a = static_cast<uint8_t>(ch) ^ key;
 
-    output.push_back(char(a));
+    output.push_back(a);
 
-    key = (key + increment) % 256;
+    key = (key + increment) % max_key_val;
   }
 
   return output;
@@ -87,84 +89,78 @@ std::string xor_counter(std::string_view input, uint8_t key, int increment) noex
 
 
 ////////////////////////////////////////////////////////////
-std::string shift_left(std::string_view input, std::size_t amount) noexcept
+auto shift_left(std::string_view input, std::size_t amount) noexcept -> std::string
 {
-  std::string output;
+  auto output = std::string{};
   output.reserve(input.size());
 
-  if (amount > 8)
+  if (amount > bits_per_byte)
   {
-    amount %= 8;
+    amount %= bits_per_byte;
   }
 
   std::transform(std::begin(input), std::end(input), std::back_inserter(output), [&amount](char const &ch)
-  {
-    return (ch << amount);
-  });
+    { return (static_cast<uint8_t>(ch) << amount); });
 
   return output;
 }
 
 
 ////////////////////////////////////////////////////////////
-std::string shift_right(std::string_view input, std::size_t amount) noexcept
+auto shift_right(std::string_view input, std::size_t amount) noexcept -> std::string
 {
-  std::string output;
+  auto output = std::string{};
   output.reserve(input.size());
 
-  if (amount > 8)
+  if (amount > bits_per_byte)
   {
-    amount %= 8;
+    amount %= bits_per_byte;
   }
 
   std::transform(std::begin(input), std::end(input), std::back_inserter(output), [&amount](char const &ch)
-  {
-    return (ch >> amount);
-  });
+    { return (static_cast<uint8_t>(ch) >> amount); });
 
   return output;
 }
 
 
 ////////////////////////////////////////////////////////////
-std::string rotate_left(std::string_view input, std::size_t amount, carry_through carry) noexcept
+auto rotate_left(std::string_view input, std::size_t amount, carry_through carry) noexcept -> std::string
 {
   auto const len = input.size();
 
-  std::string output;
+  auto output = std::string{};
 
   if (carry == carry_through::disabled)
   {
-    if (amount > 8)
+    if (amount > bits_per_byte)
     {
-      amount %= 8;
+      amount %= bits_per_byte;
     }
 
     output.reserve(len);
 
     std::transform(std::begin(input), std::end(input), std::back_inserter(output), [&amount](uint8_t const ch)
-    {
-      auto tmp = ch;
-
-      for (std::size_t n = 0; n < amount; ++n)
       {
-        // Is there a bit that needs wrapping around?
-        uint8_t carry_bit = (tmp >> 7) & 1;
-        tmp = (tmp << 1) | carry_bit;
-      }
+        auto tmp = ch;
 
-      return tmp;
-    });
+        for (std::size_t n = 0; n < amount; ++n)
+        {
+          // Is there a bit that needs wrapping around?
+          uint8_t carry_bit = (tmp >> 7U) & 1U;
+          tmp = (tmp << 1U) | carry_bit;
+        }
 
-    return output;
+        return tmp;
+      });
 
   } else if (carry == carry_through::enabled)
   {
     output = input;
 
-    if (amount > (len * 8))
+    if (amount > (len * bits_per_byte))
     {
-      amount %= (len * 8);
+      amount %= (len * bits_per_byte);
     }
 
     // Loop through the input the amount of times we want to perform the rotation
@@ -174,13 +170,13 @@ std::string rotate_left(std::string_view input, std::size_t amount, carry_throug
 
       for (auto iter = std::rbegin(output); iter < std::rend(output); ++iter)
       {
-        uint8_t tmp = static_cast<uint8_t>(*iter);
+        auto tmp = static_cast<uint8_t>(*iter);
 
         // Check if there is a bit on the end of this byte that will need carrying forwards to the next byte
-        uint8_t next_carry_bit = (tmp >> 7) & 1;
+        uint8_t next_carry_bit = (tmp >> 7U) & 1U;
 
         // Now shift the current byte 1 space to the right, and add on any bit that was carried forward from the previous char
-        tmp = (tmp << 1) | previous_carry_bit;
+        tmp = (tmp << 1U) | previous_carry_bit;
 
         // Update previous_carry_bit ahead of the next run through
         previous_carry_bit = next_carry_bit;
@@ -199,44 +195,42 @@ std::string rotate_left(std::string_view input, std::size_t amount, carry_throug
 
 
 ////////////////////////////////////////////////////////////
-std::string rotate_right(std::string_view input, std::size_t amount, carry_through carry) noexcept
+auto rotate_right(std::string_view input, std::size_t amount, carry_through carry) noexcept -> std::string
 {
   auto const len = input.size();
 
-  std::string output;
+  auto output = std::string{};
 
   if (carry == carry_through::disabled)
   {
-    if (amount > 8)
+    if (amount > bits_per_byte)
     {
-      amount %= 8;
+      amount %= bits_per_byte;
     }
 
     output.reserve(len);
 
     std::transform(std::begin(input), std::end(input), std::back_inserter(output), [&amount](uint8_t const ch)
-    {
-      auto tmp = ch;
-
-      for (std::size_t n = 0; n < amount; ++n)
       {
-        // Is there a bit that needs wrapping around?
-        uint8_t carry_bit = (tmp & 1) << 7;
-        tmp = (tmp >> 1) | carry_bit;
-      }
+        auto tmp = ch;
 
-      return tmp;
-    });
+        for (std::size_t n = 0; n < amount; ++n)
+        {
+          // Is there a bit that needs wrapping around?
+          uint8_t carry_bit = (tmp & 1U) << 7U;
+          tmp = (tmp >> 1U) | carry_bit;
+        }
 
-    return output;
+        return tmp;
+      });
 
   } else if (carry == carry_through::enabled)
   {
     output = input;
 
-    if (amount > (len * 8))
+    if (amount > (len * bits_per_byte))
     {
-      amount %= (len * 8);
+      amount %= (len * bits_per_byte);
     }
 
     // Loop through the input the amount of times we want to perform the rotation
@@ -246,7 +240,7 @@ std::string rotate_right(std::string_view input, std::size_t amount, carry_throu
 
       for (auto &ch : output)
       {
-        uint8_t tmp = static_cast<uint8_t>(ch);
+        auto tmp = static_cast<uint8_t>(ch);
 
         // Check if there is a bit on the end of this byte that will need carrying forwards to the next byte
         uint8_t next_carry_bit = (tmp & 1U) << 7U;

@@ -32,7 +32,7 @@ namespace format
     need_more_data(std::string const &msg) : base(msg) {}
   };
 
-} // namespace url
+} // namespace format
 
 
 namespace hex
@@ -127,7 +127,7 @@ namespace kvp
     parse_error(std::string const &msg) : base(msg) {}
   };
 
-} // namespace url
+} // namespace kvp
 
 
 namespace crypto
@@ -138,7 +138,7 @@ namespace crypto
   public:
     invalid_input(std::string const &msg) : base(msg) {}
   };
-  
+
   ////////////////////////////////////////////////////////////
   class invalid_key_length : public base
   {
@@ -153,7 +153,7 @@ namespace crypto
     invalid_iv_length(std::string const &msg) : base(msg) {}
   };
 
-} // namespace url
+} // namespace crypto
 
 
 } // namespace hmr::xcpt

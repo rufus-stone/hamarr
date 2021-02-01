@@ -7,7 +7,7 @@ namespace hmr::uuid
 {
 
 ////////////////////////////////////////////////////////////
-std::string generate() noexcept
+auto generate() noexcept -> std::string
 {
   auto uuid = hmr::hex::encode(hmr::prng::bytes(16), false);
 

@@ -9,9 +9,9 @@ namespace hmr::fmt
 {
 
 ////////////////////////////////////////////////////////////
-std::string to_upper(std::string_view input)
+auto to_upper(std::string_view input) -> std::string
 {
-  std::string output;
+  auto output = std::string{};
   output.reserve(input.size());
 
   std::transform(input.begin(), input.end(), std::back_inserter(output), [](unsigned char const ch)
@@ -21,9 +21,9 @@ std::string to_upper(std::string_view input)
 
 
 ////////////////////////////////////////////////////////////
-std::string to_lower(std::string_view input)
+auto to_lower(std::string_view input) -> std::string
 {
-  std::string output;
+  auto output = std::string{};
   output.reserve(input.size());
 
   std::transform(input.begin(), input.end(), std::back_inserter(output), [](unsigned char const ch)
@@ -33,9 +33,9 @@ std::string to_lower(std::string_view input)
 
 
 ////////////////////////////////////////////////////////////
-std::string escape(std::string_view input)
+auto escape(std::string_view input) -> std::string
 {
-  std::string output;
+  auto output = std::string{};
   output.reserve(input.size());
 
   for (auto const &c : input)
@@ -70,12 +70,12 @@ std::string escape(std::string_view input)
 
 
 ////////////////////////////////////////////////////////////
-std::string unescape(std::string_view input)
+auto unescape(std::string_view input) -> std::string
 {
-  std::string output;
+  auto output = std::string{};
   output.reserve(input.size());
 
-  for (auto pos = std::begin(input); pos != std::end(input); ++pos)
+  for (auto const *pos = std::begin(input); pos != std::end(input); ++pos)
   {
     // Is it an escape sequence?
     if (*pos == '\\')
@@ -148,9 +148,9 @@ auto split(std::string_view input, char delimiter, bool collapse_adjacent_delimi
   // Divide the input up into segments by splitting around the delimiter
   auto segments = std::vector<std::string>{};
 
-  auto start = std::begin(input);
-  auto pos = std::begin(input);
-  auto previous_pos = pos;
+  auto const *start = std::begin(input);
+  auto const *pos = std::begin(input);
+  auto const *previous_pos = pos;
 
   while (pos != std::end(input))
   {
@@ -191,9 +191,9 @@ auto split(std::string_view input, std::string_view delimiters, bool collapse_ad
   // Divide the input up into segments by splitting around any of the specified delimiters
   auto segments = std::vector<std::string>{};
 
-  auto start = std::begin(input);
-  auto pos = std::begin(input);
-  auto previous_pos = pos;
+  auto const *start = std::begin(input);
+  auto const *pos = std::begin(input);
+  auto const *previous_pos = pos;
 
   while (pos != std::end(input))
   {
@@ -233,13 +233,8 @@ auto split(std::string_view input, std::string_view delimiters, bool collapse_ad
 auto lstrip(std::string_view input, std::string_view any_of_these) -> std::string_view
 {
   std::size_t const pos = input.find_first_not_of(any_of_these);
-  if (pos == std::string_view::npos)
-  {
-    return input;
-  } else
-  {
-    return input.substr(pos);
-  }
+
+  return (pos == std::string_view::npos) ? input : input.substr(pos);
 }
 
 
@@ -247,13 +242,8 @@ auto lstrip(std::string_view input, std::string_view any_of_these) -> std::strin
 auto rstrip(std::string_view input, std::string_view any_of_these) -> std::string_view
 {
   std::size_t const pos = input.find_last_not_of(any_of_these);
-  if (pos == std::string_view::npos)
-  {
-    return input;
-  } else
-  {
-    return input.substr(0, pos + 1);
-  }
+
+  return (pos == std::string_view::npos) ? input : input.substr(0, pos + 1);
 }
 
 ////////////////////////////////////////////////////////////
